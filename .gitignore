@@ -23,8 +23,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-reglas.txt
-
+/docs/reglas.txt
 /docs/dependencias-instaladas.md
 /docs/scout-configuracion.md
 /docs/estado-proyecto.md
