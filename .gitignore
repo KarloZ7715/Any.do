@@ -23,20 +23,24 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
+# Documentación personal
 /docs/reglas.txt
 /docs/dependencias-instaladas.md
 /docs/scout-configuracion.md
 /docs/estado-proyecto.md
 /docs/notas-desarrollo.md
+/docs/Any.do-DWII.pdf
+/docs/analisis-completo-proyecto.md
 
+# READMEs de arquitectura
 /app/services/README.md
 /app/repositories/README.md
 /app/actions/README.md
 /app/data/README.md
 /app/query-builders/README.md
 
+# Archivos SQL locales
 /database/anydo_db.sql
-/database/anydo_db_laravel.sql
 /database/migration_script.sql
 
 /resources/js/auto-imports.d.ts
