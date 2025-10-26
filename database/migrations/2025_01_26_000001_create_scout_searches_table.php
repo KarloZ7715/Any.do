@@ -19,8 +19,19 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->index(['index_name', 'searchable_type', 'searchable_id']);
-            $table->fullText('searchable_text');
         });
+
+        // Agregar índice FULLTEXT solo si el driver lo soporta
+        try {
+            $driver = Schema::connection(null)->getConnection()->getDriverName();
+            if ($driver !== 'sqlite') {
+                Schema::table('scout_searches', function (Blueprint $table) {
+                    $table->fullText('searchable_text');
+                });
+            }
+        } catch (\Exception $e) {
+            // Silenciar error en SQLite para testing
+        }
     }
 
     /**

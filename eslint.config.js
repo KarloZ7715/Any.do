@@ -167,10 +167,42 @@ export default [
                 process: "readonly",
                 __dirname: "readonly",
                 __filename: "readonly",
+                URL: "readonly",
             },
         },
         rules: {
             "no-console": "off",
+        },
+    },
+
+    // Configuración para archivos de testing
+    {
+        files: ["tests/**/*.{js,ts}", "**/*.test.{js,ts}", "**/*.spec.{js,ts}"],
+        languageOptions: {
+            globals: {
+                // Vitest globals
+                describe: "readonly",
+                it: "readonly",
+                test: "readonly",
+                expect: "readonly",
+                beforeEach: "readonly",
+                afterEach: "readonly",
+                beforeAll: "readonly",
+                afterAll: "readonly",
+                vi: "readonly",
+                // Node globals
+                global: "readonly",
+                // Browser globals
+                window: "readonly",
+                document: "readonly",
+                // Custom globals
+                route: "readonly",
+                URLSearchParams: "readonly",
+            },
+        },
+        rules: {
+            "no-console": "off",
+            "no-undef": "off",
         },
     },
 ];

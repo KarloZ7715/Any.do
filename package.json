@@ -6,7 +6,10 @@
         "build": "vite build",
         "dev": "vite",
         "lint": "eslint resources/js --ext .js,.vue",
-        "lint:fix": "eslint resources/js --ext .js,.vue --fix"
+        "lint:fix": "eslint resources/js --ext .js,.vue --fix",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest --coverage"
     },
     "devDependencies": {
         "@eslint/js": "^9.38.0",

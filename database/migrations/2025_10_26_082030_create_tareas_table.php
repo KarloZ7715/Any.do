@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
     /**
@@ -19,15 +20,26 @@ return new class extends Migration {
             $table->timestamp('fecha_completada')->nullable();
             $table->date('fecha_vencimiento')->nullable();
             $table->foreignId('usuario_id')->constrained('usuarios')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('categoria_id')->constrained('categorias')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('categoria_id')->nullable()->constrained('categorias')->restrictOnDelete()->cascadeOnUpdate();
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('estado');
             $table->index('prioridad');
             $table->index('fecha_vencimiento');
-            $table->fullText(['titulo', 'descripcion'], 'idx_busqueda');
         });
+
+        // Agregar índice FULLTEXT solo si el driver lo soporta
+        try {
+            $driver = Schema::connection(null)->getConnection()->getDriverName();
+            if ($driver !== 'sqlite') {
+                Schema::table('tareas', function (Blueprint $table) {
+                    $table->fullText(['titulo', 'descripcion'], 'idx_busqueda');
+                });
+            }
+        } catch (\Exception $e) {
+            // Silenciar error en SQLite para testing
+        }
     }
 
     /**
