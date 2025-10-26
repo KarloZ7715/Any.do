@@ -29,6 +29,12 @@ Thumbs.db
 /docs/estado-proyecto.md
 /docs/notas-desarrollo.md
 
+/app/services/README.md
+/app/repositories/README.md
+/app/actions/README.md
+/app/data/README.md
+/app/query-builders/README.md
+
 /database/anydo_db.sql
 /database/anydo_db_laravel.sql
 /database/migration_script.sql
