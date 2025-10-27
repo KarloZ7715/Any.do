@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\TareaData;
+use App\Http\Resources\TareaResource;
 use App\Models\Tarea;
 use App\Services\TareaService;
 use Illuminate\Http\RedirectResponse;
@@ -53,7 +54,7 @@ class TareaController extends Controller
         $tareas = $this->tareaService->obtenerTareasFiltradas($filtros, $perPage);
 
         return Inertia::render('Tareas/Index', [
-            'tareas' => $tareas,
+            'tareas' => TareaResource::collection($tareas),
             'filtros' => $filtros,
         ]);
     }
