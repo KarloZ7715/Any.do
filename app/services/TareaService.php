@@ -23,21 +23,14 @@ class TareaService
 
     /**
      * Obtener tareas con filtros aplicados.
+     * 
+     * @param array $filtros Filtros: usuario_id, estado, prioridad, categoria_id, vencimiento, buscar, ordenar, direccion
+     * @param int $perPage Tareas por página
+     * @return LengthAwarePaginator
      */
-    public function obtenerTareasFiltradas(
-        ?int $usuarioId = null,
-        ?string $estado = null,
-        ?int $categoriaId = null,
-        ?int $prioridad = null,
-        int $perPage = 15
-    ): LengthAwarePaginator {
-        return $this->tareaRepository->filtrarTareas(
-            usuarioId: $usuarioId,
-            estado: $estado,
-            categoriaId: $categoriaId,
-            prioridad: $prioridad,
-            perPage: $perPage
-        );
+    public function obtenerTareasFiltradas(array $filtros = [], int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->tareaRepository->filtrarTareas($filtros, $perPage);
     }
 
     /**
@@ -57,20 +50,19 @@ class TareaService
     }
 
     /**
-     * Completar una tarea.
-     */
-    public function completarTarea(Tarea $tarea): Tarea
-    {
-        $tarea->completar();
-        return $tarea->fresh();
-    }
-
-    /**
      * Eliminar una tarea (soft delete).
      */
     public function eliminarTarea(Tarea $tarea): bool
     {
         return $this->tareaRepository->eliminar($tarea);
+    }
+
+    /**
+     * Alternar estado de una tarea (pendiente <-> completada).
+     */
+    public function toggleEstado(Tarea $tarea): Tarea
+    {
+        return $this->tareaRepository->toggleEstado($tarea);
     }
 
     /**
@@ -82,26 +74,26 @@ class TareaService
     }
 
     /**
+     * Obtener tareas para los próximos 7 días.
+     */
+    public function obtenerTareas7Dias(int $usuarioId): Collection
+    {
+        return $this->tareaRepository->tareas7Dias($usuarioId);
+    }
+
+    /**
+     * Obtener tareas por categoría.
+     */
+    public function obtenerTareasPorCategoria(int $categoriaId, ?int $usuarioId = null): Collection
+    {
+        return $this->tareaRepository->tareasPorCategoria($categoriaId, $usuarioId);
+    }
+
+    /**
      * Obtener estadísticas de tareas de un usuario.
      */
     public function obtenerEstadisticas(int $usuarioId): array
     {
-        $tareas = $this->tareaRepository->tareasPorUsuario($usuarioId);
-
-        return [
-            'total' => $tareas->count(),
-            'pendientes' => $tareas->where('estado', 'pendiente')->count(),
-            'completadas' => $tareas->where('estado', 'completada')->count(),
-            'vencidas' => $tareas->filter(fn($tarea) => $tarea->estaVencida())->count(),
-            'alta_prioridad' => $tareas->where('prioridad', 1)->count(),
-        ];
-    }
-
-    /**
-     * Buscar tareas por texto.
-     */
-    public function buscarTareas(string $query, ?int $usuarioId = null): Collection
-    {
-        return $this->tareaRepository->buscar($query, $usuarioId);
+        return $this->tareaRepository->contarPorEstado($usuarioId);
     }
 }
