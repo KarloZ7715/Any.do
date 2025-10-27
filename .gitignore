@@ -32,6 +32,7 @@ Thumbs.db
 /docs/Any.do-DWII.pdf
 /docs/analisis-completo-proyecto.md
 /docs/testing.md
+/.github/*
 
 # READMEs de arquitectura
 /app/services/README.md
