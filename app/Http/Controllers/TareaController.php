@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Data\TareaData;
+use App\Http\Resources\CategoriaResource;
 use App\Http\Resources\TareaResource;
+use App\Models\Categoria;
 use App\Models\Tarea;
 use App\Services\TareaService;
 use Illuminate\Http\RedirectResponse;
@@ -53,9 +55,15 @@ class TareaController extends Controller
 
         $tareas = $this->tareaService->obtenerTareasFiltradas($filtros, $perPage);
 
+        // Obtener categorías del usuario para el selector
+        $categorias = Categoria::where('usuario_id', auth()->id())
+            ->orderBy('nombre')
+            ->get();
+
         return Inertia::render('Tareas/Index', [
             'tareas' => TareaResource::collection($tareas),
             'filtros' => $filtros,
+            'categorias' => CategoriaResource::collection($categorias),
         ]);
     }
 
