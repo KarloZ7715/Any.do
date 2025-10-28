@@ -35,7 +35,7 @@ class TareaResource extends JsonResource
             'fecha_completada' => $this->fecha_completada?->format('Y-m-d H:i:s'),
             'esta_vencida' => $this->estaVencida(),
             'esta_completada' => $this->estaCompletada(),
-            'dias_hasta_vencimiento' => $this->diasHastaVencimiento(),
+            'dias_hasta_vencimiento' => $this->calcularDiasHastaVencimiento(),
 
             // Relaciones (solo si están cargadas)
             'categoria' => CategoriaResource::make($this->whenLoaded('categoria')),
@@ -72,5 +72,18 @@ class TareaResource extends JsonResource
             3 => 'green',  // Baja - verde
             default => 'gray',
         };
+    }
+
+    /**
+     * Calcular días hasta vencimiento.
+     * Retorna null si no hay fecha de vencimiento.
+     */
+    private function calcularDiasHastaVencimiento(): ?int
+    {
+        if (!$this->fecha_vencimiento) {
+            return null;
+        }
+
+        return now()->startOfDay()->diffInDays($this->fecha_vencimiento->startOfDay(), false);
     }
 }
