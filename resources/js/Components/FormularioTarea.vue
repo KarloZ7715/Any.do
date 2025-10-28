@@ -1,11 +1,23 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3'
-import { Button } from '@/Components/ui/button'
-import { Input } from '@/Components/ui/input'
-import { Label } from '@/Components/ui/label'
-import { Textarea } from '@/Components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/Components/ui/form'
+import { useForm } from "@inertiajs/vue3";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Textarea } from "@/Components/ui/textarea";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import {
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/Components/ui/form";
 
 const props = defineProps({
     tarea: {
@@ -16,38 +28,38 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-})
+});
 
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits(["submit", "cancel"]);
 
 // Inicializar formulario
 const form = useForm({
-    titulo: props.tarea?.titulo || '',
-    descripcion: props.tarea?.descripcion || '',
-    estado: props.tarea?.estado || 'pendiente',
+    titulo: props.tarea?.titulo || "",
+    descripcion: props.tarea?.descripcion || "",
+    estado: props.tarea?.estado || "pendiente",
     prioridad: props.tarea?.prioridad || 2,
     fecha_vencimiento: props.tarea?.fecha_vencimiento || null,
     categoria_id: props.tarea?.categoria_id || null,
-})
+});
 
 const handleSubmit = () => {
-    emit('submit', form)
-}
+    emit("submit", form);
+};
 
 const handleCancel = () => {
-    emit('cancel')
-}
+    emit("cancel");
+};
 
 const prioridades = [
-    { value: 1, label: 'Alta' },
-    { value: 2, label: 'Media' },
-    { value: 3, label: 'Baja' },
-]
+    { value: 1, label: "Alta" },
+    { value: 2, label: "Media" },
+    { value: 3, label: "Baja" },
+];
 
 const estados = [
-    { value: 'pendiente', label: 'Pendiente' },
-    { value: 'completada', label: 'Completada' },
-]
+    { value: "pendiente", label: "Pendiente" },
+    { value: "completada", label: "Completada" },
+];
 </script>
 
 <template>
@@ -99,10 +111,15 @@ const estados = [
             <FormField v-slot="{ componentField }" name="prioridad">
                 <FormItem>
                     <FormLabel>Prioridad *</FormLabel>
-                    <Select v-model="form.prioridad" :disabled="form.processing">
+                    <Select
+                        v-model="form.prioridad"
+                        :disabled="form.processing"
+                    >
                         <FormControl>
                             <SelectTrigger v-bind="componentField">
-                                <SelectValue placeholder="Selecciona prioridad" />
+                                <SelectValue
+                                    placeholder="Selecciona prioridad"
+                                />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -154,7 +171,10 @@ const estados = [
             <FormField v-slot="{ componentField }" name="categoria_id">
                 <FormItem>
                     <FormLabel>Categoría</FormLabel>
-                    <Select v-model="form.categoria_id" :disabled="form.processing">
+                    <Select
+                        v-model="form.categoria_id"
+                        :disabled="form.processing"
+                    >
                         <FormControl>
                             <SelectTrigger v-bind="componentField">
                                 <SelectValue placeholder="Sin categoría" />
@@ -209,11 +229,14 @@ const estados = [
             >
                 Cancelar
             </Button>
-            <Button
-                type="submit"
-                :disabled="form.processing"
-            >
-                {{ form.processing ? 'Guardando...' : (tarea ? 'Actualizar' : 'Crear') }}
+            <Button type="submit" :disabled="form.processing">
+                {{
+                    form.processing
+                        ? "Guardando..."
+                        : tarea
+                        ? "Actualizar"
+                        : "Crear"
+                }}
             </Button>
         </div>
     </form>
