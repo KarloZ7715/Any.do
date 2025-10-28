@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Tarea;
-use App\Models\Usuario;
+use App\Models\User;
 
 /**
  * Policy para autorización de operaciones sobre Tareas.
@@ -20,7 +20,7 @@ class TareaPolicy
      * Todos los usuarios autenticados pueden ver el índice,
      * pero solo verán sus propias tareas (filtrado en el Repository).
      */
-    public function viewAny(Usuario $usuario): bool
+    public function viewAny(User $usuario): bool
     {
         return true;
     }
@@ -32,7 +32,7 @@ class TareaPolicy
      * - Es el propietario de la tarea, O
      * - Es un administrador
      */
-    public function view(Usuario $usuario, Tarea $tarea): bool
+    public function view(User $usuario, Tarea $tarea): bool
     {
         return $usuario->esAdmin() || $usuario->id === $tarea->usuario_id;
     }
@@ -42,7 +42,7 @@ class TareaPolicy
      * 
      * Todos los usuarios autenticados pueden crear tareas.
      */
-    public function create(Usuario $usuario): bool
+    public function create(User $usuario): bool
     {
         return true;
     }
@@ -54,7 +54,7 @@ class TareaPolicy
      * - Es el propietario de la tarea, O
      * - Es un administrador
      */
-    public function update(Usuario $usuario, Tarea $tarea): bool
+    public function update(User $usuario, Tarea $tarea): bool
     {
         return $usuario->esAdmin() || $usuario->id === $tarea->usuario_id;
     }
@@ -66,7 +66,7 @@ class TareaPolicy
      * - Es el propietario de la tarea, O
      * - Es un administrador
      */
-    public function delete(Usuario $usuario, Tarea $tarea): bool
+    public function delete(User $usuario, Tarea $tarea): bool
     {
         return $usuario->esAdmin() || $usuario->id === $tarea->usuario_id;
     }
@@ -76,7 +76,7 @@ class TareaPolicy
      * 
      * Solo los administradores pueden restaurar tareas.
      */
-    public function restore(Usuario $usuario, Tarea $tarea): bool
+    public function restore(User $usuario, Tarea $tarea): bool
     {
         return $usuario->esAdmin();
     }
@@ -86,7 +86,7 @@ class TareaPolicy
      * 
      * Solo los administradores pueden hacer eliminación permanente.
      */
-    public function forceDelete(Usuario $usuario, Tarea $tarea): bool
+    public function forceDelete(User $usuario, Tarea $tarea): bool
     {
         return $usuario->esAdmin();
     }
