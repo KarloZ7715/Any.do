@@ -55,10 +55,8 @@ class TareaController extends Controller
 
         $tareas = $this->tareaService->obtenerTareasFiltradas($filtros, $perPage);
 
-        // Obtener categorías del usuario para el selector
-        $categorias = Categoria::where('usuario_id', auth()->id())
-            ->orderBy('nombre')
-            ->get();
+        // Obtener todas las categorías para el selector
+        $categorias = Categoria::orderBy('nombre')->get();
 
         return Inertia::render('Tareas/Index', [
             'tareas' => TareaResource::collection($tareas),
