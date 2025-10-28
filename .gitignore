@@ -24,14 +24,7 @@ Homestead.yaml
 Thumbs.db
 
 # Documentación personal
-/docs/reglas.txt
-/docs/dependencias-instaladas.md
-/docs/scout-configuracion.md
-/docs/estado-proyecto.md
-/docs/notas-desarrollo.md
-/docs/Any.do-DWII.pdf
-/docs/analisis-completo-proyecto.md
-/docs/testing.md
+/docs/*
 /.github/*
 
 # READMEs de arquitectura
