@@ -12,6 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/Components/ui/select'
+import ListaSubtareas from '@/Components/Subtareas/ListaSubtareas.vue'
 
 const props = defineProps({
     tarea: {
@@ -201,6 +202,14 @@ const estados = [
                     {{ form.errors.fecha_vencimiento }}
                 </p>
             </div>
+        </div>
+
+        <!-- Subtareas (solo en modo editar) -->
+        <div v-if="tarea" class="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <ListaSubtareas
+                :tarea-id="tarea.id"
+                :subtareas="tarea.subtareas || []"
+            />
         </div>
 
         <!-- Botones -->
