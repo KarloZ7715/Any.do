@@ -156,12 +156,11 @@ class TareaFactory extends Factory
     }
 
     /**
-     * Configure el factory para generar subtareas automáticamente.
+     * Generar subtareas automáticamente (0-5).
      */
-    public function configure(): static
+    public function conSubtareas(): static
     {
         return $this->afterCreating(function (Tarea $tarea) {
-            // Generar entre 0 y 5 subtareas por tarea
             Subtarea::factory()
                 ->count(fake()->numberBetween(0, 5))
                 ->create(['tarea_id' => $tarea->id]);
