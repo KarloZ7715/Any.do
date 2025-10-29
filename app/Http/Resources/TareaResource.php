@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Resource para transformación de Tareas en respuestas JSON.
- * 
+ *
  * Usado en respuestas Inertia para formatear datos de manera consistente
  * con fechas en formato ISO, relaciones cargadas cuando disponibles,
  * y campos calculados como estado y prioridad en texto.
@@ -44,6 +44,7 @@ class TareaResource extends JsonResource
             // Relaciones (solo si están cargadas)
             'categoria' => CategoriaResource::make($this->whenLoaded('categoria')),
             'usuario' => UsuarioResource::make($this->whenLoaded('usuario')),
+            'subtareas' => SubtareaResource::collection($this->whenLoaded('subtareas')),
             'comentarios_count' => $this->whenCounted('comentarios'),
 
             // Timestamps
