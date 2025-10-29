@@ -51,32 +51,32 @@ const esColorActivo = (color) => {
 </script>
 
 <template>
-    <div class="space-y-4">
-        <!-- Preview del color seleccionado -->
+    <div class="space-y-3">
+        <!-- Preview compacto del color seleccionado -->
         <div class="flex items-center gap-3">
             <div
-                class="h-16 w-16 rounded-lg border-2 border-gray-200 shadow-sm transition-transform hover:scale-105"
+                class="h-10 w-10 rounded-md border-2 border-gray-200 shadow-sm"
                 :style="{ backgroundColor: colorSeleccionado }"
             ></div>
             <div class="flex-1">
                 <Label class="text-sm font-medium">Color seleccionado</Label>
-                <p class="text-xs text-gray-500 mt-1">{{ colorSeleccionado }}</p>
+                <p class="text-xs text-gray-500 mt-0.5">{{ colorSeleccionado }}</p>
             </div>
         </div>
 
-        <!-- Grid de colores predefinidos -->
+        <!-- Grid de colores predefinidos (8 colores principales) -->
         <div>
-            <Label class="text-sm font-medium mb-3 block">Colores predefinidos</Label>
-            <div class="grid grid-cols-6 gap-2">
+            <Label class="text-sm font-medium mb-2 block">Colores predefinidos</Label>
+            <div class="grid grid-cols-8 gap-1.5">
                 <button
-                    v-for="color in coloresPredefinidos"
+                    v-for="color in coloresPredefinidos.slice(0, 8)"
                     :key="color.valor"
                     type="button"
-                    class="group relative h-10 w-full rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    class="group relative h-8 w-full rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1"
                     :class="[
                         color.clase,
                         esColorActivo(color.valor)
-                            ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-2 scale-110'
+                            ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-1 scale-110'
                             : 'border-transparent hover:border-gray-300',
                     ]"
                     :title="color.nombre"
@@ -88,7 +88,7 @@ const esColorActivo = (color) => {
                         class="absolute inset-0 flex items-center justify-center"
                     >
                         <svg
-                            class="h-5 w-5 text-white drop-shadow-lg"
+                            class="h-4 w-4 text-white drop-shadow-lg"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -105,10 +105,10 @@ const esColorActivo = (color) => {
             </div>
         </div>
 
-        <!-- Input manual de color -->
-        <div class="space-y-2">
-            <Label for="color-manual" class="text-sm font-medium">
-                O ingresa un color personalizado
+        <!-- Input manual de color (compacto) -->
+        <div class="space-y-1.5">
+            <Label for="color-manual" class="text-xs font-medium text-gray-600">
+                Color personalizado
             </Label>
             <div class="flex gap-2">
                 <Input
@@ -117,19 +117,16 @@ const esColorActivo = (color) => {
                     type="text"
                     placeholder="#3B82F6"
                     maxlength="7"
-                    class="flex-1 font-mono text-sm"
+                    class="flex-1 font-mono text-xs h-9"
                     @input="actualizarColorManual"
                 />
                 <input
                     type="color"
                     :value="colorSeleccionado"
-                    class="h-10 w-10 cursor-pointer rounded border border-gray-200"
+                    class="h-9 w-9 cursor-pointer rounded border border-gray-200"
                     @input="actualizarColorManual"
                 />
             </div>
-            <p class="text-xs text-gray-500">
-                Formato: #RRGGBB (ej: #3B82F6)
-            </p>
         </div>
     </div>
 </template>
