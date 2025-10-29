@@ -30,7 +30,7 @@ class TareaData extends Data
         public ?string $fecha_vencimiento,
         public ?string $fecha_completada,
         public int $usuario_id,
-        public ?int $categoria_id,
+        public int $categoria_id,
         public int|Optional $id = new Optional(),
     ) {
     }    /**
@@ -47,7 +47,7 @@ class TareaData extends Data
             'estado' => ['required', 'in:pendiente,completada'],
             'prioridad' => ['required', 'integer', 'min:1', 'max:3'],
             'fecha_vencimiento' => ['nullable', 'date', 'after_or_equal:today'],
-            'categoria_id' => ['nullable', 'integer', 'exists:categorias,id'],
+            'categoria_id' => ['required', 'integer', 'exists:categorias,id'],
         ];
     }
 
@@ -66,6 +66,7 @@ class TareaData extends Data
             'prioridad.min' => 'La prioridad debe estar entre 1 (alta), 2 (media) y 3 (baja)',
             'prioridad.max' => 'La prioridad debe estar entre 1 (alta), 2 (media) y 3 (baja)',
             'fecha_vencimiento.after_or_equal' => 'La fecha de vencimiento no puede ser anterior a hoy',
+            'categoria_id.required' => 'Debe seleccionar una categoría',
             'categoria_id.exists' => 'La categoría especificada no existe',
         ];
     }

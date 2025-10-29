@@ -55,13 +55,26 @@ class TareaController extends Controller
 
         $tareas = $this->tareaService->obtenerTareasFiltradas($filtros, $perPage);
 
-        // Obtener todas las categorías para el selector
-        $categorias = Categoria::orderBy('nombre')->get();
+        // Obtener categorías del usuario para el selector
+        $categorias = Categoria::where('usuario_id', auth()->id())
+            ->orderBy('nombre')
+            ->get();
 
         return Inertia::render('Tareas/Index', [
-            'tareas' => TareaResource::collection($tareas),
+            'tareas' => [
+                'data' => TareaResource::collection($tareas->items())->resolve(),
+                'links' => $tareas->linkCollection()->toArray(),
+                'meta' => [
+                    'current_page' => $tareas->currentPage(),
+                    'last_page' => $tareas->lastPage(),
+                    'per_page' => $tareas->perPage(),
+                    'total' => $tareas->total(),
+                    'from' => $tareas->firstItem(),
+                    'to' => $tareas->lastItem(),
+                ],
+            ],
             'filtros' => $filtros,
-            'categorias' => CategoriaResource::collection($categorias),
+            'categorias' => $categorias,
         ]);
     }
 
@@ -74,6 +87,15 @@ class TareaController extends Controller
 
         // Validar request antes de crear TareaData
         $validated = $request->validate(TareaData::rules());
+
+        // Si no se seleccionó categoría, usar categoría "Personal" del usuario
+        if (empty($validated['categoria_id'])) {
+            $categoriaPersonal = Categoria::where('usuario_id', auth()->id())
+                ->where('nombre', 'Personal')
+                ->first();
+
+            $validated['categoria_id'] = $categoriaPersonal?->id;
+        }
 
         $data = TareaData::from([
             ...$validated,
