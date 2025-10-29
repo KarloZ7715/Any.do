@@ -174,8 +174,8 @@ const esIconoActivo = (icono) => {
                     </span>
                 </button>
             </div>
-            <div v-else class="text-center py-8 text-gray-500 text-sm">
-                No se encontraron iconos con "{{ busqueda }}"
+            <div v-else class="text-center py-4 text-gray-500 text-sm border rounded-md bg-gray-50">
+                No se encontraron iconos
             </div>
         </div>
     </div>
