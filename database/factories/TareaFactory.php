@@ -33,7 +33,11 @@ class TareaFactory extends Factory
             'fecha_completada' => null,
             'fecha_vencimiento' => fake()->optional(0.6)->dateTimeBetween('now', '+30 days'),
             'usuario_id' => Usuario::factory(),
-            'categoria_id' => Categoria::factory(),
+            'categoria_id' => function (array $attributes) {
+                return Categoria::factory()->create([
+                    'usuario_id' => $attributes['usuario_id'],
+                ])->id;
+            },
         ];
     }
 
