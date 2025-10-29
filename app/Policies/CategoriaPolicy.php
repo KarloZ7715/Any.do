@@ -3,14 +3,14 @@
 namespace App\Policies;
 
 use App\Models\Categoria;
-use App\Models\User;
+use App\Models\Usuario;
 
 class CategoriaPolicy
 {
     /**
      * Determinar si el usuario puede ver cualquier categoría.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(Usuario $user): bool
     {
         return true; // Todos los usuarios autenticados pueden ver sus categorías
     }
@@ -18,7 +18,7 @@ class CategoriaPolicy
     /**
      * Determinar si el usuario puede ver la categoría.
      */
-    public function view(User $user, Categoria $categoria): bool
+    public function view(Usuario $user, Categoria $categoria): bool
     {
         return $user->id === $categoria->usuario_id;
     }
@@ -26,7 +26,7 @@ class CategoriaPolicy
     /**
      * Determinar si el usuario puede crear categorías.
      */
-    public function create(User $user): bool
+    public function create(Usuario $user): bool
     {
         return true; // Todos los usuarios pueden crear categorías
     }
@@ -34,7 +34,7 @@ class CategoriaPolicy
     /**
      * Determinar si el usuario puede actualizar la categoría.
      */
-    public function update(User $user, Categoria $categoria): bool
+    public function update(Usuario $user, Categoria $categoria): bool
     {
         return $user->id === $categoria->usuario_id;
     }
@@ -42,7 +42,7 @@ class CategoriaPolicy
     /**
      * Determinar si el usuario puede eliminar la categoría.
      */
-    public function delete(User $user, Categoria $categoria): bool
+    public function delete(Usuario $user, Categoria $categoria): bool
     {
         // No puede eliminar si:
         // 1. No es el propietario
@@ -61,7 +61,7 @@ class CategoriaPolicy
     /**
      * Determinar si el usuario puede restaurar la categoría.
      */
-    public function restore(User $user, Categoria $categoria): bool
+    public function restore(Usuario $user, Categoria $categoria): bool
     {
         return $user->id === $categoria->usuario_id;
     }
@@ -69,7 +69,7 @@ class CategoriaPolicy
     /**
      * Determinar si el usuario puede eliminar permanentemente la categoría.
      */
-    public function forceDelete(User $user, Categoria $categoria): bool
+    public function forceDelete(Usuario $user, Categoria $categoria): bool
     {
         // No permitir force delete de categoría Personal
         if ($categoria->es_personal) {
