@@ -18,8 +18,8 @@ export function usarFiltros(filtrosIniciales = {}) {
         categoria_id: filtrosIniciales.categoria_id || null,
         vencimiento: filtrosIniciales.vencimiento || null,
         buscar: filtrosIniciales.buscar || "",
-        ordenar: filtrosIniciales.ordenar || "created_at",
-        direccion: filtrosIniciales.direccion || "desc",
+        ordenar: filtrosIniciales.ordenar || "prioridad",
+        direccion: filtrosIniciales.direccion || "asc",
     });
 
     /**
@@ -51,11 +51,14 @@ export function usarFiltros(filtrosIniciales = {}) {
             categoria_id: null,
             vencimiento: null,
             buscar: "",
-            ordenar: "created_at",
-            direccion: "desc",
+            ordenar: "prioridad",
+            direccion: "asc",
         };
 
-        obtenerTareas({});
+        obtenerTareas({
+            ordenar: "prioridad",
+            direccion: "asc",
+        });
     };
 
     /**
