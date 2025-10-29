@@ -35,6 +35,11 @@ class CategoriaService
      */
     public function crearCategoria(CategoriaData $data): Categoria
     {
+        // Validar que el nombre esté presente al crear
+        if (empty($data->nombre)) {
+            throw new RuntimeException('El nombre de la categoría es obligatorio');
+        }
+
         $usuarioId = auth()->id();
 
         // Validar que el nombre no exista
@@ -64,17 +69,6 @@ class CategoriaService
      */
     public function actualizarCategoria(Categoria $categoria, CategoriaData $data): Categoria
     {
-        // Validar que el nombre no exista (excluyendo la categoría actual)
-        if (
-            $this->categoriaRepository->nombreExiste(
-                $categoria->usuario_id,
-                $data->nombre,
-                $categoria->id
-            )
-        ) {
-            throw new RuntimeException('Ya tienes una categoría con ese nombre');
-        }
-
         // Si es categoría Personal, solo permitir editar color e icono
         $datos = [
             'color' => $data->color,
@@ -82,6 +76,22 @@ class CategoriaService
         ];
 
         if (!$categoria->es_personal) {
+            // Validar que el nombre esté presente
+            if (empty($data->nombre)) {
+                throw new RuntimeException('El nombre de la categoría es obligatorio');
+            }
+
+            // Validar que el nombre no exista (excluyendo la categoría actual)
+            if (
+                $this->categoriaRepository->nombreExiste(
+                    $categoria->usuario_id,
+                    $data->nombre,
+                    $categoria->id
+                )
+            ) {
+                throw new RuntimeException('Ya tienes una categoría con ese nombre');
+            }
+
             $datos['nombre'] = $data->nombre;
             $datos['descripcion'] = $data->descripcion;
         }
