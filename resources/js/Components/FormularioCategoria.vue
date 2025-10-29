@@ -85,57 +85,68 @@ const manejarCancelar = () => {
             </p>
         </div>
 
-        <!-- Nombre (solo si no es Personal) -->
-        <div v-if="!esPersonal" class="space-y-2">
-            <Label for="nombre" class="text-sm font-medium">
-                Nombre <span class="text-red-500">*</span>
-            </Label>
-            <Input
-                id="nombre"
-                v-model="form.nombre"
-                type="text"
-                placeholder="Ej: Trabajo, Hogar, Estudios..."
-                maxlength="100"
-                required
-                :disabled="loading"
-                class="text-sm"
-            />
-            <InputError :message="form.errors.nombre" class="mt-1" />
-            <p class="text-xs text-gray-500">
-                Máximo 100 caracteres. Debe ser único.
-            </p>
-        </div>
+        <!-- Layout de 2 columnas: Info + Apariencia -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Columna Izquierda: Información (solo si no es Personal) -->
+            <div v-if="!esPersonal" class="space-y-4">
+                <!-- Nombre -->
+                <div class="space-y-2">
+                    <Label for="nombre" class="text-sm font-medium">
+                        Nombre <span class="text-red-500">*</span>
+                    </Label>
+                    <Input
+                        id="nombre"
+                        v-model="form.nombre"
+                        type="text"
+                        placeholder="Ej: Trabajo, Hogar, Estudios..."
+                        maxlength="100"
+                        required
+                        :disabled="loading"
+                        class="text-sm"
+                    />
+                    <InputError :message="form.errors.nombre" class="mt-1" />
+                    <p class="text-xs text-gray-500">
+                        Máximo 100 caracteres. Debe ser único.
+                    </p>
+                </div>
 
-        <!-- Descripción (solo si no es Personal) -->
-        <div v-if="!esPersonal" class="space-y-2">
-            <Label for="descripcion" class="text-sm font-medium">
-                Descripción (opcional)
-            </Label>
-            <Textarea
-                id="descripcion"
-                v-model="form.descripcion"
-                placeholder="Describe esta categoría..."
-                maxlength="500"
-                rows="3"
-                :disabled="loading"
-                class="text-sm resize-none"
-            />
-            <InputError :message="form.errors.descripcion" class="mt-1" />
-            <p class="text-xs text-gray-500">
-                Máximo 500 caracteres.
-            </p>
-        </div>
+                <!-- Descripción -->
+                <div class="space-y-2">
+                    <Label for="descripcion" class="text-sm font-medium">
+                        Descripción (opcional)
+                    </Label>
+                    <Textarea
+                        id="descripcion"
+                        v-model="form.descripcion"
+                        placeholder="Describe esta categoría..."
+                        maxlength="500"
+                        rows="4"
+                        :disabled="loading"
+                        class="text-sm resize-none"
+                    />
+                    <InputError :message="form.errors.descripcion" class="mt-1" />
+                    <p class="text-xs text-gray-500">
+                        Máximo 500 caracteres.
+                    </p>
+                </div>
+            </div>
 
-        <!-- Color Picker -->
-        <div class="space-y-2">
-            <ColorPicker v-model="form.color" />
-            <InputError :message="form.errors.color" class="mt-1" />
-        </div>
+            <!-- Columna Derecha: Apariencia (Color + Icono) -->
+            <div class="space-y-4" :class="{ 'md:col-span-2': esPersonal }">
+                <!-- Color Picker -->
+                <div class="space-y-2">
+                    <Label class="text-sm font-medium">Color</Label>
+                    <ColorPicker v-model="form.color" />
+                    <InputError :message="form.errors.color" class="mt-1" />
+                </div>
 
-        <!-- Icon Picker -->
-        <div class="space-y-2">
-            <IconPicker v-model="form.icono" />
-            <InputError :message="form.errors.icono" class="mt-1" />
+                <!-- Icon Picker -->
+                <div class="space-y-2">
+                    <Label class="text-sm font-medium">Icono</Label>
+                    <IconPicker v-model="form.icono" />
+                    <InputError :message="form.errors.icono" class="mt-1" />
+                </div>
+            </div>
         </div>
 
         <!-- Botones -->
