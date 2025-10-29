@@ -3,19 +3,19 @@
  * @returns {Object} Objeto con propiedades reactivas y funciones
  */
 export function usarSaludo() {
-    const nombre = ref("Usuario");
-    const contador = ref(0);
+    const nombre = ref('Usuario')
+    const contador = ref(0)
 
     const mensaje = computed(() => {
-        return `¡Hola ${nombre.value}! Has hecho clic ${contador.value} veces.`;
-    });
+        return `¡Hola ${nombre.value}! Has hecho clic ${contador.value} veces.`
+    })
 
     function incrementar() {
-        contador.value++;
+        contador.value++
     }
 
     function cambiarNombre(nuevoNombre) {
-        nombre.value = nuevoNombre;
+        nombre.value = nuevoNombre
     }
 
     return {
@@ -24,5 +24,5 @@ export function usarSaludo() {
         mensaje,
         incrementar,
         cambiarNombre,
-    };
+    }
 }

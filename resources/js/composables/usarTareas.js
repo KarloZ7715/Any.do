@@ -62,8 +62,8 @@ export function usarTareas() {
         router.post(route('tareas.store'), data, {
             ...opcionesPorDefecto,
             ...opciones,
-        });
-    };
+        })
+    }
 
     /**
      * Actualizar una tarea existente.
@@ -73,22 +73,22 @@ export function usarTareas() {
      * @param {Object} opciones - Opciones adicionales de Inertia
      */
     const actualizarTarea = (id, data, opciones = {}) => {
-        procesando.value = true;
+        procesando.value = true
 
         const opcionesPorDefecto = {
             preserveScroll: true,
             onSuccess: () => {
-                opciones.onSuccess?.();
+                opciones.onSuccess?.()
             },
             onError: (errors) => {
-                opciones.onError?.(errors);
+                opciones.onError?.(errors)
             },
             onFinish: () => {
-                procesando.value = false;
+                procesando.value = false
             },
-        };
+        }
 
-        router.put(route("tareas.update", { tarea: id }), data, {
+        router.put(route('tareas.update', { tarea: id }), data, {
             ...opcionesPorDefecto,
             ...opciones,
         })
@@ -142,7 +142,7 @@ export function usarTareas() {
         router.patch(
             route('tareas.toggle', { tarea: id }),
             {},
-            { ...opcionesPorDefecto, ...opciones }
+            { ...opcionesPorDefecto, ...opciones },
         )
     }
 

@@ -1,6 +1,6 @@
-import { ref, watch } from "vue";
-import { useDebounceFn } from "@vueuse/core";
-import { usarTareas } from "./usarTareas";
+import { ref, watch } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
+import { usarTareas } from './usarTareas'
 
 /**
  * Composable para gestión de filtros de tareas.
@@ -9,57 +9,57 @@ import { usarTareas } from "./usarTareas";
  * y debounce en búsqueda para optimizar requests.
  */
 export function usarFiltros(filtrosIniciales = {}) {
-    const { obtenerTareas } = usarTareas();
+    const { obtenerTareas } = usarTareas()
 
     // Estado de filtros
     const filtros = ref({
-        estado: filtrosIniciales.estado || "todas",
+        estado: filtrosIniciales.estado || 'todas',
         prioridad: filtrosIniciales.prioridad || null,
         categoria_id: filtrosIniciales.categoria_id || null,
         vencimiento: filtrosIniciales.vencimiento || null,
-        buscar: filtrosIniciales.buscar || "",
-        ordenar: filtrosIniciales.ordenar || "prioridad",
-        direccion: filtrosIniciales.direccion || "asc",
-    });
+        buscar: filtrosIniciales.buscar || '',
+        ordenar: filtrosIniciales.ordenar || 'prioridad',
+        direccion: filtrosIniciales.direccion || 'asc',
+    })
 
     /**
      * Aplicar filtros con búsqueda debounced.
      */
     const aplicarFiltros = useDebounceFn(() => {
-        const filtrosAplicar = {};
+        const filtrosAplicar = {}
 
         // Solo incluir filtros con valores
         Object.keys(filtros.value).forEach((key) => {
-            const valor = filtros.value[key];
+            const valor = filtros.value[key]
 
             // Excluir valores vacíos, null, 'todas'
-            if (valor && valor !== "todas" && valor !== "") {
-                filtrosAplicar[key] = valor;
+            if (valor && valor !== 'todas' && valor !== '') {
+                filtrosAplicar[key] = valor
             }
-        });
+        })
 
-        obtenerTareas(filtrosAplicar);
-    }, 300); // 300ms debounce
+        obtenerTareas(filtrosAplicar)
+    }, 300) // 300ms debounce
 
     /**
      * Limpiar todos los filtros.
      */
     const limpiarFiltros = () => {
         filtros.value = {
-            estado: "todas",
+            estado: 'todas',
             prioridad: null,
             categoria_id: null,
             vencimiento: null,
-            buscar: "",
-            ordenar: "prioridad",
-            direccion: "asc",
-        };
+            buscar: '',
+            ordenar: 'prioridad',
+            direccion: 'asc',
+        }
 
         obtenerTareas({
-            ordenar: "prioridad",
-            direccion: "asc",
-        });
-    };
+            ordenar: 'prioridad',
+            direccion: 'asc',
+        })
+    }
 
     /**
      * Cambiar ordenamiento.
@@ -70,15 +70,15 @@ export function usarFiltros(filtrosIniciales = {}) {
         if (filtros.value.ordenar === campo) {
             // Toggle dirección si es el mismo campo
             filtros.value.direccion =
-                filtros.value.direccion === "asc" ? "desc" : "asc";
+                filtros.value.direccion === 'asc' ? 'desc' : 'asc'
         } else {
             // Nuevo campo, empezar con descendente
-            filtros.value.ordenar = campo;
-            filtros.value.direccion = "desc";
+            filtros.value.ordenar = campo
+            filtros.value.direccion = 'desc'
         }
 
-        aplicarFiltros();
-    };
+        aplicarFiltros()
+    }
 
     /**
      * Establecer filtro específico.
@@ -87,9 +87,9 @@ export function usarFiltros(filtrosIniciales = {}) {
      * @param {any} valor - Valor del filtro
      */
     const establecerFiltro = (clave, valor) => {
-        filtros.value[clave] = valor;
-        aplicarFiltros();
-    };
+        filtros.value[clave] = valor
+        aplicarFiltros()
+    }
 
     // Watch para cambios en filtros (excepto búsqueda que ya tiene debounce)
     watch(
@@ -100,17 +100,17 @@ export function usarFiltros(filtrosIniciales = {}) {
             filtros.value.vencimiento,
         ],
         () => {
-            aplicarFiltros();
-        }
-    );
+            aplicarFiltros()
+        },
+    )
 
     // Watch separado para búsqueda con debounce
     watch(
         () => filtros.value.buscar,
         () => {
-            aplicarFiltros();
-        }
-    );
+            aplicarFiltros()
+        },
+    )
 
     return {
         // Estado
@@ -121,5 +121,5 @@ export function usarFiltros(filtrosIniciales = {}) {
         limpiarFiltros,
         cambiarOrden,
         establecerFiltro,
-    };
+    }
 }

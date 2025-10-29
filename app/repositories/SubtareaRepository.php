@@ -80,6 +80,7 @@ class SubtareaRepository
      */
     public function contarPorTarea(int $tareaId): int
     {
+        // No incluir soft-deleted (withTrashed excluido por defecto)
         return Subtarea::where('tarea_id', $tareaId)->count();
     }
 
