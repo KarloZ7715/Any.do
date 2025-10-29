@@ -26,6 +26,7 @@ class Categoria extends Model
         'color',
         'icono',
         'usuario_id',
+        'es_personal',
     ];
 
     /**
@@ -34,6 +35,7 @@ class Categoria extends Model
     protected function casts(): array
     {
         return [
+            'es_personal' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
