@@ -24,7 +24,7 @@ class TareaRepository
      */
     public function filtrarTareas(array $filtros = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = Tarea::query()->with(['usuario', 'categoria']);
+        $query = Tarea::query()->with(['usuario', 'categoria', 'subtareas']);
 
         // Filtro por usuario (obligatorio para usuarios normales)
         if (isset($filtros['usuario_id'])) {
