@@ -24,7 +24,7 @@ class CategoriaController extends Controller
     public function index(): Response
     {
         $this->authorize('viewAny', Categoria::class);
-        
+
         $categorias = $this->categoriaService->obtenerCategoriasUsuario();
 
         return Inertia::render('Categorias/Index', [
@@ -38,7 +38,7 @@ class CategoriaController extends Controller
     public function store(CategoriaData $data): RedirectResponse
     {
         $this->authorize('create', Categoria::class);
-        
+
         try {
             $this->categoriaService->crearCategoria($data);
 
@@ -54,7 +54,7 @@ class CategoriaController extends Controller
     public function update(CategoriaData $data, Categoria $categoria): RedirectResponse
     {
         $this->authorize('update', $categoria);
-        
+
         try {
             $this->categoriaService->actualizarCategoria($categoria, $data);
 
@@ -75,7 +75,7 @@ class CategoriaController extends Controller
     public function destroy(Categoria $categoria): RedirectResponse
     {
         $this->authorize('delete', $categoria);
-        
+
         try {
             $resultado = $this->categoriaService->eliminarCategoria($categoria);
 
