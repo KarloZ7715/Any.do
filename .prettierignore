@@ -1,0 +1,18 @@
+# Prettier ignore file
+# Archivos que Prettier NO debe formatear
+
+# Archivos generados
+/public/build
+/public/hot
+/storage
+/bootstrap/cache
+/vendor
+/node_modules
+
+# Archivos problemáticos con Vue
+resources/js/**/*.vue
+resources/js/**/*.js
+
+# Otros
+*.min.js
+*.min.css
