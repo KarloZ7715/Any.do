@@ -51,8 +51,6 @@ export function usarSubtareas() {
 	 * Eliminar una subtarea.
 	 */
 	const eliminarSubtarea = (tareaId, subtareaId) => {
-		if (!confirm('¿Eliminar esta subtarea?')) return
-
 		router.delete(
 			route('subtareas.destroy', {
 				tarea: tareaId,
