@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\Usuario;
 use App\Models\Categoria;
@@ -148,5 +149,18 @@ class TareaFactory extends Factory
         return $this->state(fn(array $attributes) => [
             'categoria_id' => $categoria->id,
         ]);
+    }
+
+    /**
+     * Configure el factory para generar subtareas automáticamente.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Tarea $tarea) {
+            // Generar entre 0 y 5 subtareas por tarea
+            Subtarea::factory()
+                ->count(fake()->numberBetween(0, 5))
+                ->create(['tarea_id' => $tarea->id]);
+        });
     }
 }
