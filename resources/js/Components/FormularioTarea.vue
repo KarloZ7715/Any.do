@@ -1,23 +1,16 @@
 <script setup>
-import { useForm } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
+import { useForm } from '@inertiajs/vue3'
+import { Button } from '@/Components/ui/button'
+import { Input } from '@/Components/ui/input'
+import { Label } from '@/Components/ui/label'
+import { Textarea } from '@/Components/ui/textarea'
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/Components/ui/select";
-import {
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/Components/ui/form";
+} from '@/Components/ui/select'
 
 const props = defineProps({
     tarea: {
@@ -28,195 +21,166 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-});
+})
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(['submit', 'cancel'])
+
+// Encontrar categoría "Personal" para usar por defecto
+const categoriaPersonal = props.categorias.find((c) => c.nombre === 'Personal')
 
 // Inicializar formulario
 const form = useForm({
-    titulo: props.tarea?.titulo || "",
-    descripcion: props.tarea?.descripcion || "",
-    estado: props.tarea?.estado || "pendiente",
+    titulo: props.tarea?.titulo || '',
+    descripcion: props.tarea?.descripcion || '',
+    estado: props.tarea?.estado || 'pendiente',
     prioridad: props.tarea?.prioridad || 2,
     fecha_vencimiento: props.tarea?.fecha_vencimiento || null,
-    categoria_id: props.tarea?.categoria_id || null,
-});
+    categoria_id: props.tarea?.categoria_id || categoriaPersonal?.id || null,
+})
 
 const handleSubmit = () => {
-    emit("submit", form);
-};
+    emit('submit', form)
+}
 
 const handleCancel = () => {
-    emit("cancel");
-};
+    emit('cancel')
+}
 
 const prioridades = [
-    { value: 1, label: "Alta" },
-    { value: 2, label: "Media" },
-    { value: 3, label: "Baja" },
-];
+    { value: 1, label: 'Alta' },
+    { value: 2, label: 'Media' },
+    { value: 3, label: 'Baja' },
+]
 
 const estados = [
-    { value: "pendiente", label: "Pendiente" },
-    { value: "completada", label: "Completada" },
-];
+    { value: 'pendiente', label: 'Pendiente' },
+    { value: 'completada', label: 'Completada' },
+]
 </script>
 
 <template>
     <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- Título -->
-        <FormField v-slot="{ componentField }" name="titulo">
-            <FormItem>
-                <FormLabel>Título *</FormLabel>
-                <FormControl>
-                    <Input
-                        v-model="form.titulo"
-                        v-bind="componentField"
-                        type="text"
-                        placeholder="Ej: Completar informe mensual"
-                        :disabled="form.processing"
-                        maxlength="200"
-                        required
-                    />
-                </FormControl>
-                <FormMessage v-if="form.errors.titulo">
-                    {{ form.errors.titulo }}
-                </FormMessage>
-            </FormItem>
-        </FormField>
+        <div class="space-y-2">
+            <Label for="titulo">Título *</Label>
+            <Input
+                id="titulo"
+                v-model="form.titulo"
+                type="text"
+                placeholder="Ej: Completar informe mensual"
+                :disabled="form.processing"
+                maxlength="200"
+                required
+            />
+            <p v-if="form.errors.titulo" class="text-sm text-red-600">
+                {{ form.errors.titulo }}
+            </p>
+        </div>
 
         <!-- Descripción -->
-        <FormField v-slot="{ componentField }" name="descripcion">
-            <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                    <Textarea
-                        v-model="form.descripcion"
-                        v-bind="componentField"
-                        placeholder="Describe los detalles de la tarea..."
-                        :disabled="form.processing"
-                        rows="4"
-                        maxlength="5000"
-                    />
-                </FormControl>
-                <FormMessage v-if="form.errors.descripcion">
-                    {{ form.errors.descripcion }}
-                </FormMessage>
-            </FormItem>
-        </FormField>
+        <div class="space-y-2">
+            <Label for="descripcion">Descripción</Label>
+            <Textarea
+                id="descripcion"
+                v-model="form.descripcion"
+                placeholder="Describe los detalles de la tarea..."
+                :disabled="form.processing"
+                rows="4"
+                maxlength="5000"
+            />
+            <p v-if="form.errors.descripcion" class="text-sm text-red-600">
+                {{ form.errors.descripcion }}
+            </p>
+        </div>
 
         <!-- Grid de 2 columnas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Prioridad -->
-            <FormField v-slot="{ componentField }" name="prioridad">
-                <FormItem>
-                    <FormLabel>Prioridad *</FormLabel>
-                    <Select
-                        v-model="form.prioridad"
-                        :disabled="form.processing"
-                    >
-                        <FormControl>
-                            <SelectTrigger v-bind="componentField">
-                                <SelectValue
-                                    placeholder="Selecciona prioridad"
-                                />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem
-                                v-for="prioridad in prioridades"
-                                :key="prioridad.value"
-                                :value="prioridad.value"
-                            >
-                                {{ prioridad.label }}
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage v-if="form.errors.prioridad">
-                        {{ form.errors.prioridad }}
-                    </FormMessage>
-                </FormItem>
-            </FormField>
+            <div class="space-y-2">
+                <Label for="prioridad">Prioridad *</Label>
+                <Select v-model="form.prioridad" :disabled="form.processing">
+                    <SelectTrigger id="prioridad">
+                        <SelectValue placeholder="Selecciona prioridad" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem
+                            v-for="prioridad in prioridades"
+                            :key="prioridad.value"
+                            :value="prioridad.value"
+                        >
+                            {{ prioridad.label }}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+                <p v-if="form.errors.prioridad" class="text-sm text-red-600">
+                    {{ form.errors.prioridad }}
+                </p>
+            </div>
 
             <!-- Estado -->
-            <FormField v-slot="{ componentField }" name="estado">
-                <FormItem>
-                    <FormLabel>Estado *</FormLabel>
-                    <Select v-model="form.estado" :disabled="form.processing">
-                        <FormControl>
-                            <SelectTrigger v-bind="componentField">
-                                <SelectValue placeholder="Selecciona estado" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem
-                                v-for="estado in estados"
-                                :key="estado.value"
-                                :value="estado.value"
-                            >
-                                {{ estado.label }}
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage v-if="form.errors.estado">
-                        {{ form.errors.estado }}
-                    </FormMessage>
-                </FormItem>
-            </FormField>
+            <div class="space-y-2">
+                <Label for="estado">Estado *</Label>
+                <Select v-model="form.estado" :disabled="form.processing">
+                    <SelectTrigger id="estado">
+                        <SelectValue placeholder="Selecciona estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem
+                            v-for="estado in estados"
+                            :key="estado.value"
+                            :value="estado.value"
+                        >
+                            {{ estado.label }}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+                <p v-if="form.errors.estado" class="text-sm text-red-600">
+                    {{ form.errors.estado }}
+                </p>
+            </div>
         </div>
 
         <!-- Grid de 2 columnas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Categoría -->
-            <FormField v-slot="{ componentField }" name="categoria_id">
-                <FormItem>
-                    <FormLabel>Categoría</FormLabel>
-                    <Select
-                        v-model="form.categoria_id"
-                        :disabled="form.processing"
-                    >
-                        <FormControl>
-                            <SelectTrigger v-bind="componentField">
-                                <SelectValue placeholder="Sin categoría" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem :value="null">
-                                Sin categoría
-                            </SelectItem>
-                            <SelectItem
-                                v-for="categoria in categorias"
-                                :key="categoria.id"
-                                :value="categoria.id"
-                            >
-                                {{ categoria.nombre }}
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage v-if="form.errors.categoria_id">
-                        {{ form.errors.categoria_id }}
-                    </FormMessage>
-                </FormItem>
-            </FormField>
+            <div class="space-y-2">
+                <Label for="categoria">Categoría *</Label>
+                <Select v-model="form.categoria_id" :disabled="form.processing">
+                    <SelectTrigger id="categoria">
+                        <SelectValue placeholder="Selecciona una categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem
+                            v-for="categoria in categorias"
+                            :key="categoria.id"
+                            :value="categoria.id"
+                        >
+                            {{ categoria.nombre }}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+                <p v-if="form.errors.categoria_id" class="text-sm text-red-600">
+                    {{ form.errors.categoria_id }}
+                </p>
+            </div>
 
             <!-- Fecha de vencimiento -->
-            <FormField v-slot="{ componentField }" name="fecha_vencimiento">
-                <FormItem>
-                    <FormLabel>Fecha de vencimiento</FormLabel>
-                    <FormControl>
-                        <Input
-                            v-model="form.fecha_vencimiento"
-                            v-bind="componentField"
-                            type="date"
-                            :disabled="form.processing"
-                            :min="new Date().toISOString().split('T')[0]"
-                        />
-                    </FormControl>
-                    <FormMessage v-if="form.errors.fecha_vencimiento">
-                        {{ form.errors.fecha_vencimiento }}
-                    </FormMessage>
-                </FormItem>
-            </FormField>
+            <div class="space-y-2">
+                <Label for="fecha_vencimiento">Fecha de vencimiento</Label>
+                <Input
+                    id="fecha_vencimiento"
+                    v-model="form.fecha_vencimiento"
+                    type="date"
+                    :disabled="form.processing"
+                    :min="new Date().toISOString().split('T')[0]"
+                />
+                <p
+                    v-if="form.errors.fecha_vencimiento"
+                    class="text-sm text-red-600"
+                >
+                    {{ form.errors.fecha_vencimiento }}
+                </p>
+            </div>
         </div>
 
         <!-- Botones -->

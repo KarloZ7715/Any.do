@@ -1,12 +1,13 @@
 <script setup>
+import { computed } from 'vue'
 import {
     Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
-} from "@/Components/ui/dialog";
-import FormularioTarea from "@/Components/FormularioTarea.vue";
+} from '@/Components/ui/dialog'
+import FormularioTarea from '@/Components/FormularioTarea.vue'
 
 const props = defineProps({
     open: {
@@ -15,8 +16,8 @@ const props = defineProps({
     },
     mode: {
         type: String,
-        default: "create",
-        validator: (value) => ["create", "edit"].includes(value),
+        default: 'create',
+        validator: (value) => ['create', 'edit'].includes(value),
     },
     tarea: {
         type: Object,
@@ -26,31 +27,31 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-});
+})
 
-const emit = defineEmits(["close", "submit"]);
+const emit = defineEmits(['close', 'submit'])
 
 const handleClose = () => {
-    emit("close");
-};
+    emit('close')
+}
 
 const handleSubmit = (form) => {
-    emit("submit", form);
-};
+    emit('submit', form)
+}
 
 const handleCancel = () => {
-    emit("close");
-};
+    emit('close')
+}
 
 const titulo = computed(() => {
-    return props.mode === "create" ? "Crear nueva tarea" : "Editar tarea";
-});
+    return props.mode === 'create' ? 'Crear nueva tarea' : 'Editar tarea'
+})
 
 const descripcion = computed(() => {
-    return props.mode === "create"
-        ? "Completa los campos para crear una nueva tarea."
-        : "Modifica los campos para actualizar la tarea.";
-});
+    return props.mode === 'create'
+        ? 'Completa los campos para crear una nueva tarea.'
+        : 'Modifica los campos para actualizar la tarea.'
+})
 </script>
 
 <template>
