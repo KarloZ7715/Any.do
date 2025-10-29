@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TareaController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
     Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy');
     Route::patch('/tareas/{tarea}/toggle', [TareaController::class, 'toggle'])->name('tareas.toggle');
+
+    // Rutas de Subtareas (anidadas en tareas)
+    Route::prefix('tareas/{tarea}')->group(function () {
+        Route::post('subtareas', [SubtareaController::class, 'store'])->name('subtareas.store');
+        Route::patch('subtareas/{subtarea}', [SubtareaController::class, 'update'])->name('subtareas.update');
+        Route::delete('subtareas/{subtarea}', [SubtareaController::class, 'destroy'])->name('subtareas.destroy');
+        Route::post('subtareas/{subtarea}/toggle', [SubtareaController::class, 'toggle'])->name('subtareas.toggle');
+    });
 
     // Rutas de Categorías
     Route::resource('categorias', CategoriaController::class)->except(['show', 'create', 'edit']);
