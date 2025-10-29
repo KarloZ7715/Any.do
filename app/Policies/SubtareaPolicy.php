@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Subtarea;
-use App\Models\User;
+use App\Models\Usuario;
 
 /**
  * Policy para autorización de operaciones sobre Subtareas.
@@ -19,7 +19,7 @@ class SubtareaPolicy
      * 
      * Todos los usuarios autenticados pueden ver subtareas.
      */
-    public function viewAny(User $usuario): bool
+    public function viewAny(Usuario $usuario): bool
     {
         return true;
     }
@@ -31,7 +31,7 @@ class SubtareaPolicy
      * - Es el propietario de la tarea padre, O
      * - Es un administrador
      */
-    public function view(User $usuario, Subtarea $subtarea): bool
+    public function view(Usuario $usuario, Subtarea $subtarea): bool
     {
         return $usuario->esAdmin() || $usuario->id === $subtarea->tarea->usuario_id;
     }
@@ -42,7 +42,7 @@ class SubtareaPolicy
      * El usuario puede crear subtareas si es el dueño de la tarea padre.
      * Se verifica en el controller que la tarea pertenezca al usuario.
      */
-    public function create(User $usuario): bool
+    public function create(Usuario $usuario): bool
     {
         return true;
     }
@@ -54,7 +54,7 @@ class SubtareaPolicy
      * - Es el propietario de la tarea padre, O
      * - Es un administrador
      */
-    public function update(User $usuario, Subtarea $subtarea): bool
+    public function update(Usuario $usuario, Subtarea $subtarea): bool
     {
         return $usuario->esAdmin() || $usuario->id === $subtarea->tarea->usuario_id;
     }
@@ -66,7 +66,7 @@ class SubtareaPolicy
      * - Es el propietario de la tarea padre, O
      * - Es un administrador
      */
-    public function delete(User $usuario, Subtarea $subtarea): bool
+    public function delete(Usuario $usuario, Subtarea $subtarea): bool
     {
         return $usuario->esAdmin() || $usuario->id === $subtarea->tarea->usuario_id;
     }
