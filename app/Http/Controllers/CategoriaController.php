@@ -28,7 +28,7 @@ class CategoriaController extends Controller
         $categorias = $this->categoriaService->obtenerCategoriasUsuario();
 
         return Inertia::render('Categorias/Index', [
-            'categorias' => CategoriaResource::collection($categorias),
+            'categorias' => CategoriaResource::collection($categorias)->resolve(),
         ]);
     }
 
