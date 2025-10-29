@@ -14,6 +14,7 @@ export default [
             "bootstrap/cache/**",
             "resources/js/auto-imports.d.ts",
             "resources/js/components.d.ts",
+            "resources/js/ziggy.js",
         ],
     },
 
@@ -49,6 +50,26 @@ export default [
                 import: "readonly",
                 // Globales de Laravel + Ziggy
                 route: "readonly",
+                // Auto-imports de unplugin-auto-import (Vue Composition API)
+                ref: "readonly",
+                computed: "readonly",
+                watch: "readonly",
+                watchEffect: "readonly",
+                onMounted: "readonly",
+                onUnmounted: "readonly",
+                onBeforeMount: "readonly",
+                onBeforeUnmount: "readonly",
+                reactive: "readonly",
+                toRefs: "readonly",
+                toRef: "readonly",
+                defineStore: "readonly",
+                // Inertia
+                useForm: "readonly",
+                usePage: "readonly",
+                router: "readonly",
+                // Stores
+                usarStoreTareas: "readonly",
+                usarStoreUsuario: "readonly",
             },
         },
         rules: {
