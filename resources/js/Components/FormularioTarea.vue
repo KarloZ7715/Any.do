@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
@@ -25,8 +26,27 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel'])
 
-// Encontrar categoría "Personal" para usar por defecto
+// Encontrar categoría "Personal" para usar por defecto solo en creación
 const categoriaPersonal = props.categorias.find((c) => c.nombre === 'Personal')
+
+// Determinar categoría inicial
+const obtenerCategoriaInicial = () => {
+    // Si estamos editando una tarea
+    if (props.tarea) {
+        // Usar la categoría actual de la tarea (puede ser null)
+        return props.tarea.categoria_id
+    }
+    // Si estamos creando, usar Personal por defecto
+    return categoriaPersonal?.id || null
+}
+
+// Computed para obtener nombre de la categoría seleccionada
+const nombreCategoriaSeleccionada = computed(() => {
+    const categoriaId = form.categoria_id
+    if (!categoriaId) return 'Selecciona una categoría'
+    const categoria = props.categorias.find((c) => c.id === categoriaId)
+    return categoria?.nombre || 'Selecciona una categoría'
+})
 
 // Inicializar formulario
 const form = useForm({
@@ -35,7 +55,7 @@ const form = useForm({
     estado: props.tarea?.estado || 'pendiente',
     prioridad: props.tarea?.prioridad || 2,
     fecha_vencimiento: props.tarea?.fecha_vencimiento || null,
-    categoria_id: props.tarea?.categoria_id || categoriaPersonal?.id || null,
+    categoria_id: obtenerCategoriaInicial(),
 })
 
 const handleSubmit = () => {
@@ -145,9 +165,9 @@ const estados = [
             <!-- Categoría -->
             <div class="space-y-2">
                 <Label for="categoria">Categoría *</Label>
-                <Select v-model="form.categoria_id" :disabled="form.processing">
+                <Select v-model:model-value="form.categoria_id" :disabled="form.processing">
                     <SelectTrigger id="categoria">
-                        <SelectValue placeholder="Selecciona una categoría" />
+                        <SelectValue :placeholder="nombreCategoriaSeleccionada" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem
