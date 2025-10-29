@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TareaController;
 use Illuminate\Foundation\Application;
@@ -30,6 +31,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
     Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy');
     Route::patch('/tareas/{tarea}/toggle', [TareaController::class, 'toggle'])->name('tareas.toggle');
+
+    // Rutas de Categorías
+    Route::resource('categorias', CategoriaController::class)->except(['show', 'create', 'edit']);
 });
 
 require __DIR__ . '/auth.php';
