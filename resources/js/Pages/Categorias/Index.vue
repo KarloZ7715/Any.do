@@ -143,7 +143,7 @@ const manejarEliminar = (idCategoria) => {
 
         <!-- Modal para Crear/Editar -->
         <Dialog :open="modalAbierto" @update:open="cerrarModal">
-            <DialogContent class="max-w-md">
+            <DialogContent class="max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
                         {{
