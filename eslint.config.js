@@ -42,8 +42,13 @@ export default [
                 setInterval: "readonly",
                 clearTimeout: "readonly",
                 clearInterval: "readonly",
+                confirm: "readonly",
+                alert: "readonly",
+                prompt: "readonly",
                 // Globales de Vite
                 import: "readonly",
+                // Globales de Laravel + Ziggy
+                route: "readonly",
             },
         },
         rules: {
