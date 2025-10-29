@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Categoria extends Model
@@ -24,6 +25,7 @@ class Categoria extends Model
         'descripcion',
         'color',
         'icono',
+        'usuario_id',
     ];
 
     /**
@@ -44,6 +46,14 @@ class Categoria extends Model
     public function tareas(): HasMany
     {
         return $this->hasMany(Tarea::class, 'categoria_id');
+    }
+
+    /**
+     * Obtener el usuario propietario de la categoría.
+     */
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
     /**

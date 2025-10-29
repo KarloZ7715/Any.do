@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Categoria;
 
 class User extends Authenticatable
 {
@@ -64,5 +65,22 @@ class User extends Authenticatable
     public function esAdmin(): bool
     {
         return $this->rol === 'admin';
+    }
+
+    /**
+     * Boot del modelo para eventos.
+     */
+    protected static function booted(): void
+    {
+        // Crear categoría "Personal" automáticamente al crear usuario
+        static::created(function (User $user) {
+            Categoria::create([
+                'nombre' => 'Personal',
+                'descripcion' => 'Categoría personal predeterminada',
+                'color' => '#3B82F6', // Azul
+                'icono' => 'user',
+                'usuario_id' => $user->id,
+            ]);
+        });
     }
 }
