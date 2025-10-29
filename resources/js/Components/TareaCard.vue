@@ -1,7 +1,7 @@
 <script setup>
-import { Checkbox } from "@/Components/ui/checkbox";
-import { Button } from "@/Components/ui/button";
-import { Badge } from "@/Components/ui/badge";
+import { Checkbox } from '@/Components/ui/checkbox'
+import { Button } from '@/Components/ui/button'
+import { Badge } from '@/Components/ui/badge'
 import {
     Card,
     CardContent,
@@ -9,7 +9,7 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/Components/ui/card";
+} from '@/Components/ui/card'
 import {
     Calendar,
     Pencil,
@@ -17,7 +17,7 @@ import {
     Tag,
     Clock,
     AlertCircle,
-} from "lucide-vue-next";
+} from 'lucide-vue-next'
 
 const props = defineProps({
     tarea: {
@@ -28,40 +28,40 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-});
+})
 
-const emit = defineEmits(["toggle", "edit", "delete"]);
+const emit = defineEmits(['toggle', 'edit', 'delete'])
 
 const handleToggle = () => {
     if (!props.loading) {
-        emit("toggle", props.tarea.id);
+        emit('toggle', props.tarea.id)
     }
-};
+}
 
 const handleEdit = () => {
     if (!props.loading) {
-        emit("edit", props.tarea);
+        emit('edit', props.tarea)
     }
-};
+}
 
 const handleDelete = () => {
     if (!props.loading) {
-        emit("delete", props.tarea.id);
+        emit('delete', props.tarea.id)
     }
-};
+}
 
 // Clases de prioridad
 const prioridadClasses = {
-    red: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    yellow: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-    green: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-};
+    red: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+    yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    green: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+}
 
 // Clases de estado
 const estadoClasses = {
-    pendiente: "border-l-4 border-l-blue-500",
-    completada: "border-l-4 border-l-green-500 opacity-75",
-};
+    pendiente: 'border-l-4 border-l-blue-500',
+    completada: 'border-l-4 border-l-green-500 opacity-75',
+}
 </script>
 
 <template>

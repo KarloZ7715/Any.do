@@ -1,6 +1,6 @@
 <script setup>
-import TareaCard from "./TareaCard.vue";
-import { FileQuestion } from "lucide-vue-next";
+import TareaCard from './TareaCard.vue'
+import { FileQuestion } from 'lucide-vue-next'
 
 const props = defineProps({
     tareas: {
@@ -11,21 +11,21 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-});
+})
 
-const emit = defineEmits(["toggle", "edit", "delete"]);
+const emit = defineEmits(['toggle', 'edit', 'delete'])
 
 const handleToggle = (id) => {
-    emit("toggle", id);
-};
+    emit('toggle', id)
+}
 
 const handleEdit = (tarea) => {
-    emit("edit", tarea);
-};
+    emit('edit', tarea)
+}
 
 const handleDelete = (id) => {
-    emit("delete", id);
-};
+    emit('delete', id)
+}
 </script>
 
 <template>
@@ -37,9 +37,9 @@ const handleDelete = (id) => {
                 :key="tarea.id"
                 :tarea="tarea"
                 :loading="loading"
-                @toggle="handleToggle"
-                @edit="handleEdit"
-                @delete="handleDelete"
+                @toggle="(id) => handleToggle(id)"
+                @edit="(tarea) => handleEdit(tarea)"
+                @delete="(id) => handleDelete(id)"
             />
         </div>
 
