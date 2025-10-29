@@ -37,6 +37,10 @@ class TareaResource extends JsonResource
             'esta_completada' => $this->estaCompletada(),
             'dias_hasta_vencimiento' => $this->calcularDiasHastaVencimiento(),
 
+            // Foreign Keys
+            'categoria_id' => $this->categoria_id,
+            'usuario_id' => $this->usuario_id,
+
             // Relaciones (solo si están cargadas)
             'categoria' => CategoriaResource::make($this->whenLoaded('categoria')),
             'usuario' => UsuarioResource::make($this->whenLoaded('usuario')),
