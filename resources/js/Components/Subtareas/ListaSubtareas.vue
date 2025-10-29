@@ -150,11 +150,17 @@ const handleBlur = () => {
 
 <template>
 	<div class="space-y-2">
-		<!-- Header con título (sin contador) -->
+		<!-- Header con título y contador -->
 		<div class="flex items-center justify-between">
 			<h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
 				Subtareas
 			</h3>
+			<span
+				v-if="totalSubtareas > 0"
+				class="text-xs text-neutral-500 dark:text-neutral-400"
+			>
+				{{ completadas }}/{{ totalSubtareas }}
+			</span>
 		</div>
 
 		<!-- Contenedor con scroll (max 5 visibles) -->

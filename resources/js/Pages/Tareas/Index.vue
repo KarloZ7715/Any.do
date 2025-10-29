@@ -1,4 +1,5 @@
 <script setup>
+import { ref, watch } from 'vue'
 import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
 import ListaTareas from '@/Components/ListaTareas.vue'
 import ModalTarea from '@/Components/ModalTarea.vue'
@@ -107,6 +108,23 @@ const manejarEditar = (tarea) => {
 const manejarEliminar = (id) => {
     eliminarTarea(id)
 }
+
+// Watch para actualizar tareaActual cuando las props cambien (Inertia reload)
+watch(
+    () => props.tareas.data,
+    (nuevasTareas) => {
+        // Si el modal está abierto en modo editar, actualizar tareaActual
+        if (modalAbierto.value && modalModo.value === 'edit' && tareaActual.value) {
+            const tareaActualizada = nuevasTareas.find(
+                (t) => t.id === tareaActual.value.id,
+            )
+            if (tareaActualizada) {
+                tareaActual.value = tareaActualizada
+            }
+        }
+    },
+    { deep: true },
+)
 
 // Opciones de filtros
 const opcionesEstado = [
