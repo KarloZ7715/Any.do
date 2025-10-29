@@ -60,14 +60,6 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Obtener los comentarios del usuario.
-     */
-    public function comentarios(): HasMany
-    {
-        return $this->hasMany(Comentario::class, 'usuario_id');
-    }
-
-    /**
      * Verificar si el usuario es administrador.
      */
     public function esAdmin(): bool

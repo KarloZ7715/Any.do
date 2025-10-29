@@ -64,11 +64,11 @@ class Tarea extends Model
     }
 
     /**
-     * Obtener los comentarios de la tarea.
+     * Obtener las subtareas de la tarea.
      */
-    public function comentarios(): HasMany
+    public function subtareas(): HasMany
     {
-        return $this->hasMany(Comentario::class, 'tarea_id');
+        return $this->hasMany(Subtarea::class, 'tarea_id');
     }
 
     /**
