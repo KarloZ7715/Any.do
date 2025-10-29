@@ -87,7 +87,18 @@ const handleCrearSubtarea = (data) => {
 
 const handleActualizarSubtarea = (subtarea, nuevoTexto) => {
 	if (props.tarea) {
-		// Modo editar: hacer petición al servidor
+		// Modo editar: actualización optimista + petición al servidor
+		// 1. Actualizar UI inmediatamente (optimista)
+		const index = props.tarea.subtareas?.data 
+			? props.tarea.subtareas.data.findIndex((s) => s.id === subtarea.id)
+			: props.tarea.subtareas?.findIndex((s) => s.id === subtarea.id)
+		
+		if (index !== -1) {
+			const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
+			subtareasArray[index] = { ...subtareasArray[index], texto: nuevoTexto }
+		}
+		
+		// 2. Hacer petición al servidor
 		actualizarSubtarea(props.tarea.id, subtarea.id, nuevoTexto)
 	} else {
 		// Modo crear: actualizar localmente
@@ -100,7 +111,16 @@ const handleActualizarSubtarea = (subtarea, nuevoTexto) => {
 
 const handleEliminarSubtarea = (subtarea) => {
 	if (props.tarea) {
-		// Modo editar: hacer petición al servidor
+		// Modo editar: actualización optimista + petición al servidor
+		// 1. Actualizar UI inmediatamente (optimista)
+		const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
+		const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+		
+		if (index !== -1) {
+			subtareasArray.splice(index, 1)
+		}
+		
+		// 2. Hacer petición al servidor
 		eliminarSubtarea(props.tarea.id, subtarea.id)
 	} else {
 		// Modo crear: eliminar localmente
@@ -113,7 +133,17 @@ const handleEliminarSubtarea = (subtarea) => {
 
 const handleToggleSubtarea = (subtarea) => {
 	if (props.tarea) {
-		// Modo editar: hacer petición al servidor
+		// Modo editar: actualización optimista + petición al servidor
+		// 1. Actualizar UI inmediatamente (optimista)
+		const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
+		const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+		
+		if (index !== -1) {
+			const nuevoEstado = subtareasArray[index].estado === 'pendiente' ? 'completada' : 'pendiente'
+			subtareasArray[index] = { ...subtareasArray[index], estado: nuevoEstado }
+		}
+		
+		// 2. Hacer petición al servidor
 		toggleEstado(props.tarea.id, subtarea.id)
 	} else {
 		// Modo crear: toggle localmente

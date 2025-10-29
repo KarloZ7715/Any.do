@@ -15,7 +15,7 @@ const editando = ref(false)
 const textoEditado = ref(props.subtarea.texto)
 
 const toggleEstado = () => {
-	emit('toggle', props.subtarea.id)
+	emit('toggle')
 }
 
 const iniciarEdicion = () => {
@@ -32,7 +32,7 @@ const guardarEdicion = () => {
 	}
 
 	if (textoEditado.value !== props.subtarea.texto) {
-		emit('update', props.subtarea.id, textoEditado.value)
+		emit('update', textoEditado.value)
 	}
 	editando.value = false
 }
@@ -43,7 +43,7 @@ const cancelarEdicion = () => {
 }
 
 const eliminar = () => {
-	emit('delete', props.subtarea.id)
+	emit('delete')
 }
 </script>
 

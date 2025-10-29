@@ -98,18 +98,21 @@ const handleToggle = (subtarea) => {
  * Manejar actualización de texto.
  */
 const handleUpdate = (subtarea, nuevoTextoParam) => {
-	if (!nuevoTextoParam.trim()) return
+	// Asegurar que nuevoTextoParam es string
+	const nuevoTexto = typeof nuevoTextoParam === 'string' ? nuevoTextoParam : String(nuevoTextoParam || '')
+	
+	if (!nuevoTexto.trim()) return
 
 	if (props.modo === 'create') {
 		// Modo crear: actualizar localmente
 		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
 		if (index !== -1) {
-			subtareasLocales.value[index].texto = nuevoTextoParam.trim()
+			subtareasLocales.value[index].texto = nuevoTexto.trim()
 			emit('actualizar', subtareasLocales.value[index])
 		}
 	} else {
 		// Modo editar: hacer petición
-		emit('actualizar', subtarea, nuevoTextoParam.trim())
+		emit('actualizar', subtarea, nuevoTexto.trim())
 	}
 }
 
