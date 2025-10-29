@@ -9,6 +9,7 @@ use App\Services\SubtareaService;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Controlador para gestión de Subtareas.
@@ -31,8 +32,10 @@ class SubtareaController extends Controller
         // Verificar que el usuario puede modificar la tarea
         $this->authorize('update', $tarea);
 
+        // Validar y crear el DTO (lanza ValidationException si falla)
+        $data = SubtareaData::validateAndCreate($request->all());
+
         try {
-            $data = SubtareaData::from($request->all());
             $this->subtareaService->crearSubtarea($data);
 
             return back()->with('success', 'Subtarea creada exitosamente');
@@ -44,7 +47,7 @@ class SubtareaController extends Controller
     /**
      * Actualizar una subtarea existente.
      */
-    public function update(Request $request, Subtarea $subtarea): RedirectResponse
+    public function update(Request $request, Tarea $tarea, Subtarea $subtarea): RedirectResponse
     {
         $this->authorize('update', $subtarea);
 
@@ -61,7 +64,7 @@ class SubtareaController extends Controller
     /**
      * Eliminar una subtarea.
      */
-    public function destroy(Subtarea $subtarea): RedirectResponse
+    public function destroy(Tarea $tarea, Subtarea $subtarea): RedirectResponse
     {
         $this->authorize('delete', $subtarea);
 
@@ -77,7 +80,7 @@ class SubtareaController extends Controller
     /**
      * Alternar estado de una subtarea (pendiente ↔ completada).
      */
-    public function toggle(Subtarea $subtarea): RedirectResponse
+    public function toggle(Tarea $tarea, Subtarea $subtarea): RedirectResponse
     {
         $this->authorize('update', $subtarea);
 
