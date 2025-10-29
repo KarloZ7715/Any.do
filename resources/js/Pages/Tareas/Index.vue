@@ -1,26 +1,26 @@
 <script setup>
-import LayoutPrincipal from "@/Layouts/LayoutPrincipal.vue";
-import ListaTareas from "@/Components/ListaTareas.vue";
-import ModalTarea from "@/Components/ModalTarea.vue";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
+import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
+import ListaTareas from '@/Components/ListaTareas.vue'
+import ModalTarea from '@/Components/ModalTarea.vue'
+import { Button } from '@/Components/ui/button'
+import { Input } from '@/Components/ui/input'
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/Components/ui/select";
+} from '@/Components/ui/select'
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/Components/ui/card";
-import { Plus, Search, Filter } from "lucide-vue-next";
-import { usarTareas } from "@/composables/usarTareas";
-import { usarFiltros } from "@/composables/usarFiltros";
+} from '@/Components/ui/card'
+import { Plus, Search, Filter } from 'lucide-vue-next'
+import { usarTareas } from '@/composables/usarTareas'
+import { usarFiltros } from '@/composables/usarFiltros'
 
 const props = defineProps({
     tareas: {
@@ -35,7 +35,7 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-});
+})
 
 // Composables
 const {
@@ -45,89 +45,96 @@ const {
     actualizarTarea,
     eliminarTarea,
     toggleEstado,
-} = usarTareas();
+} = usarTareas()
 const {
     filtros: filtrosActivos,
     aplicarFiltros,
     limpiarFiltros,
     establecerFiltro,
-} = usarFiltros(props.filtros);
+} = usarFiltros(props.filtros)
 
 // Estado del modal
-const modalAbierto = ref(false);
-const modalModo = ref("create");
-const tareaActual = ref(null);
+const modalAbierto = ref(false)
+const modalModo = ref('create')
+const tareaActual = ref(null)
 
 // Abrir modal para crear
 const abrirModalCrear = () => {
-    modalModo.value = "create";
-    tareaActual.value = null;
-    modalAbierto.value = true;
-};
+    modalModo.value = 'create'
+    tareaActual.value = null
+    modalAbierto.value = true
+}
 
 // Abrir modal para editar
 const abrirModalEditar = (tarea) => {
-    modalModo.value = "edit";
-    tareaActual.value = tarea;
-    modalAbierto.value = true;
-};
+    modalModo.value = 'edit'
+    tareaActual.value = tarea
+    modalAbierto.value = true
+}
 
 // Cerrar modal
 const cerrarModal = () => {
-    modalAbierto.value = false;
-    tareaActual.value = null;
-};
+    modalAbierto.value = false
+    tareaActual.value = null
+}
 
 // Manejar submit del formulario
 const manejarSubmit = (form) => {
     const opciones = {
         onSuccess: () => {
-            cerrarModal();
+            cerrarModal()
         },
-    };
-
-    if (modalModo.value === "create") {
-        crearTarea(form.data(), opciones);
-    } else {
-        actualizarTarea(tareaActual.value.id, form.data(), opciones);
     }
-};
+
+    if (modalModo.value === 'create') {
+        crearTarea(form.data(), opciones)
+    } else {
+        actualizarTarea(tareaActual.value.id, form.data(), opciones)
+    }
+}
 
 // Manejar toggle de estado
 const manejarToggle = (tarea) => {
-    toggleEstado(tarea.id);
-};
+    toggleEstado(tarea.id)
+}
 
 // Manejar edición
 const manejarEditar = (tarea) => {
-    abrirModalEditar(tarea);
-};
+    abrirModalEditar(tarea)
+}
 
 // Manejar eliminación
-const manejarEliminar = (tarea) => {
-    eliminarTarea(tarea.id);
-};
+const manejarEliminar = (id) => {
+    eliminarTarea(id)
+}
 
 // Opciones de filtros
 const opcionesEstado = [
-    { value: "todas", label: "Todas" },
-    { value: "pendiente", label: "Pendientes" },
-    { value: "completada", label: "Completadas" },
-];
+    { value: 'todas', label: 'Todas' },
+    { value: 'pendiente', label: 'Pendientes' },
+    { value: 'completada', label: 'Completadas' },
+]
 
 const opcionesPrioridad = [
-    { value: null, label: "Todas" },
-    { value: 1, label: "Alta" },
-    { value: 2, label: "Media" },
-    { value: 3, label: "Baja" },
-];
+    { value: null, label: 'Todas' },
+    { value: 1, label: 'Alta' },
+    { value: 2, label: 'Media' },
+    { value: 3, label: 'Baja' },
+]
 
 const opcionesVencimiento = [
-    { value: null, label: "Todas" },
-    { value: "hoy", label: "Hoy" },
-    { value: "semana", label: "Esta semana" },
-    { value: "vencidas", label: "Vencidas" },
-];
+    { value: null, label: 'Todas' },
+    { value: 'hoy', label: 'Hoy' },
+    { value: 'semana', label: 'Esta semana' },
+    { value: 'vencidas', label: 'Vencidas' },
+]
+
+// Decodificar HTML entities para la paginación
+const decodificarHtml = (html) => {
+    const txt = document.createElement('textarea')
+    txt.innerHTML = html
+    return txt.value
+}
 </script>
 
 <template>
@@ -303,11 +310,7 @@ const opcionesVencimiento = [
                             :disabled="!link.url || link.active"
                             @click="link.url && router.get(link.url)"
                         >
-                            {{
-                                link.label
-                                    .replace("&laquo;", "«")
-                                    .replace("&raquo;", "»")
-                            }}
+                            {{ decodificarHtml(link.label) }}
                         </Button>
                     </nav>
                 </div>
