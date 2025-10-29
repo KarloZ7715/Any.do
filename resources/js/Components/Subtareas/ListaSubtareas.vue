@@ -1,34 +1,53 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { Check } from 'lucide-vue-next'
+import { ref, computed, watch } from 'vue'
 import SubtareaItem from '@/Components/Subtareas/SubtareaItem.vue'
-import { usarSubtareas } from '@/composables/usarSubtareas'
 
 const props = defineProps({
 	tareaId: {
 		type: [Number, String],
-		required: true,
+		required: false,
 	},
 	subtareas: {
 		type: Array,
 		default: () => [],
 	},
+	modo: {
+		type: String,
+		default: 'edit', // 'edit' o 'create'
+	},
 })
 
-const { crearSubtarea, actualizarSubtarea, eliminarSubtarea, toggleEstado } =
-	usarSubtareas()
+const emit = defineEmits(['crear', 'actualizar', 'eliminar', 'toggle'])
 
 const nuevoTexto = ref('')
-const estaCreando = ref(false)
 
-const totalSubtareas = computed(() => props.subtareas.length)
+// Lista local o de props según el modo
+const subtareasMostrar = computed(() => {
+	return props.modo === 'create' ? subtareasLocales.value : props.subtareas
+})
+
+const subtareasLocales = ref([...props.subtareas])
+
+// Sincronizar subtareasLocales cuando cambien las props
+watch(
+	() => props.subtareas,
+	(nuevas) => {
+		if (props.modo === 'edit') {
+			subtareasLocales.value = [...nuevas]
+		}
+	},
+	{ deep: true },
+)
+
+const totalSubtareas = computed(() => subtareasMostrar.value.length)
 const limiteAlcanzado = computed(() => totalSubtareas.value >= 30)
 const completadas = computed(
-	() => props.subtareas.filter((s) => s.estado === 'completada').length,
+	() =>
+		subtareasMostrar.value.filter((s) => s.estado === 'completada').length,
 )
 
 /**
- * Crear una nueva subtarea.
+ * Crear una nueva subtarea (emite evento al padre o crea localmente).
  */
 const handleCrear = () => {
 	if (!nuevoTexto.value.trim()) return
@@ -37,39 +56,82 @@ const handleCrear = () => {
 		return
 	}
 
-	estaCreando.value = true
-	crearSubtarea(props.tareaId, nuevoTexto.value.trim())
+	if (props.modo === 'create') {
+		// Modo crear: agregar localmente
+		const nuevaSubtarea = {
+			id: Date.now(), // ID temporal
+			texto: nuevoTexto.value.trim(),
+			estado: 'pendiente',
+			tarea_id: null,
+		}
+		subtareasLocales.value.push(nuevaSubtarea)
+		emit('crear', nuevaSubtarea)
+	} else {
+		// Modo editar: hacer petición al servidor
+		emit('crear', nuevoTexto.value.trim())
+	}
+
 	nuevoTexto.value = ''
-	// estaCreando se resetea en el evento onFinish de Inertia
-	setTimeout(() => {
-		estaCreando.value = false
-	}, 300)
 }
 
 /**
  * Manejar toggle de estado.
  */
 const handleToggle = (subtarea) => {
-	toggleEstado(props.tareaId, subtarea.id)
+	if (props.modo === 'create') {
+		// Modo crear: toggle local
+		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
+		if (index !== -1) {
+			subtareasLocales.value[index].estado =
+				subtareasLocales.value[index].estado === 'pendiente'
+					? 'completada'
+					: 'pendiente'
+			emit('toggle', subtareasLocales.value[index])
+		}
+	} else {
+		// Modo editar: hacer petición
+		emit('toggle', subtarea)
+	}
 }
 
 /**
  * Manejar actualización de texto.
  */
-const handleUpdate = (subtarea, nuevoTexto) => {
-	if (!nuevoTexto.trim()) return
-	actualizarSubtarea(props.tareaId, subtarea.id, nuevoTexto.trim())
+const handleUpdate = (subtarea, nuevoTextoParam) => {
+	if (!nuevoTextoParam.trim()) return
+
+	if (props.modo === 'create') {
+		// Modo crear: actualizar localmente
+		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
+		if (index !== -1) {
+			subtareasLocales.value[index].texto = nuevoTextoParam.trim()
+			emit('actualizar', subtareasLocales.value[index])
+		}
+	} else {
+		// Modo editar: hacer petición
+		emit('actualizar', subtarea, nuevoTextoParam.trim())
+	}
 }
 
 /**
  * Manejar eliminación.
  */
 const handleDelete = (subtarea) => {
-	eliminarSubtarea(props.tareaId, subtarea.id)
+	if (props.modo === 'create') {
+		// Modo crear: eliminar localmente sin confirmación
+		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
+		if (index !== -1) {
+			subtareasLocales.value.splice(index, 1)
+			emit('eliminar', subtarea)
+		}
+	} else {
+		// Modo editar: pedir confirmación y hacer petición
+		emit('eliminar', subtarea)
+	}
 }
 
 /**
- * Manejar Enter en input.
+ * Manejar Enter o blur en input.
  */
 const handleKeydown = (event) => {
 	if (event.key === 'Enter') {
@@ -77,71 +139,50 @@ const handleKeydown = (event) => {
 		handleCrear()
 	}
 }
+
+const handleBlur = () => {
+	// Crear subtarea al perder foco si hay texto
+	if (nuevoTexto.value.trim()) {
+		handleCrear()
+	}
+}
 </script>
 
 <template>
 	<div class="space-y-2">
-		<!-- Header con título y contador -->
+		<!-- Header con título (sin contador) -->
 		<div class="flex items-center justify-between">
 			<h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
 				Subtareas
 			</h3>
-			<span
-				class="text-xs text-neutral-500 dark:text-neutral-400"
-				:class="{
-					'text-amber-600 dark:text-amber-500': limiteAlcanzado,
-				}"
-			>
-				{{ completadas }}/{{ totalSubtareas }} · Límite {{ totalSubtareas }}/30
-			</span>
 		</div>
 
-		<!-- Contenedor invisible con scroll (max 5 visibles) -->
+		<!-- Contenedor con scroll (max 5 visibles) -->
 		<div
-			v-if="subtareas.length > 0"
+			v-if="subtareasMostrar.length > 0"
 			class="max-h-[180px] space-y-1 overflow-y-auto"
 		>
 			<SubtareaItem
-				v-for="subtarea in subtareas"
+				v-for="subtarea in subtareasMostrar"
 				:key="subtarea.id"
 				:subtarea="subtarea"
 				@toggle="handleToggle(subtarea)"
-				@update="(nuevoTexto) => handleUpdate(subtarea, nuevoTexto)"
+				@update="(nuevoTextoParam) => handleUpdate(subtarea, nuevoTextoParam)"
 				@delete="handleDelete(subtarea)"
 			/>
 		</div>
 
-		<!-- Mensaje si no hay subtareas -->
-		<p
-			v-else
-			class="py-4 text-center text-xs text-neutral-400 dark:text-neutral-500"
-		>
-			Sin subtareas. Agrega una abajo.
-		</p>
-
 		<!-- Input para crear nueva subtarea -->
-		<div class="flex items-center gap-2 pt-2">
-			<div class="relative flex-1">
-				<input
-					v-model="nuevoTexto"
-					type="text"
-					placeholder="Nueva subtarea..."
-					:disabled="limiteAlcanzado || estaCreando"
-					class="w-full rounded-md border-neutral-300 px-3 py-1.5 text-sm transition-colors placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-neutral-600 dark:focus:ring-neutral-600 dark:disabled:bg-neutral-800"
-					@keydown="handleKeydown"
-				/>
-			</div>
-
-			<button
-				type="button"
-				:disabled="
-					!nuevoTexto.trim() || limiteAlcanzado || estaCreando
-				"
-				class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-neutral-900 text-white transition-opacity hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
-				@click="handleCrear"
-			>
-				<Check :size="16" />
-			</button>
+		<div class="pt-2">
+			<input
+				v-model="nuevoTexto"
+				type="text"
+				placeholder="Nueva subtarea..."
+				:disabled="limiteAlcanzado"
+				class="w-full rounded-md border-neutral-300 px-3 py-1.5 text-sm transition-colors placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-neutral-600 dark:focus:ring-neutral-600 dark:disabled:bg-neutral-800"
+				@keydown="handleKeydown"
+				@blur="handleBlur"
+			/>
 		</div>
 
 		<!-- Advertencia si límite alcanzado -->

@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
@@ -13,6 +13,7 @@ import {
     SelectValue,
 } from '@/Components/ui/select'
 import ListaSubtareas from '@/Components/Subtareas/ListaSubtareas.vue'
+import { usarSubtareas } from '@/composables/usarSubtareas'
 
 const props = defineProps({
     tarea: {
@@ -26,6 +27,12 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['submit', 'cancel'])
+
+const { crearSubtarea, actualizarSubtarea, eliminarSubtarea, toggleEstado } =
+	usarSubtareas()
+
+// Subtareas locales (para modo crear)
+const subtareasLocales = ref([])
 
 // Encontrar categoría "Personal" para usar por defecto solo en creación
 const categoriaPersonal = props.categorias.find((c) => c.nombre === 'Personal')
@@ -65,6 +72,59 @@ const handleSubmit = () => {
 
 const handleCancel = () => {
     emit('cancel')
+}
+
+// Handlers para subtareas
+const handleCrearSubtarea = (data) => {
+	if (props.tarea) {
+		// Modo editar: hacer petición al servidor
+		crearSubtarea(props.tarea.id, data)
+	} else {
+		// Modo crear: agregar localmente
+		subtareasLocales.value.push(data)
+	}
+}
+
+const handleActualizarSubtarea = (subtarea, nuevoTexto) => {
+	if (props.tarea) {
+		// Modo editar: hacer petición al servidor
+		actualizarSubtarea(props.tarea.id, subtarea.id, nuevoTexto)
+	} else {
+		// Modo crear: actualizar localmente
+		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
+		if (index !== -1) {
+			subtareasLocales.value[index] = { ...subtarea, texto: nuevoTexto }
+		}
+	}
+}
+
+const handleEliminarSubtarea = (subtarea) => {
+	if (props.tarea) {
+		// Modo editar: hacer petición al servidor
+		eliminarSubtarea(props.tarea.id, subtarea.id)
+	} else {
+		// Modo crear: eliminar localmente
+		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
+		if (index !== -1) {
+			subtareasLocales.value.splice(index, 1)
+		}
+	}
+}
+
+const handleToggleSubtarea = (subtarea) => {
+	if (props.tarea) {
+		// Modo editar: hacer petición al servidor
+		toggleEstado(props.tarea.id, subtarea.id)
+	} else {
+		// Modo crear: toggle localmente
+		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
+		if (index !== -1) {
+			subtareasLocales.value[index].estado =
+				subtareasLocales.value[index].estado === 'pendiente'
+					? 'completada'
+					: 'pendiente'
+		}
+	}
 }
 
 const prioridades = [
@@ -204,11 +264,16 @@ const estados = [
             </div>
         </div>
 
-        <!-- Subtareas (solo en modo editar) -->
-        <div v-if="tarea" class="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+        <!-- Subtareas (en ambos modos) -->
+        <div class="space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
             <ListaSubtareas
-                :tarea-id="tarea.id"
-                :subtareas="tarea.subtareas || []"
+                :tarea-id="tarea?.id"
+                :subtareas="tarea ? (tarea.subtareas?.data || tarea.subtareas || []) : subtareasLocales"
+                :modo="tarea ? 'edit' : 'create'"
+                @crear="handleCrearSubtarea"
+                @actualizar="handleActualizarSubtarea"
+                @eliminar="handleEliminarSubtarea"
+                @toggle="handleToggleSubtarea"
             />
         </div>
 

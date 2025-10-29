@@ -56,7 +56,7 @@ const descripcion = computed(() => {
 
 <template>
     <Dialog :open="open" @update:open="handleClose">
-        <DialogContent class="sm:max-w-[600px]">
+        <DialogContent class="w-[95vw] max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
                 <DialogTitle>{{ titulo }}</DialogTitle>
                 <DialogDescription>
