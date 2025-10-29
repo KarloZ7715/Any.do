@@ -14,8 +14,11 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('subtareas', function (Blueprint $table) {
-            // Eliminar foreign key primero (nombre real: fk_comentarios_usuario_id)
-            $table->dropForeign('fk_comentarios_usuario_id');
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                $table->dropForeign('fk_comentarios_usuario_id');
+            } else {
+                $table->dropForeign(['usuario_id']);
+            }
 
             // Eliminar columna
             $table->dropColumn('usuario_id');

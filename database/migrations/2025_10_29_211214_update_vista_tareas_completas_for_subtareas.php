@@ -10,6 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Eliminar vista anterior
         DB::statement('DROP VIEW IF EXISTS `vista_tareas_completas`');
 
@@ -53,6 +57,10 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Eliminar vista actualizada
         DB::statement('DROP VIEW IF EXISTS `vista_tareas_completas`');
 
