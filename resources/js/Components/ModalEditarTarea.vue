@@ -1,13 +1,15 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { X, Calendar, Flag, Folder, Trash2, Plus } from 'lucide-vue-next'
+import { X, Calendar, Flag, Folder, Trash2 } from 'lucide-vue-next'
 import { Dialog, DialogContent } from '@/Components/ui/dialog'
 import { Button } from '@/Components/ui/button'
 import { Textarea } from '@/Components/ui/textarea'
 import ModalCategoria from '@/Components/QuickAdd/ModalCategoria.vue'
 import ModalFecha from '@/Components/QuickAdd/ModalFecha.vue'
 import ModalPrioridad from '@/Components/QuickAdd/ModalPrioridad.vue'
+import ListaSubtareas from '@/Components/Subtareas/ListaSubtareas.vue'
+import { usarSubtareas } from '@/composables/usarSubtareas'
 
 const props = defineProps({
     tarea: {
@@ -26,6 +28,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:open', 'cerrar'])
 
+// Composable de subtareas
+const { crearSubtarea, actualizarSubtarea, eliminarSubtarea, toggleEstado } = usarSubtareas()
+
 // Estados de modals para iconos
 const modalCategoriaAbierto = ref(false)
 const modalFechaAbierto = ref(false)
@@ -40,10 +45,6 @@ const form = ref({
     fecha_vencimiento: null,
 })
 
-// Estado de subtareas
-const subtareas = ref([])
-const nuevaSubtarea = ref('')
-
 // Cargar datos de la tarea si existe (modo edición)
 watch(() => props.tarea, (tarea) => {
     if (tarea) {
@@ -54,7 +55,6 @@ watch(() => props.tarea, (tarea) => {
             prioridad: tarea.prioridad || 2,
             fecha_vencimiento: tarea.fecha_vencimiento || null,
         }
-        subtareas.value = tarea.subtareas || []
     }
 }, { immediate: true })
 
@@ -71,7 +71,8 @@ const fechaFormateada = computed(() => {
     if (!form.value.fecha_vencimiento) return null
     const fecha = new Date(form.value.fecha_vencimiento + 'T00:00:00')
     const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
-    return dias[fecha.getDay()]
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+    return `${dias[fecha.getDay()]} ${fecha.getDate()} ${meses[fecha.getMonth()]}`
 })
 
 const colorPrioridad = computed(() => {
@@ -81,6 +82,11 @@ const colorPrioridad = computed(() => {
         3: '#22C55E',
     }
     return colores[form.value.prioridad]
+})
+
+const nombrePrioridad = computed(() => {
+    const nombres = { 1: 'Alta', 2: 'Media', 3: 'Baja' }
+    return nombres[form.value.prioridad]
 })
 
 // Handlers de modals
@@ -121,29 +127,54 @@ const guardar = () => {
     )
 }
 
-// Agregar subtarea
-const agregarSubtarea = () => {
-    if (!nuevaSubtarea.value.trim()) return
-
-    router.post(
-        route('subtareas.store', props.tarea.id),
-        { texto: nuevaSubtarea.value },
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                nuevaSubtarea.value = ''
-            },
-        },
-    )
+// Handlers de subtareas (igual que FormularioTarea.vue)
+const handleCrearSubtarea = (texto) => {
+    if (props.tarea) {
+        crearSubtarea(props.tarea.id, texto)
+    }
 }
 
-// Toggle subtarea
-const toggleSubtarea = (subtarea) => {
-    router.post(
-        route('subtareas.toggle', { tarea: props.tarea.id, subtarea: subtarea.id }),
-        {},
-        { preserveScroll: true },
-    )
+const handleActualizarSubtarea = (subtarea, nuevoTexto) => {
+    if (props.tarea) {
+        // Actualización optimista
+        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
+        const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+        
+        if (index !== -1) {
+            subtareasArray[index] = { ...subtareasArray[index], texto: nuevoTexto }
+        }
+        
+        actualizarSubtarea(props.tarea.id, subtarea.id, nuevoTexto)
+    }
+}
+
+const handleEliminarSubtarea = (subtarea) => {
+    if (props.tarea) {
+        // Actualización optimista
+        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
+        const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+        
+        if (index !== -1) {
+            subtareasArray.splice(index, 1)
+        }
+        
+        eliminarSubtarea(props.tarea.id, subtarea.id)
+    }
+}
+
+const handleToggleSubtarea = (subtarea) => {
+    if (props.tarea) {
+        // Actualización optimista
+        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
+        const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+        
+        if (index !== -1) {
+            const nuevoEstado = subtareasArray[index].estado === 'pendiente' ? 'completada' : 'pendiente'
+            subtareasArray[index] = { ...subtareasArray[index], estado: nuevoEstado }
+        }
+        
+        toggleEstado(props.tarea.id, subtarea.id)
+    }
 }
 
 // Eliminar tarea
@@ -197,7 +228,7 @@ const cerrarModal = () => {
                         type="button"
                         @click="modalFechaAbierto = true"
                         class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-                        :class="fechaFormateada ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400'"
+                        :class="form.fecha_vencimiento ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400'"
                     >
                         <Calendar :size="14" />
                         <span>{{ fechaFormateada || 'Fecha' }}</span>
@@ -210,9 +241,9 @@ const cerrarModal = () => {
                         class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
                         :class="form.prioridad !== 2 ? 'bg-gray-100 dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'"
                     >
-                        <Flag :size="14" :style="form.prioridad !== 2 ? { color: colorPrioridad } : {}" />
-                        <span :style="form.prioridad !== 2 ? { color: colorPrioridad } : {}">
-                            {{ form.prioridad === 1 ? 'Alta' : form.prioridad === 2 ? 'Media' : 'Baja' }}
+                        <Flag :size="14" :style="{ color: colorPrioridad }" />
+                        <span :style="{ color: colorPrioridad }">
+                            {{ nombrePrioridad }}
                         </span>
                     </button>
                 </div>
@@ -229,39 +260,15 @@ const cerrarModal = () => {
 
             <!-- Subtareas -->
             <div class="px-6 pb-4">
-                <div class="space-y-2">
-                    <!-- Lista de subtareas existentes -->
-                    <div
-                        v-for="subtarea in subtareas"
-                        :key="subtarea.id"
-                        class="flex items-center gap-2 group"
-                    >
-                        <input
-                            type="checkbox"
-                            :checked="subtarea.estado === 'completada'"
-                            @change="toggleSubtarea(subtarea)"
-                            class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <span
-                            class="flex-1 text-sm"
-                            :class="subtarea.estado === 'completada' ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'"
-                        >
-                            {{ subtarea.texto }}
-                        </span>
-                    </div>
-
-                    <!-- Input para nueva subtarea -->
-                    <div class="flex items-center gap-2 pt-2">
-                        <Plus :size="16" class="text-gray-400" />
-                        <input
-                            v-model="nuevaSubtarea"
-                            type="text"
-                            placeholder="Agregar subtarea"
-                            class="flex-1 text-sm bg-transparent border-none outline-none focus:ring-0 p-0 text-gray-700 dark:text-gray-300 placeholder:text-gray-400"
-                            @keydown.enter.prevent="agregarSubtarea"
-                        />
-                    </div>
-                </div>
+                <ListaSubtareas
+                    :tarea-id="tarea?.id"
+                    :subtareas="tarea ? (tarea.subtareas?.data || tarea.subtareas || []) : []"
+                    modo="edit"
+                    @crear="handleCrearSubtarea"
+                    @actualizar="handleActualizarSubtarea"
+                    @eliminar="handleEliminarSubtarea"
+                    @toggle="handleToggleSubtarea"
+                />
             </div>
 
             <!-- Footer con botones -->
