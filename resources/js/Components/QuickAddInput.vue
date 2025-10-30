@@ -35,10 +35,14 @@ const mostrarFlecha = computed(() => texto.value.trim().length > 0)
 const parsearTexto = (textoEntrada) => {
     const textoLower = textoEntrada.toLowerCase()
 
+    // Reset valores antes de parsear
+    fechaSeleccionada.value = null
+    prioridadSeleccionada.value = null
+
     // Parsear fecha (palabras clave simples)
     if (textoLower.includes('hoy')) {
         fechaSeleccionada.value = new Date()
-    } else if (textoLower.includes('mañana')) {
+    } else if (textoLower.includes('mañana') || textoLower.includes('manana')) {
         const manana = new Date()
         manana.setDate(manana.getDate() + 1)
         fechaSeleccionada.value = manana
