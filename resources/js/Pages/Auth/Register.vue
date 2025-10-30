@@ -22,11 +22,22 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head title="Registro" />
 
-        <form @submit.prevent="submit">
+        <!-- Encabezado -->
+        <div class="mb-8 text-center">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                Crea tu cuenta
+            </h1>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Comienza a organizar tus tareas hoy
+            </p>
+        </div>
+
+        <form @submit.prevent="submit" class="space-y-6">
+            <!-- Name -->
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Nombre Completo" />
 
                 <TextInput
                     id="name"
@@ -36,13 +47,15 @@ const submit = () => {
                     required
                     autofocus
                     autocomplete="name"
+                    placeholder="Juan Pérez"
                 />
 
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+            <!-- Email -->
+            <div>
+                <InputLabel for="email" value="Correo Electrónico" />
 
                 <TextInput
                     id="email"
@@ -51,13 +64,15 @@ const submit = () => {
                     v-model="form.email"
                     required
                     autocomplete="username"
+                    placeholder="tu@email.com"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+            <!-- Password -->
+            <div>
+                <InputLabel for="password" value="Contraseña" />
 
                 <TextInput
                     id="password"
@@ -66,15 +81,17 @@ const submit = () => {
                     v-model="form.password"
                     required
                     autocomplete="new-password"
+                    placeholder="Mínimo 8 caracteres"
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4">
+            <!-- Password Confirmation -->
+            <div>
                 <InputLabel
                     for="password_confirmation"
-                    value="Confirm Password"
+                    value="Confirmar Contraseña"
                 />
 
                 <TextInput
@@ -84,6 +101,7 @@ const submit = () => {
                     v-model="form.password_confirmation"
                     required
                     autocomplete="new-password"
+                    placeholder="Repite tu contraseña"
                 />
 
                 <InputError
@@ -92,21 +110,26 @@ const submit = () => {
                 />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Already registered?
-                </Link>
-
+            <!-- Submit Button -->
+            <div>
                 <PrimaryButton
-                    class="ms-4"
+                    class="w-full justify-center"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Register
+                    Crear Cuenta
                 </PrimaryButton>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center text-sm">
+                <span class="text-gray-600 dark:text-gray-400">¿Ya tienes una cuenta?</span>
+                <Link
+                    :href="route('login')"
+                    class="ms-1 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium underline focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded transition-colors"
+                >
+                    Inicia Sesión
+                </Link>
             </div>
         </form>
     </GuestLayout>
