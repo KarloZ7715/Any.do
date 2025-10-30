@@ -7,6 +7,9 @@ import { createApp, h } from 'vue'
 import { createPinia } from 'pinia'
 import { ZiggyVue } from '../../vendor/tightenco/ziggy'
 
+// Importar composable de tema para inicialización global
+import './composables/usarTema'
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel'
 const pinia = createPinia()
 
