@@ -6,6 +6,7 @@ import DropdownLink from '@/Components/DropdownLink.vue'
 import NavLink from '@/Components/NavLink.vue'
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue'
 import ThemeToggle from '@/Components/ThemeToggle.vue'
+import ToastManager from '@/Components/Toast/ToastManager.vue'
 import { Link } from '@inertiajs/vue3'
 
 const showingNavigationDropdown = ref(false)
@@ -210,5 +211,8 @@ const showingNavigationDropdown = ref(false)
                 <slot />
             </main>
         </div>
+
+        <!-- Toast Notifications -->
+        <ToastManager />
     </div>
 </template>
