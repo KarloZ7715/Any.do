@@ -11,6 +11,14 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    fechaPredeterminada: {
+        type: String,
+        default: null,
+    },
+    placeholder: {
+        type: String,
+        default: 'Agregar una tarea. Presiona Enter para guardar',
+    },
 })
 
 // Estado del input
@@ -30,9 +38,9 @@ const horaSeleccionada = ref(null)
 const prioridadSeleccionada = ref(null)
 
 // Placeholder inteligente
-const placeholder = computed(() => {
+const placeholderTexto = computed(() => {
     if (texto.value.length > 0) return ''
-    return 'Agregar una tarea. Presiona Enter para guardar'
+    return props.placeholder
 })
 
 // Mostrar flecha cuando hay texto
@@ -120,7 +128,7 @@ const manejarEnter = async () => {
     const nuevaTarea = {
         titulo: textoLimpio,
         descripcion: null,
-        fecha_vencimiento: fechaSeleccionada.value || null,
+        fecha_vencimiento: fechaSeleccionada.value || props.fechaPredeterminada || null,
         prioridad: prioridadSeleccionada.value || 2, // Default: Media (2)
         categoria_id: categoriaSeleccionada.value || categoriaPersonal?.id || null,
         estado: 'pendiente',
@@ -171,7 +179,7 @@ onMounted(() => {
                     ref="inputRef"
                     v-model="texto"
                     type="text"
-                    :placeholder="placeholder"
+                    :placeholder="placeholderTexto"
                     @input="manejarCambio"
                     @keydown.enter="manejarEnter"
                     class="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-base"

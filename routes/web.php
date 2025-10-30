@@ -10,12 +10,12 @@ use Inertia\Inertia;
 // Ruta raíz: redirige según autenticación
 Route::get('/', function () {
     return auth()->check()
-        ? redirect()->route('tareas.index')
+        ? redirect()->route('tareas.proximos-siete-dias')
         : redirect()->route('login');
 })->name('home');
 
 Route::get('/dashboard', function () {
-    return redirect()->route('tareas.index');
+    return redirect()->route('tareas.proximos-siete-dias');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
