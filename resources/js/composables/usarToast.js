@@ -1,4 +1,4 @@
-import { toast } from 'sonner'
+import { toast } from 'vue-sonner'
 
 /**
  * Composable para usar notificaciones toast en toda la aplicación.

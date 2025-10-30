@@ -1,5 +1,5 @@
 <script setup>
-import { Toaster, toast } from 'sonner'
+import { Toaster, toast } from 'vue-sonner'
 import { usePage } from '@inertiajs/vue3'
 import { watch } from 'vue'
 
@@ -35,7 +35,7 @@ watch(
             })
         }
     },
-    { deep: true, immediate: true }
+    { deep: true, immediate: true },
 )
 </script>
 
@@ -43,8 +43,8 @@ watch(
     <Toaster
         position="top-right"
         :duration="3000"
-        close-button
-        rich-colors
+        :close-button="true"
+        :rich-colors="true"
         :toast-options="{
             classNames: {
                 toast: 'dark:bg-gray-800 dark:border-gray-700',
