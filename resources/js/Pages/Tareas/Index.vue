@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
 import ListaTareas from '@/Components/ListaTareas.vue'
 import ModalTarea from '@/Components/ModalTarea.vue'
+import QuickAddInput from '@/Components/QuickAddInput.vue'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
 import {
@@ -59,7 +60,7 @@ const modalAbierto = ref(false)
 const modalModo = ref('create')
 const tareaActual = ref(null)
 
-// Abrir modal para crear
+// Abrir modal para crear (ahora secundario, Quick Add es primario)
 const abrirModalCrear = () => {
     modalModo.value = 'create'
     tareaActual.value = null
@@ -157,22 +158,30 @@ const decodificarHtml = (html) => {
 
 <template>
     <LayoutPrincipal>
-        <template #header>
-            <div class="flex items-center justify-between">
+        <!-- Quick Add Input (Prioridad 1 - Input destacado) -->
+        <QuickAddInput :categorias="categorias" />
+
+        <div class="px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header con botón opcional (secundario) -->
+            <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h2 class="text-2xl font-bold tracking-tight">
+                    <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                         Mis Tareas
                     </h2>
-                    <p class="text-muted-foreground">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
                         Gestiona tus tareas de manera eficiente
                     </p>
                 </div>
-                <Button @click="abrirModalCrear">
+                <Button
+                    @click="abrirModalCrear"
+                    variant="outline"
+                    size="sm"
+                    class="hidden sm:flex"
+                >
                     <Plus class="h-4 w-4 mr-2" />
-                    Nueva Tarea
+                    Agregar con form completo
                 </Button>
             </div>
-        </template>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Sidebar de filtros -->
@@ -333,6 +342,7 @@ const decodificarHtml = (html) => {
                     </nav>
                 </div>
             </main>
+        </div>
         </div>
 
         <!-- Modal crear/editar -->
