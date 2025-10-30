@@ -49,7 +49,7 @@ const eliminar = () => {
 
 <template>
 	<div
-		class="group flex items-center gap-2 py-1.5 px-2 rounded hover:bg-neutral-50 transition-colors"
+		class="group flex items-center gap-2 py-1.5 px-2 rounded hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
 	>
 		<!-- Checkbox para toggle estado -->
 		<button
@@ -59,7 +59,7 @@ const eliminar = () => {
 			:class="
 				subtarea.estado === 'completada'
 					? 'bg-green-500 border-green-500'
-					: 'border-neutral-300 hover:border-neutral-400'
+					: 'border-neutral-300 dark:border-neutral-600 hover:border-neutral-400 dark:hover:border-neutral-500'
 			"
 		>
 			<svg
@@ -85,7 +85,7 @@ const eliminar = () => {
 				v-model="textoEditado"
 				type="text"
 				maxlength="255"
-				class="w-full px-2 py-0.5 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+				class="w-full px-2 py-0.5 text-sm border border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors"
 				@blur="guardarEdicion"
 				@keydown.enter="guardarEdicion"
 				@keydown.esc="cancelarEdicion"
@@ -98,8 +98,8 @@ const eliminar = () => {
 				class="w-full text-left text-sm transition-all"
 				:class="
 					subtarea.estado === 'completada'
-						? 'line-through text-neutral-400'
-						: 'text-neutral-700 hover:text-neutral-900'
+						? 'line-through text-neutral-400 dark:text-neutral-500'
+						: 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100'
 				"
 			>
 				{{ subtarea.texto }}
@@ -110,7 +110,7 @@ const eliminar = () => {
 		<button
 			type="button"
 			@click="eliminar"
-			class="flex-shrink-0 opacity-0 group-hover:opacity-100 text-neutral-400 hover:text-red-500 transition-all"
+			class="flex-shrink-0 opacity-0 group-hover:opacity-100 text-neutral-400 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 transition-all"
 		>
 			<X :size="14" />
 		</button>
