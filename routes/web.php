@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/tareas/todas', [TareaController::class, 'todasMisTareas'])->name('tareas.todas');
     Route::get('/tareas/calendario', [TareaController::class, 'miCalendario'])->name('tareas.calendario');
     Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
-    Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
+    Route::match(['put', 'patch'], '/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
     Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy');
     Route::patch('/tareas/{tarea}/toggle', [TareaController::class, 'toggle'])->name('tareas.toggle');
 

@@ -114,7 +114,20 @@ class TareaController extends Controller
     {
         $this->authorize('update', $tarea);
 
-        // Validar request antes de crear TareaData
+        // Si solo se envía fecha_vencimiento (desde drag & drop), actualizar directamente
+        if ($request->has('fecha_vencimiento') && count($request->all()) === 1) {
+            $request->validate([
+                'fecha_vencimiento' => ['required', 'date'],
+            ]);
+
+            $tarea->update([
+                'fecha_vencimiento' => $request->input('fecha_vencimiento'),
+            ]);
+
+            return back()->with('success', 'Fecha de tarea actualizada');
+        }
+
+        // Actualización completa: validar todos los campos
         $validated = $request->validate(TareaData::rules());
 
         $data = TareaData::from([

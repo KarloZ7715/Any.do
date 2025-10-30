@@ -1,23 +1,11 @@
 import { dragAndDrop } from '@formkit/drag-and-drop'
 import { router } from '@inertiajs/vue3'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 
-/**
- * Composable para implementar drag & drop de tareas entre columnas de días.
- * 
- * Actualiza la fecha_vencimiento en el backend cuando se mueve una tarea.
- */
 export function usarDragDropTareas() {
     const instanciasDrag = ref([])
 
-    /**
-     * Inicializar drag & drop en múltiples listas (columnas de días).
-     * 
-     * @param {Array} elementosLista - Array de refs a los elementos DOM de las listas
-     * @param {Function} onDrop - Callback cuando se suelta una tarea
-     */
     const inicializarDragDrop = (elementosLista, onDrop) => {
-        // Limpiar instancias previas
         destruirDragDrop()
 
         elementosLista.forEach((elemento) => {
@@ -25,20 +13,33 @@ export function usarDragDropTareas() {
 
             const instancia = dragAndDrop({
                 parent: elemento,
-                draggable: (el) => {
-                    // Solo elementos con data-tarea-id son arrastrables
-                    return el.hasAttribute('data-tarea-id')
+                getValues: (parent) => {
+                    return Array.from(parent.children)
                 },
-                dragHandle: (el) => {
-                    // Toda la tarjeta es el handle de arrastre
-                    return el
+                setValues: (values, parent) => {
+                    values.forEach(value => parent.appendChild(value))
                 },
-                dropZoneClass: 'drop-zone-active',
-                draggedClass: 'dragging',
-                onDrop: (event) => {
-                    if (onDrop) {
-                        onDrop(event)
-                    }
+                config: {
+                    group: 'tareas',
+                    draggable: (el) => {
+                        // Solo elementos con data-tarea-id son arrastrables
+                        return el.hasAttribute('data-tarea-id')
+                    },
+                    draggedClass: 'dragging',
+                    dropZoneClass: 'drop-zone-active',
+                    handleEnd: (data) => {
+                        // Limpiar clases de selección manualmente
+                        const allTareas = document.querySelectorAll('[data-tarea-id]')
+                        allTareas.forEach(el => {
+                            el.classList.remove('dragging', 'drop-zone-active')
+                            el.style.removeProperty('outline')
+                            el.style.removeProperty('outline-offset')
+                        })
+                        
+                        if (onDrop) {
+                            onDrop(data)
+                        }
+                    },
                 },
             })
 
@@ -46,9 +47,6 @@ export function usarDragDropTareas() {
         })
     }
 
-    /**
-     * Destruir todas las instancias de drag & drop.
-     */
     const destruirDragDrop = () => {
         instanciasDrag.value.forEach((instancia) => {
             if (instancia && typeof instancia.destroy === 'function') {
@@ -58,9 +56,6 @@ export function usarDragDropTareas() {
         instanciasDrag.value = []
     }
 
-    /**
-     * Actualizar fecha de vencimiento de una tarea en el backend.
-     */
     const actualizarFechaTarea = (tareaId, nuevaFecha) => {
         router.patch(
             route('tareas.update', tareaId),
@@ -72,7 +67,6 @@ export function usarDragDropTareas() {
         )
     }
 
-    // Limpiar al desmontar
     onUnmounted(() => {
         destruirDragDrop()
     })

@@ -97,13 +97,17 @@ const abrirModalEdicion = (tarea) => {
 }
 
 // Handler cuando se suelta una tarea en otra columna
-const manejarDrop = (event) => {
-    const tareaElement = event.draggedNode.el
+const manejarDrop = (data) => {
+    // Extraer el elemento arrastrado
+    const tareaElement = data.draggedNode?.el
+    if (!tareaElement) return
+    
+    // Obtener el parent destino (el contenedor con data-fecha)
+    const parentElement = tareaElement.parentElement
+    if (!parentElement) return
+    
     const tareaId = tareaElement.getAttribute('data-tarea-id')
-    const nuevaListaElement = event.targetData.parent
-
-    // Obtener la fecha de la nueva lista desde el atributo data-fecha
-    const nuevaFecha = nuevaListaElement.getAttribute('data-fecha')
+    const nuevaFecha = parentElement.getAttribute('data-fecha')
 
     if (tareaId && nuevaFecha) {
         actualizarFechaTarea(parseInt(tareaId), nuevaFecha)
@@ -115,6 +119,16 @@ onMounted(() => {
     nextTick(() => {
         if (listasRefs.value.length > 0) {
             inicializarDragDrop(listasRefs.value, manejarDrop)
+        }
+        
+        // Scroll a la columna del día actual (primera columna: Hoy)
+        const primerColumna = listasRefs.value[0]
+        if (primerColumna) {
+            primerColumna.parentElement?.scrollIntoView({ 
+                behavior: 'instant', 
+                block: 'nearest',
+                inline: 'start',
+            })
         }
     })
 })
@@ -162,25 +176,28 @@ onMounted(() => {
                             </p>
                         </div>
 
-                        <!-- Lista de tareas con scroll vertical -->
-                        <div
-                            :ref="el => listasRefs[sieteDias.indexOf(dia)] = el"
-                            :data-fecha="dia.fecha"
-                            class="flex-1 overflow-y-auto p-3 space-y-2"
-                        >
-                            <!-- Tareas de este día -->
+                        <!-- Wrapper para lista de tareas -->
+                        <div class="flex-1 overflow-y-auto p-3 relative">
+                            <!-- Lista de tareas con scroll vertical -->
                             <div
-                                v-for="tarea in dia.todasLasTareas"
-                                :key="tarea.id"
-                                :data-tarea-id="tarea.id"
+                                :ref="el => listasRefs[sieteDias.indexOf(dia)] = el"
+                                :data-fecha="dia.fecha"
+                                class="space-y-2 min-h-[60px]"
                             >
-                                <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
+                                <!-- Tareas de este día -->
+                                <div
+                                    v-for="tarea in dia.todasLasTareas"
+                                    :key="tarea.id"
+                                    :data-tarea-id="tarea.id"
+                                >
+                                    <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
+                                </div>
                             </div>
 
-                            <!-- Empty state si no hay tareas -->
+                            <!-- Empty state si no hay tareas (fuera del contenedor drag) -->
                             <div
                                 v-if="dia.totalTareas === 0"
-                                class="flex flex-col items-center justify-center py-8 text-center"
+                                class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
                             >
                                 <p class="text-sm text-gray-400 dark:text-gray-600">
                                     Sin tareas
