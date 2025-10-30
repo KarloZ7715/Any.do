@@ -96,4 +96,46 @@ class TareaService
     {
         return $this->tareaRepository->contarPorEstado($usuarioId);
     }
+
+    /**
+     * Obtener tareas de los próximos 7 días agrupadas por fecha.
+     * 
+     * Retorna array con fechas como keys y colección de tareas como values.
+     * 
+     * @param int $usuarioId ID del usuario
+     * @return array Array ['YYYY-MM-DD' => Collection<Tarea>]
+     */
+    public function obtenerTareasProximos7Dias(int $usuarioId): array
+    {
+        return $this->tareaRepository->tareasProximos7DiasAgrupadas($usuarioId);
+    }
+
+    /**
+     * Obtener TODAS las tareas del usuario con filtros y paginación.
+     * 
+     * Incluye pendientes y completadas.
+     * 
+     * @param array $filtros Filtros aplicables
+     * @param int $perPage Tareas por página
+     * @return LengthAwarePaginator
+     */
+    public function obtenerTodasLasTareas(array $filtros = [], int $perPage = 20): LengthAwarePaginator
+    {
+        return $this->tareaRepository->todasLasTareas($filtros, $perPage);
+    }
+
+    /**
+     * Obtener tareas organizadas por día para vista de calendario.
+     * 
+     * Retorna array con días del mes como keys y tareas como values.
+     * 
+     * @param int $usuarioId ID del usuario
+     * @param int $mes Número del mes (1-12)
+     * @param int $anio Año
+     * @return array Array ['YYYY-MM-DD' => Collection<Tarea>]
+     */
+    public function obtenerTareasPorCalendario(int $usuarioId, int $mes, int $anio): array
+    {
+        return $this->tareaRepository->tareasPorCalendario($usuarioId, $mes, $anio);
+    }
 }

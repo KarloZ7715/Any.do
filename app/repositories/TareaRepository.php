@@ -198,4 +198,113 @@ class TareaRepository
         $tarea->save();
         return $tarea->fresh(['usuario', 'categoria']);
     }
+
+    /**
+     * Obtener tareas de los próximos 7 días agrupadas por fecha.
+     * 
+     * Retorna array con fechas como keys y colección de tareas como values.
+     * Solo tareas pendientes.
+     * 
+     * @param int $usuarioId ID del usuario
+     * @return array ['YYYY-MM-DD' => Collection<Tarea>]
+     */
+    public function tareasProximos7DiasAgrupadas(int $usuarioId): array
+    {
+        $hoy = Carbon::today();
+        $sieteHoras = $hoy->copy()->addDays(7);
+
+        $tareas = Tarea::where('usuario_id', $usuarioId)
+            ->where('estado', 'pendiente')
+            ->whereBetween('fecha_vencimiento', [$hoy, $sieteHoras])
+            ->with(['categoria', 'subtareas'])
+            ->orderBy('fecha_vencimiento', 'asc')
+            ->orderBy('prioridad', 'asc')
+            ->get();
+
+        // Agrupar tareas por fecha
+        return $tareas->groupBy(function ($tarea) {
+            return Carbon::parse($tarea->fecha_vencimiento)->format('Y-m-d');
+        })->toArray();
+    }
+
+    /**
+     * Obtener TODAS las tareas del usuario con paginación.
+     * 
+     * Incluye pendientes y completadas.
+     * Incluye ordenamiento personalizado.
+     * 
+     * @param array $filtros Filtros opcionales
+     * @param int $perPage Tareas por página
+     * @return LengthAwarePaginator
+     */
+    public function todasLasTareas(array $filtros = [], int $perPage = 20): LengthAwarePaginator
+    {
+        $query = Tarea::query()->with(['usuario', 'categoria', 'subtareas']);
+
+        // Filtro por usuario (siempre aplicar)
+        if (isset($filtros['usuario_id'])) {
+            $query->where('usuario_id', $filtros['usuario_id']);
+        }
+
+        // Filtros opcionales
+        if (isset($filtros['estado']) && $filtros['estado'] !== 'todas') {
+            $query->where('estado', $filtros['estado']);
+        }
+
+        if (isset($filtros['prioridad'])) {
+            $query->where('prioridad', $filtros['prioridad']);
+        }
+
+        if (isset($filtros['categoria_id'])) {
+            $query->where('categoria_id', $filtros['categoria_id']);
+        }
+
+        if (isset($filtros['buscar']) && !empty($filtros['buscar'])) {
+            $idsEncontrados = Tarea::search($filtros['buscar'])->keys();
+            $query->whereIn('id', $idsEncontrados);
+        }
+
+        // Ordenamiento con campo 'orden' personalizado (cuando exista)
+        $ordenar = $filtros['ordenar'] ?? 'orden';
+        $direccion = $filtros['direccion'] ?? 'asc';
+
+        match ($ordenar) {
+            'orden' => $query->orderBy('orden', $direccion)->orderBy('created_at', 'desc'),
+            'prioridad' => $query->orderBy('prioridad', $direccion)->orderBy('fecha_vencimiento', 'asc'),
+            'fecha_vencimiento' => $query->orderBy('fecha_vencimiento', $direccion),
+            'created_at' => $query->orderBy('created_at', $direccion),
+            default => $query->orderBy('orden', 'asc')->orderBy('created_at', 'desc'),
+        };
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * Obtener tareas organizadas por día para calendario mensual.
+     * 
+     * Retorna array con días del mes como keys y tareas como values.
+     * Solo tareas con fecha de vencimiento en el mes especificado.
+     * 
+     * @param int $usuarioId ID del usuario
+     * @param int $mes Número del mes (1-12)
+     * @param int $anio Año
+     * @return array ['YYYY-MM-DD' => Collection<Tarea>]
+     */
+    public function tareasPorCalendario(int $usuarioId, int $mes, int $anio): array
+    {
+        $inicioMes = Carbon::create($anio, $mes, 1)->startOfDay();
+        $finMes = $inicioMes->copy()->endOfMonth()->endOfDay();
+
+        $tareas = Tarea::where('usuario_id', $usuarioId)
+            ->whereBetween('fecha_vencimiento', [$inicioMes, $finMes])
+            ->with(['categoria', 'subtareas'])
+            ->orderBy('fecha_vencimiento', 'asc')
+            ->orderBy('prioridad', 'asc')
+            ->get();
+
+        // Agrupar tareas por fecha (YYYY-MM-DD)
+        return $tareas->groupBy(function ($tarea) {
+            return Carbon::parse($tarea->fecha_vencimiento)->format('Y-m-d');
+        })->toArray();
+    }
 }

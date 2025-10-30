@@ -27,6 +27,7 @@ class TareaData extends Data
         public ?string $descripcion,
         public string $estado,
         public int $prioridad,
+        public ?int $orden,
         public ?string $fecha_vencimiento,
         public ?string $fecha_completada,
         public int $usuario_id,
@@ -46,6 +47,7 @@ class TareaData extends Data
             'descripcion' => ['nullable', 'string', 'max:5000'],
             'estado' => ['required', 'in:pendiente,completada'],
             'prioridad' => ['required', 'integer', 'min:1', 'max:3'],
+            'orden' => ['nullable', 'integer', 'min:0'],
             'fecha_vencimiento' => ['nullable', 'date', 'after_or_equal:today'],
             'categoria_id' => ['required', 'integer', 'exists:categorias,id'],
         ];

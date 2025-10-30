@@ -25,6 +25,9 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de Tareas
     Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
+    Route::get('/tareas/proximos-siete-dias', [TareaController::class, 'proximosSieteDias'])->name('tareas.proximos-siete-dias');
+    Route::get('/tareas/todas', [TareaController::class, 'todasMisTareas'])->name('tareas.todas');
+    Route::get('/tareas/calendario', [TareaController::class, 'miCalendario'])->name('tareas.calendario');
     Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
     Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
     Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy');

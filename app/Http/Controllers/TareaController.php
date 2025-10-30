@@ -155,4 +155,103 @@ class TareaController extends Controller
 
         return back()->with('success', $mensaje);
     }
+
+    /**
+     * Vista: Próximos 7 Días.
+     * 
+     * Tareas con fecha de vencimiento entre hoy y los próximos 7 días,
+     * agrupadas por fecha.
+     */
+    public function proximosSieteDias(Request $request): Response
+    {
+        $this->authorize('viewAny', Tarea::class);
+
+        $tareas = $this->tareaService->obtenerTareasProximos7Dias(auth()->id());
+
+        // Obtener categorías del usuario para el selector
+        $categorias = Categoria::where('usuario_id', auth()->id())
+            ->orderBy('nombre')
+            ->get();
+
+        return Inertia::render('Tareas/Proximos7Dias', [
+            'tareasPorFecha' => $tareas,
+            'categorias' => CategoriaResource::collection($categorias)->resolve(),
+        ]);
+    }
+
+    /**
+     * Vista: Todas mis Tareas.
+     * 
+     * Listado completo de tareas (pendientes y completadas)
+     * con filtros avanzados y ordenamiento personalizado.
+     */
+    public function todasMisTareas(Request $request): Response
+    {
+        $this->authorize('viewAny', Tarea::class);
+
+        $filtros = $request->only([
+            'estado',
+            'prioridad',
+            'categoria_id',
+            'vencimiento',
+            'buscar',
+            'ordenar',
+            'direccion',
+        ]);
+
+        $filtros['usuario_id'] = auth()->id();
+
+        $perPage = $request->input('per_page', 20);
+
+        $tareas = $this->tareaService->obtenerTodasLasTareas($filtros, $perPage);
+
+        // Obtener categorías del usuario
+        $categorias = Categoria::where('usuario_id', auth()->id())
+            ->orderBy('nombre')
+            ->get();
+
+        return Inertia::render('Tareas/TodasLasTareas', [
+            'tareas' => [
+                'data' => TareaResource::collection($tareas->items())->resolve(),
+                'links' => $tareas->linkCollection()->toArray(),
+                'meta' => [
+                    'current_page' => $tareas->currentPage(),
+                    'last_page' => $tareas->lastPage(),
+                    'per_page' => $tareas->perPage(),
+                    'total' => $tareas->total(),
+                    'from' => $tareas->firstItem(),
+                    'to' => $tareas->lastItem(),
+                ],
+            ],
+            'filtros' => $filtros,
+            'categorias' => CategoriaResource::collection($categorias)->resolve(),
+        ]);
+    }
+
+    /**
+     * Vista: Mi Calendario.
+     * 
+     * Vista de calendario mensual con tareas organizadas por día.
+     */
+    public function miCalendario(Request $request): Response
+    {
+        $this->authorize('viewAny', Tarea::class);
+
+        $mes = $request->input('mes', now()->month);
+        $anio = $request->input('anio', now()->year);
+
+        $tareasPorDia = $this->tareaService->obtenerTareasPorCalendario(auth()->id(), $mes, $anio);
+
+        // Obtener categorías del usuario
+        $categorias = Categoria::where('usuario_id', auth()->id())
+            ->orderBy('nombre')
+            ->get();
+
+        return Inertia::render('Tareas/MiCalendario', [
+            'tareasPorDia' => $tareasPorDia,
+            'mes' => $mes,
+            'anio' => $anio,
+            'categorias' => CategoriaResource::collection($categorias)->resolve(),
+        ]);
+    }
 }

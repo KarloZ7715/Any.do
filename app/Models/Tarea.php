@@ -26,6 +26,7 @@ class Tarea extends Model
         'descripcion',
         'estado',
         'prioridad',
+        'orden',
         'fecha_completada',
         'fecha_vencimiento',
         'usuario_id',

@@ -52,6 +52,15 @@ class HandleInertiaRequests extends Middleware
                     ->where('estado', 'pendiente')
                     ->where('prioridad', 1)
                     ->count(),
+                'tareas_proximos_7_dias' => \App\Models\Tarea::where('usuario_id', $usuarioId)
+                    ->where('estado', 'pendiente')
+                    ->whereBetween('fecha_vencimiento', [
+                        today(),
+                        today()->addDays(7)
+                    ])
+                    ->count(),
+                'tareas_totales' => \App\Models\Tarea::where('usuario_id', $usuarioId)
+                    ->count(),
             ];
 
             // Categorías con conteo de tareas para el sidebar
