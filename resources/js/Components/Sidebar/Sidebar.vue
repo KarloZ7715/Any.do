@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import { Menu, CheckSquare, FolderOpen, Calendar, Star, Archive } from 'lucide-vue-next';
+import { Menu, CheckSquare, FolderOpen, CalendarDays, CalendarRange, ListTodo } from 'lucide-vue-next';
 import { usarSidebar } from '@/composables/usarSidebar';
 import SidebarSection from './SidebarSection.vue';
 import SidebarItem from './SidebarItem.vue';
@@ -50,53 +50,34 @@ const esRutaActiva = (nombreRuta) => {
 
         <!-- Contenido scrollable -->
         <div class="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2">
-            <!-- Sección Principal -->
-            <SidebarSection titulo="Principal" :colapsable="false">
+            <!-- Sección: Vistas Principales -->
+            <SidebarSection titulo="Vistas Principales" :colapsable="false">
                 <SidebarItem
-                    :href="route('tareas.index')"
-                    :icono="CheckSquare"
-                    texto="Mis Tareas"
-                    :activo="esRutaActiva('tareas.index')"
-                    :contador="page.props.contadores?.tareas_pendientes"
+                    :href="route('tareas.proximos-siete-dias')"
+                    :icono="CalendarDays"
+                    texto="Próximos 7 Días"
+                    :activo="esRutaActiva('tareas.proximos-siete-dias')"
+                    :contador="page.props.contadores?.tareas_proximos_7_dias"
                 />
 
                 <SidebarItem
-                    :href="route('tareas.index', { filter: { estado: 'completada' } })"
-                    :icono="Archive"
-                    texto="Completadas"
-                    :activo="esRutaActiva('tareas.completadas')"
-                    :contador="page.props.contadores?.tareas_completadas"
-                />
-            </SidebarSection>
-
-            <!-- Sección Vistas -->
-            <SidebarSection titulo="Vistas" :colapsable="true">
-                <SidebarItem
-                    :href="route('tareas.index', { filter: { fecha: 'hoy' } })"
-                    :icono="Calendar"
-                    texto="Hoy"
-                    :activo="false"
-                    :contador="page.props.contadores?.tareas_hoy"
+                    :href="route('tareas.todas')"
+                    :icono="ListTodo"
+                    texto="Todas mis Tareas"
+                    :activo="esRutaActiva('tareas.todas')"
+                    :contador="page.props.contadores?.tareas_totales"
                 />
 
                 <SidebarItem
-                    :href="route('tareas.index', { filter: { prioridad: 1 } })"
-                    :icono="Star"
-                    texto="Importantes"
-                    :activo="false"
-                    :contador="page.props.contadores?.tareas_importantes"
+                    :href="route('tareas.calendario')"
+                    :icono="CalendarRange"
+                    texto="Mi Calendario"
+                    :activo="esRutaActiva('tareas.calendario')"
                 />
             </SidebarSection>
 
-            <!-- Sección Categorías -->
+            <!-- Sección: Categorías -->
             <SidebarSection titulo="Categorías" :colapsable="true">
-                <SidebarItem
-                    :href="route('categorias.index')"
-                    :icono="FolderOpen"
-                    texto="Todas las categorías"
-                    :activo="esRutaActiva('categorias.index')"
-                />
-
                 <!-- Lista de categorías del usuario -->
                 <SidebarItem
                     v-for="categoria in categorias"
@@ -107,6 +88,15 @@ const esRutaActiva = (nombreRuta) => {
                     :activo="false"
                     :contador="categoria.tareas_count"
                     :color="categoria.color"
+                />
+
+                <!-- Administrar categorías -->
+                <SidebarItem
+                    :href="route('categorias.index')"
+                    :icono="FolderOpen"
+                    texto="Administrar categorías"
+                    :activo="esRutaActiva('categorias.index')"
+                    class="mt-2 border-t border-gray-200 dark:border-gray-800 pt-2"
                 />
             </SidebarSection>
         </div>
