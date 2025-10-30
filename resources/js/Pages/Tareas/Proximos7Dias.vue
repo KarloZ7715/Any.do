@@ -1,8 +1,11 @@
 <script setup>
 import { CalendarDays } from 'lucide-vue-next'
+import { ref, onMounted, nextTick } from 'vue'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import QuickAddInput from '@/Components/QuickAddInput.vue'
 import TareaCardMinimalista from '@/Components/TareaCardMinimalista.vue'
+import ModalEditarTarea from '@/Components/ModalEditarTarea.vue'
+import { usarDragDropTareas } from '@/composables/usarDragDropTareas'
 
 const props = defineProps({
     tareasPorFecha: {
@@ -18,6 +21,12 @@ const props = defineProps({
 // Nombres de días de la semana
 const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const diasSemanaCortos = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+
+// Refs para las listas de drag & drop
+const listasRefs = ref([])
+
+// Composable drag & drop
+const { inicializarDragDrop, actualizarFechaTarea } = usarDragDropTareas()
 
 // Generar array de 7 días desde hoy
 const generarSieteDias = () => {
@@ -76,6 +85,39 @@ const sieteDias = computed(() => generarSieteDias())
 const totalTareasPendientes = computed(() => {
     return sieteDias.value.reduce((total, dia) => total + dia.tareasPendientes.length, 0)
 })
+
+// Estado del modal de edición
+const tareaSeleccionada = ref(null)
+const modalEditarAbierto = ref(false)
+
+// Abrir modal para editar tarea
+const abrirModalEdicion = (tarea) => {
+    tareaSeleccionada.value = tarea
+    modalEditarAbierto.value = true
+}
+
+// Handler cuando se suelta una tarea en otra columna
+const manejarDrop = (event) => {
+    const tareaElement = event.draggedNode.el
+    const tareaId = tareaElement.getAttribute('data-tarea-id')
+    const nuevaListaElement = event.targetData.parent
+
+    // Obtener la fecha de la nueva lista desde el atributo data-fecha
+    const nuevaFecha = nuevaListaElement.getAttribute('data-fecha')
+
+    if (tareaId && nuevaFecha) {
+        actualizarFechaTarea(parseInt(tareaId), nuevaFecha)
+    }
+}
+
+// Inicializar drag & drop después de montar
+onMounted(() => {
+    nextTick(() => {
+        if (listasRefs.value.length > 0) {
+            inicializarDragDrop(listasRefs.value, manejarDrop)
+        }
+    })
+})
 </script>
 
 <template>
@@ -121,13 +163,19 @@ const totalTareasPendientes = computed(() => {
                         </div>
 
                         <!-- Lista de tareas con scroll vertical -->
-                        <div class="flex-1 overflow-y-auto p-3 space-y-2">
+                        <div
+                            :ref="el => listasRefs[sieteDias.indexOf(dia)] = el"
+                            :data-fecha="dia.fecha"
+                            class="flex-1 overflow-y-auto p-3 space-y-2"
+                        >
                             <!-- Tareas de este día -->
-                            <TareaCardMinimalista
+                            <div
                                 v-for="tarea in dia.todasLasTareas"
                                 :key="tarea.id"
-                                :tarea="tarea"
-                            />
+                                :data-tarea-id="tarea.id"
+                            >
+                                <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
+                            </div>
 
                             <!-- Empty state si no hay tareas -->
                             <div
@@ -152,5 +200,35 @@ const totalTareasPendientes = computed(() => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal de edición de tarea -->
+        <ModalEditarTarea
+            v-model:open="modalEditarAbierto"
+            :tarea="tareaSeleccionada"
+            :categorias="categorias"
+            @cerrar="tareaSeleccionada = null"
+        />
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+/* Estilos para drag & drop */
+:deep(.dragging) {
+    opacity: 0.5;
+    transform: rotate(2deg);
+    cursor: grabbing !important;
+}
+
+:deep(.drop-zone-active) {
+    background-color: rgba(99, 102, 241, 0.1);
+    border: 2px dashed rgb(99, 102, 241);
+}
+
+:deep([data-tarea-id]) {
+    cursor: grab;
+}
+
+:deep([data-tarea-id]:active) {
+    cursor: grabbing;
+}
+</style>

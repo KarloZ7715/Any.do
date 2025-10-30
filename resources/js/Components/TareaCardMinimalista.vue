@@ -9,6 +9,8 @@ const props = defineProps({
     },
 })
 
+const emit = defineEmits(['editar'])
+
 // Verificar si tiene subtareas
 const tieneSubtareas = computed(() => {
     return props.tarea.subtareas && props.tarea.subtareas.length > 0
@@ -40,8 +42,7 @@ const eliminarTarea = () => {
 
 // Abrir modal de edición
 const abrirModal = () => {
-    // TODO: Implementar modal de edición de tarea
-    console.log('Abrir modal para editar tarea:', props.tarea.id)
+    emit('editar', props.tarea)
 }
 
 // Color de prioridad
