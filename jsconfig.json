@@ -4,7 +4,25 @@
         "paths": {
             "@/*": ["resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"]
-        }
+        },
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "checkJs": false,
+        "skipLibCheck": true
     },
-    "exclude": ["node_modules", "public"]
+    "include": ["resources/js/**/*", "resources/css/**/*"],
+    "exclude": [
+        "node_modules",
+        "public",
+        "vendor",
+        "storage",
+        "bootstrap",
+        "database",
+        "tests",
+        "**/dist",
+        "**/.vscode",
+        "**/.git"
+    ]
 }
