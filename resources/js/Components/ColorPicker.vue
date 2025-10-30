@@ -55,12 +55,12 @@ const esColorActivo = (color) => {
         <!-- Preview compacto del color seleccionado -->
         <div class="flex items-center gap-3">
             <div
-                class="h-10 w-10 rounded-md border-2 border-gray-200 shadow-sm"
+                class="h-10 w-10 rounded-md border-2 border-gray-200 dark:border-gray-700 shadow-sm"
                 :style="{ backgroundColor: colorSeleccionado }"
             ></div>
             <div class="flex-1">
                 <Label class="text-sm font-medium">Color seleccionado</Label>
-                <p class="text-xs text-gray-500 mt-0.5">{{ colorSeleccionado }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ colorSeleccionado }}</p>
             </div>
         </div>
 
@@ -72,12 +72,12 @@ const esColorActivo = (color) => {
                     v-for="color in coloresPredefinidos.slice(0, 8)"
                     :key="color.valor"
                     type="button"
-                    class="group relative h-8 w-full rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                    class="group relative h-8 w-full rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800"
                     :class="[
                         color.clase,
                         esColorActivo(color.valor)
-                            ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-1 scale-110'
-                            : 'border-transparent hover:border-gray-300',
+                            ? 'border-gray-900 dark:border-white ring-2 ring-gray-900 dark:ring-white ring-offset-1 scale-110'
+                            : 'border-transparent hover:border-gray-300 dark:hover:border-gray-500',
                     ]"
                     :title="color.nombre"
                     @click="seleccionarColor(color.valor)"
@@ -107,7 +107,7 @@ const esColorActivo = (color) => {
 
         <!-- Input manual de color (compacto) -->
         <div class="space-y-1.5">
-            <Label for="color-manual" class="text-xs font-medium text-gray-600">
+            <Label for="color-manual" class="text-xs font-medium text-gray-600 dark:text-gray-400">
                 Color personalizado
             </Label>
             <div class="flex gap-2">
@@ -123,7 +123,7 @@ const esColorActivo = (color) => {
                 <input
                     type="color"
                     :value="colorSeleccionado"
-                    class="h-9 w-9 cursor-pointer rounded border border-gray-200"
+                    class="h-9 w-9 cursor-pointer rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
                     @input="actualizarColorManual"
                 />
             </div>
