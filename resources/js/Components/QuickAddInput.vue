@@ -186,7 +186,7 @@ onMounted(() => {
                 />
 
                 <!-- Flecha condicional (solo cuando hay texto) -->
-                <transition
+                <Transition
                     enter-active-class="transition-all duration-200"
                     leave-active-class="transition-all duration-200"
                     enter-from-class="opacity-0 scale-90"
@@ -199,11 +199,11 @@ onMounted(() => {
                     >
                         <ArrowRight :size="18" />
                     </button>
-                </transition>
+                </Transition>
             </div>
 
             <!-- Iconos Animados (solo cuando hay texto) -->
-            <transition
+            <Transition
                 enter-active-class="transition-all duration-300 ease-out"
                 leave-active-class="transition-all duration-200 ease-in"
                 enter-from-class="opacity-0 -translate-y-1"
@@ -285,7 +285,7 @@ onMounted(() => {
                         Presiona Enter para guardar
                     </span>
                 </div>
-            </transition>
+            </Transition>
         </div>
 
         <!-- Modals -->

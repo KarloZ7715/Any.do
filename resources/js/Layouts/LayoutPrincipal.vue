@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import Sidebar from '@/Components/Sidebar/Sidebar.vue'
+import ToastManager from '@/Components/Toast/ToastManager.vue'
 import { usarSidebar } from '@/composables/usarSidebar'
 
 const { estaColapsado } = usarSidebar()
@@ -29,10 +30,13 @@ const margenContenido = computed(() => estaColapsado.value ? '60px' : '250px')
                 </div>
             </header>
 
-            <!-- Contenido de la Página -->
-            <main class="flex-1 overflow-y-auto">
+            <!-- Contenido de la Página (sin scroll vertical) -->
+            <main class="flex-1 overflow-hidden">
                 <slot />
             </main>
         </div>
+
+        <!-- Toast Notifications -->
+        <ToastManager />
     </div>
 </template>
