@@ -47,11 +47,21 @@ watch(() => props.tareas, (nuevas) => {
 
 // Agrupar tareas por distinción
 const tareasAgrupadas = computed(() => {
-    const hoy = new Date()
-    hoy.setHours(0, 0, 0, 0)
+    // Función para obtener fecha en formato YYYY-MM-DD
+    const obtenerFechaFormato = (fecha) => {
+        const year = fecha.getFullYear()
+        const month = String(fecha.getMonth() + 1).padStart(2, '0')
+        const day = String(fecha.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+    }
     
-    const manana = new Date(hoy)
-    manana.setDate(manana.getDate() + 1)
+    // Hoy en formato YYYY-MM-DD
+    const hoyFormato = obtenerFechaFormato(new Date())
+    
+    // Mañana en formato YYYY-MM-DD
+    const mananaDate = new Date()
+    mananaDate.setDate(mananaDate.getDate() + 1)
+    const mananaFormato = obtenerFechaFormato(mananaDate)
     
     const grupos = {
         hoy: [],
@@ -64,14 +74,14 @@ const tareasAgrupadas = computed(() => {
         if (!tarea.fecha_vencimiento) {
             grupos.otras.push(tarea)
         } else {
-            const fechaTarea = new Date(tarea.fecha_vencimiento)
-            fechaTarea.setHours(0, 0, 0, 0)
+            // La fecha viene en formato Y-m-d desde el backend
+            const fechaTareaFormato = tarea.fecha_vencimiento.split(' ')[0] // Eliminar hora si existe
             
-            if (fechaTarea.getTime() === hoy.getTime()) {
+            if (fechaTareaFormato === hoyFormato) {
                 grupos.hoy.push(tarea)
-            } else if (fechaTarea.getTime() === manana.getTime()) {
+            } else if (fechaTareaFormato === mananaFormato) {
                 grupos.manana.push(tarea)
-            } else if (fechaTarea > manana) {
+            } else if (fechaTareaFormato > mananaFormato) {
                 grupos.proximas.push(tarea)
             } else {
                 grupos.otras.push(tarea)

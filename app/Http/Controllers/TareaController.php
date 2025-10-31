@@ -153,7 +153,6 @@ class TareaController extends Controller
         $validated = $request->validate(TareaData::rules());
 
         // Si no viene categoria_id en el request, mantener la categoría actual
-        // (esto permite que el usuario no tenga que re-seleccionar la categoría cada vez)
         if (!$request->has('categoria_id')) {
             $validated['categoria_id'] = $tarea->categoria_id;
         }
