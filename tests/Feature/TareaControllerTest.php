@@ -62,7 +62,7 @@ class TareaControllerTest extends TestCase
 
     public function test_usuario_puede_crear_tarea(): void
     {
-        $categoria = Categoria::factory()->create();
+        $categoria = Categoria::factory()->create(['usuario_id' => $this->usuario->id]);
 
         $datosTarea = [
             'titulo' => 'Nueva tarea de prueba',
@@ -202,7 +202,7 @@ class TareaControllerTest extends TestCase
 
     public function test_filtros_funcionan_correctamente(): void
     {
-        $categoria = Categoria::factory()->create();
+        $categoria = Categoria::factory()->create(['usuario_id' => $this->usuario->id]);
 
         // Crear tareas con diferentes características
         Tarea::factory()->pendiente()->create([

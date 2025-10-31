@@ -74,6 +74,7 @@ class CategoriaFactory extends Factory
             'descripcion' => fake()->optional(0.7)->sentence(),
             'color' => fake()->randomElement(self::$colores),
             'icono' => fake()->randomElement(self::$iconos),
+            'usuario_id' => \App\Models\Usuario::factory(),
         ];
     }
 

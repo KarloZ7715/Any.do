@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Categoria;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,6 +27,26 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('tareas.proximos-siete-dias', absolute: false));
+    }
+
+    public function test_new_users_get_personal_category_created(): void
+    {
+        $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $user = auth()->user();
+        $categoriaPersonal = Categoria::where('usuario_id', $user->id)
+            ->where('es_personal', true)
+            ->first();
+
+        $this->assertNotNull($categoriaPersonal);
+        $this->assertEquals('Personal', $categoriaPersonal->nombre);
+        $this->assertEquals('#6366f1', $categoriaPersonal->color);
+        $this->assertEquals('User', $categoriaPersonal->icono);
     }
 }
