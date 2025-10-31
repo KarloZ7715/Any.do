@@ -49,6 +49,10 @@ if command -v php >/dev/null 2>&1; then
     php artisan route:cache || true
     php artisan view:cache || true
   fi
+
+  # Run Laravel optimize (generates compiled services, routes, and optimizations)
+  echo "[railway_build] Running php artisan optimize"
+  php artisan optimize --force || true
 fi
 
 echo "[railway_build] Build finished"
