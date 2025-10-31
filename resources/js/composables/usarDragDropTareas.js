@@ -56,10 +56,17 @@ export function usarDragDropTareas() {
         instanciasDrag.value = []
     }
 
-    const actualizarFechaTarea = (tareaId, nuevaFecha) => {
+    const actualizarFechaTarea = (tareaId, nuevaFecha, horaVencimiento = null) => {
+        const data = { fecha_vencimiento: nuevaFecha }
+        
+        // Si hay hora existente, incluirla en la actualización
+        if (horaVencimiento) {
+            data.hora_vencimiento = horaVencimiento
+        }
+        
         router.patch(
             route('tareas.update', tareaId),
-            { fecha_vencimiento: nuevaFecha },
+            data,
             {
                 preserveScroll: true,
                 preserveState: true,

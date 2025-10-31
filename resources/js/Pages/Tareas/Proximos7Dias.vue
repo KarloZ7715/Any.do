@@ -106,11 +106,30 @@ const manejarDrop = (data) => {
     const parentElement = tareaElement.parentElement
     if (!parentElement) return
     
-    const tareaId = tareaElement.getAttribute('data-tarea-id')
+    const tareaId = parseInt(tareaElement.getAttribute('data-tarea-id'))
     const nuevaFecha = parentElement.getAttribute('data-fecha')
 
     if (tareaId && nuevaFecha) {
-        actualizarFechaTarea(parseInt(tareaId), nuevaFecha)
+        // Buscar la tarea en los datos para obtener la hora existente
+        let tareaEncontrada = null
+        for (const dia of sieteDias.value) {
+            const tarea = dia.todasLasTareas.find(t => t.id === tareaId)
+            if (tarea) {
+                tareaEncontrada = tarea
+                break
+            }
+        }
+        
+        // Usar hora_vencimiento directamente si existe, sino intentar extraerla
+        let horaVencimiento = null
+        if (tareaEncontrada) {
+            // Usar hora_vencimiento del Resource si existe
+            if (tareaEncontrada.hora_vencimiento && tareaEncontrada.hora_vencimiento !== '00:00') {
+                horaVencimiento = tareaEncontrada.hora_vencimiento
+            }
+        }
+        
+        actualizarFechaTarea(tareaId, nuevaFecha, horaVencimiento)
     }
 }
 

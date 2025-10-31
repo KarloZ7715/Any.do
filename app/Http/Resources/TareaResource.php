@@ -31,6 +31,7 @@ class TareaResource extends JsonResource
             'prioridad_texto' => $this->obtenerPrioridadTexto(),
             'prioridad_color' => $this->obtenerPrioridadColor(),
             'fecha_vencimiento' => $this->fecha_vencimiento?->format('Y-m-d'),
+            'hora_vencimiento' => $this->fecha_vencimiento?->format('H:i'),
             'fecha_vencimiento_humana' => $this->fecha_vencimiento?->diffForHumans(),
             'fecha_completada' => $this->fecha_completada?->format('Y-m-d H:i:s'),
             'esta_vencida' => $this->estaVencida(),

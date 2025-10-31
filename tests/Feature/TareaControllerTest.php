@@ -289,4 +289,72 @@ class TareaControllerTest extends TestCase
 
         $response->assertRedirect(route('login'));
     }
+
+    /**
+     * Test: Drag & drop preserva la hora de la tarea
+     */
+    public function test_drag_and_drop_preserva_hora_vencimiento(): void
+    {
+        // Crear tarea con fecha y hora específica
+        $fechaOriginal = now()->addDays(5)->setHour(14)->setMinute(30)->setSecond(0);
+        $tarea = Tarea::factory()->create([
+            'usuario_id' => $this->usuario->id,
+            'fecha_vencimiento' => $fechaOriginal,
+        ]);
+
+        // Verificar que la tarea tiene la hora
+        $this->assertEquals(14, $tarea->fecha_vencimiento->hour);
+        $this->assertEquals(30, $tarea->fecha_vencimiento->minute);
+
+        // Simular drag & drop: cambiar solo la fecha (mover a otro día)
+        $nuevaFecha = now()->addDays(10)->format('Y-m-d');
+
+        $response = $this->actingAs($this->usuario)->patch(
+            route('tareas.update', $tarea->id),
+            [
+                'fecha_vencimiento' => $nuevaFecha,
+                'hora_vencimiento' => '14:30', // Enviar la hora
+            ]
+        );
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        // Verificar que la fecha cambió pero la hora se preservó
+        $tareaActualizada = $tarea->fresh();
+        $this->assertEquals($nuevaFecha, $tareaActualizada->fecha_vencimiento->format('Y-m-d'));
+        $this->assertEquals(14, $tareaActualizada->fecha_vencimiento->hour);
+        $this->assertEquals(30, $tareaActualizada->fecha_vencimiento->minute);
+    }
+
+    /**
+     * Test: Drag & drop sin hora preserva la hora existente
+     */
+    public function test_drag_and_drop_sin_hora_preserva_hora_existente(): void
+    {
+        // Crear tarea con fecha y hora específica
+        $fechaOriginal = now()->addDays(5)->setHour(9)->setMinute(15)->setSecond(0);
+        $tarea = Tarea::factory()->create([
+            'usuario_id' => $this->usuario->id,
+            'fecha_vencimiento' => $fechaOriginal,
+        ]);
+
+        // Simular drag & drop: cambiar solo la fecha sin enviar hora
+        $nuevaFecha = now()->addDays(10)->format('Y-m-d');
+
+        $response = $this->actingAs($this->usuario)->patch(
+            route('tareas.update', $tarea->id),
+            [
+                'fecha_vencimiento' => $nuevaFecha,
+            ]
+        );
+
+        $response->assertRedirect();
+
+        // Verificar que la fecha cambió pero la hora se preservó
+        $tareaActualizada = $tarea->fresh();
+        $this->assertEquals($nuevaFecha, $tareaActualizada->fecha_vencimiento->format('Y-m-d'));
+        $this->assertEquals(9, $tareaActualizada->fecha_vencimiento->hour);
+        $this->assertEquals(15, $tareaActualizada->fecha_vencimiento->minute);
+    }
 }

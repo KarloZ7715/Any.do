@@ -225,32 +225,16 @@ const form = ref({
 // Cargar datos de la tarea
 watch(() => props.tarea, (tarea) => {
     if (tarea) {
-        // Separar fecha y hora si viene como datetime
+        // Usar hora_vencimiento del Resource si existe, sino intentar parsearlo
         let fecha = null
         let hora = null
         
         if (tarea.fecha_vencimiento) {
-            const datetime = tarea.fecha_vencimiento
+            fecha = tarea.fecha_vencimiento // Ya viene en formato YYYY-MM-DD
             
-            if (typeof datetime === 'string') {
-                try {
-                    // Separar fecha y hora sin timezone issues
-                    // Formato esperado: "YYYY-MM-DD" o "YYYY-MM-DD HH:MM:SS"
-                    const [datePart, timePart] = datetime.split(' ')
-                    
-                    // La fecha ya viene en formato correcto YYYY-MM-DD
-                    fecha = datePart
-                    
-                    // Extraer hora si existe (formato HH:MM:SS o HH:MM)
-                    if (timePart) {
-                        const [hours, minutes] = timePart.split(':')
-                        if (hours !== '00' || minutes !== '00') {
-                            hora = `${hours}:${minutes}`
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error parseando fecha:', error)
-                }
+            // Usar hora_vencimiento del Resource directamente si existe
+            if (tarea.hora_vencimiento && tarea.hora_vencimiento !== '00:00') {
+                hora = tarea.hora_vencimiento
             }
         }
         

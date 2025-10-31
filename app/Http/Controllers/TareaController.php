@@ -132,18 +132,30 @@ class TareaController extends Controller
     {
         $this->authorize('update', $tarea);
 
-        // Si solo se envía fecha_vencimiento (desde drag & drop), actualizar directamente
-        if ($request->has('fecha_vencimiento') && count($request->all()) === 1) {
+        // Si solo se envía fecha_vencimiento y opcionalmente hora_vencimiento (desde drag & drop)
+        if ($request->has('fecha_vencimiento') && in_array(count($request->keys()), [1, 2])) {
             $request->validate([
                 'fecha_vencimiento' => ['required', 'date'],
+                'hora_vencimiento' => ['nullable', 'date_format:H:i'],
             ]);
 
-            // Parsear la fecha como medianoche en timezone local (America/Bogota)
-            $fecha = \Carbon\Carbon::parse($request->input('fecha_vencimiento'), config('app.timezone'))
+            // Parsear la nueva fecha
+            $nuevaFecha = \Carbon\Carbon::parse($request->input('fecha_vencimiento'), config('app.timezone'))
                 ->startOfDay();
 
+            // Usar hora enviada o preservar la existente
+            if ($request->has('hora_vencimiento') && $request->input('hora_vencimiento')) {
+                // Combinar con la hora enviada
+                $hora = $request->input('hora_vencimiento');
+                $nuevaFecha = $nuevaFecha->setTimeFromTimeString($hora . ':00');
+            } elseif ($tarea->fecha_vencimiento) {
+                // Preservar la hora existente
+                $horaExistente = $tarea->fecha_vencimiento->format('H:i:s');
+                $nuevaFecha = $nuevaFecha->setTimeFromTimeString($horaExistente);
+            }
+
             $tarea->update([
-                'fecha_vencimiento' => $fecha,
+                'fecha_vencimiento' => $nuevaFecha,
             ]);
 
             return back()->with('success', 'Fecha de tarea actualizada');
