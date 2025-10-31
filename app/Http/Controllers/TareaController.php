@@ -88,6 +88,24 @@ class TareaController extends Controller
         // Validar request antes de crear TareaData
         $validated = $request->validate(TareaData::rules());
 
+        // Combinar fecha y hora si viene hora_vencimiento
+        if ($request->has('hora_vencimiento') && $validated['fecha_vencimiento']) {
+            $hora = $request->input('hora_vencimiento');
+            if ($hora) {
+                // Combinar fecha y hora en timezone local
+                $fechaHora = $validated['fecha_vencimiento'] . ' ' . $hora . ':00';
+                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($fechaHora, config('app.timezone'));
+            } else {
+                // Solo fecha, usar medianoche en timezone local
+                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
+                    ->startOfDay();
+            }
+        } elseif ($validated['fecha_vencimiento']) {
+            // Solo fecha sin hora, usar medianoche en timezone local
+            $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
+                ->startOfDay();
+        }
+
         // Si no se seleccionó categoría, usar categoría "Personal" del usuario
         if (empty($validated['categoria_id'])) {
             $categoriaPersonal = Categoria::where('usuario_id', auth()->id())
@@ -120,8 +138,12 @@ class TareaController extends Controller
                 'fecha_vencimiento' => ['required', 'date'],
             ]);
 
+            // Parsear la fecha como medianoche en timezone local (America/Bogota)
+            $fecha = \Carbon\Carbon::parse($request->input('fecha_vencimiento'), config('app.timezone'))
+                ->startOfDay();
+
             $tarea->update([
-                'fecha_vencimiento' => $request->input('fecha_vencimiento'),
+                'fecha_vencimiento' => $fecha,
             ]);
 
             return back()->with('success', 'Fecha de tarea actualizada');
@@ -129,6 +151,30 @@ class TareaController extends Controller
 
         // Actualización completa: validar todos los campos
         $validated = $request->validate(TareaData::rules());
+
+        // Si no viene categoria_id en el request, mantener la categoría actual
+        // (esto permite que el usuario no tenga que re-seleccionar la categoría cada vez)
+        if (!$request->has('categoria_id')) {
+            $validated['categoria_id'] = $tarea->categoria_id;
+        }
+
+        // Combinar fecha y hora si viene hora_vencimiento
+        if ($request->has('hora_vencimiento') && $validated['fecha_vencimiento']) {
+            $hora = $request->input('hora_vencimiento');
+            if ($hora) {
+                // Combinar fecha y hora en timezone local
+                $fechaHora = $validated['fecha_vencimiento'] . ' ' . $hora . ':00';
+                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($fechaHora, config('app.timezone'));
+            } else {
+                // Solo fecha, usar medianoche en timezone local
+                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
+                    ->startOfDay();
+            }
+        } elseif ($validated['fecha_vencimiento']) {
+            // Solo fecha sin hora, usar medianoche en timezone local
+            $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
+                ->startOfDay();
+        }
 
         $data = TareaData::from([
             ...$validated,
