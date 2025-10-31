@@ -2,9 +2,10 @@
 import { ref, watch, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { X, Calendar, Flag, Folder, Trash2 } from 'lucide-vue-next'
-import { Dialog, DialogContent } from '@/Components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/Components/ui/dialog'
 import { Button } from '@/Components/ui/button'
 import { Textarea } from '@/Components/ui/textarea'
+import { VisuallyHidden } from 'radix-vue'
 import ModalCategoria from '@/Components/QuickAdd/ModalCategoria.vue'
 import ModalFecha from '@/Components/QuickAdd/ModalFecha.vue'
 import ModalPrioridad from '@/Components/QuickAdd/ModalPrioridad.vue'
@@ -43,17 +44,54 @@ const form = ref({
     categoria_id: null,
     prioridad: 2,
     fecha_vencimiento: null,
+    hora_vencimiento: null,
 })
 
 // Cargar datos de la tarea si existe (modo edición)
 watch(() => props.tarea, (tarea) => {
     if (tarea) {
+        // Separar fecha y hora si viene como datetime
+        let fecha = null
+        let hora = null
+        
+        if (tarea.fecha_vencimiento) {
+            const datetime = tarea.fecha_vencimiento
+            
+            // Si es string ISO (2025-10-31T00:00:00.000000Z o 2025-10-31T14:30:00.000000Z)
+            if (typeof datetime === 'string') {
+                try {
+                    // Parsear como Date para manejar timezone correctamente
+                    const dateObj = new Date(datetime)
+                    
+                    if (!isNaN(dateObj.getTime())) {
+                        // Extraer fecha en formato YYYY-MM-DD (local)
+                        const year = dateObj.getFullYear()
+                        const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+                        const day = String(dateObj.getDate()).padStart(2, '0')
+                        fecha = `${year}-${month}-${day}`
+                        
+                        // Extraer hora en formato HH:MM (local)
+                        const hours = String(dateObj.getHours()).padStart(2, '0')
+                        const minutes = String(dateObj.getMinutes()).padStart(2, '0')
+                        
+                        // Solo guardar hora si no es 00:00
+                        if (hours !== '00' || minutes !== '00') {
+                            hora = `${hours}:${minutes}`
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error parseando fecha:', error)
+                }
+            }
+        }
+        
         form.value = {
             titulo: tarea.titulo || '',
             descripcion: tarea.descripcion || '',
             categoria_id: tarea.categoria?.id || null,
             prioridad: tarea.prioridad || 2,
-            fecha_vencimiento: tarea.fecha_vencimiento || null,
+            fecha_vencimiento: fecha,
+            hora_vencimiento: hora,
         }
     }
 }, { immediate: true })
@@ -69,10 +107,27 @@ const nombreCategoriaSeleccionada = computed(() => {
 
 const fechaFormateada = computed(() => {
     if (!form.value.fecha_vencimiento) return null
-    const fecha = new Date(form.value.fecha_vencimiento + 'T00:00:00')
-    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-    return `${dias[fecha.getDay()]} ${fecha.getDate()} ${meses[fecha.getMonth()]}`
+    
+    try {
+        const fecha = new Date(form.value.fecha_vencimiento + 'T00:00:00')
+        
+        // Verificar que la fecha es válida
+        if (isNaN(fecha.getTime())) return null
+        
+        const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+        
+        let resultado = `${dias[fecha.getDay()]} ${fecha.getDate()} ${meses[fecha.getMonth()]}`
+        
+        // Agregar hora si está disponible
+        if (form.value.hora_vencimiento) {
+            resultado += ` ${form.value.hora_vencimiento}`
+        }
+        
+        return resultado
+    } catch (error) {
+        return null
+    }
 })
 
 const colorPrioridad = computed(() => {
@@ -89,13 +144,14 @@ const nombrePrioridad = computed(() => {
     return nombres[form.value.prioridad]
 })
 
-// Handlers de modals
+// Handlers para modales
 const seleccionarCategoria = (categoriaId) => {
     form.value.categoria_id = categoriaId
 }
 
-const seleccionarFecha = ({ fecha }) => {
+const seleccionarFecha = ({ fecha, hora }) => {
     form.value.fecha_vencimiento = fecha
+    form.value.hora_vencimiento = hora
 }
 
 const seleccionarPrioridad = (prioridad) => {
@@ -112,6 +168,7 @@ const guardar = () => {
         categoria_id: form.value.categoria_id,
         prioridad: form.value.prioridad,
         fecha_vencimiento: form.value.fecha_vencimiento,
+        hora_vencimiento: form.value.hora_vencimiento,
         estado: props.tarea?.estado || 'pendiente',
     }
 
@@ -130,6 +187,19 @@ const guardar = () => {
 // Handlers de subtareas (igual que FormularioTarea.vue)
 const handleCrearSubtarea = (texto) => {
     if (props.tarea) {
+        // Crear optimísticamente primero
+        const nuevaSubtarea = {
+            id: Date.now(), // ID temporal
+            texto: texto,
+            estado: 'pendiente',
+            tarea_id: props.tarea.id,
+        }
+        
+        // Agregar a la lista local inmediatamente
+        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas || []
+        subtareasArray.push(nuevaSubtarea)
+        
+        // Luego hacer la petición al servidor
         crearSubtarea(props.tarea.id, texto)
     }
 }
@@ -199,6 +269,12 @@ const cerrarModal = () => {
 <template>
     <Dialog :open="open" @update:open="val => emit('update:open', val)">
         <DialogContent class="sm:max-w-[650px] max-h-[90vh] overflow-y-auto p-0">
+            <!-- Títulos ocultos para accesibilidad -->
+            <VisuallyHidden>
+                <DialogTitle>Editar Tarea</DialogTitle>
+                <DialogDescription>Edita los detalles de tu tarea</DialogDescription>
+            </VisuallyHidden>
+
             <!-- Header con título editable -->
             <div class="p-6 pb-4">
                 <!-- Título como input invisible -->
@@ -299,7 +375,8 @@ const cerrarModal = () => {
 
             <ModalFecha
                 v-model:open="modalFechaAbierto"
-                :fecha-seleccionada="form.fecha_vencimiento"
+                :fecha="form.fecha_vencimiento"
+                :hora="form.hora_vencimiento"
                 @seleccionar="seleccionarFecha"
             />
 
