@@ -47,6 +47,9 @@ const form = ref({
     hora_vencimiento: null,
 })
 
+// Estado local para subtareas (reactivo)
+const subtareasLocales = ref([])
+
 // Cargar datos de la tarea si existe (modo edición)
 watch(() => props.tarea, (tarea) => {
     if (tarea) {
@@ -93,6 +96,9 @@ watch(() => props.tarea, (tarea) => {
             fecha_vencimiento: fecha,
             hora_vencimiento: hora,
         }
+        
+        // Cargar subtareas locales
+        subtareasLocales.value = [...(tarea.subtareas?.data || tarea.subtareas || [])]
     }
 }, { immediate: true })
 
@@ -184,10 +190,10 @@ const guardar = () => {
     )
 }
 
-// Handlers de subtareas (igual que FormularioTarea.vue)
+// Handlers de subtareas con estado local reactivo
 const handleCrearSubtarea = (texto) => {
     if (props.tarea) {
-        // Crear optimísticamente primero
+        // Crear optimísticamente en el estado local
         const nuevaSubtarea = {
             id: Date.now(), // ID temporal
             texto: texto,
@@ -195,9 +201,8 @@ const handleCrearSubtarea = (texto) => {
             tarea_id: props.tarea.id,
         }
         
-        // Agregar a la lista local inmediatamente
-        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas || []
-        subtareasArray.push(nuevaSubtarea)
+        // Agregar al estado local inmediatamente
+        subtareasLocales.value.push(nuevaSubtarea)
         
         // Luego hacer la petición al servidor
         crearSubtarea(props.tarea.id, texto)
@@ -206,12 +211,11 @@ const handleCrearSubtarea = (texto) => {
 
 const handleActualizarSubtarea = (subtarea, nuevoTexto) => {
     if (props.tarea) {
-        // Actualización optimista
-        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
-        const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+        // Actualización optimista en el estado local
+        const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
         
         if (index !== -1) {
-            subtareasArray[index] = { ...subtareasArray[index], texto: nuevoTexto }
+            subtareasLocales.value[index] = { ...subtareasLocales.value[index], texto: nuevoTexto }
         }
         
         actualizarSubtarea(props.tarea.id, subtarea.id, nuevoTexto)
@@ -220,12 +224,11 @@ const handleActualizarSubtarea = (subtarea, nuevoTexto) => {
 
 const handleEliminarSubtarea = (subtarea) => {
     if (props.tarea) {
-        // Actualización optimista
-        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
-        const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+        // Actualización optimista en el estado local
+        const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
         
         if (index !== -1) {
-            subtareasArray.splice(index, 1)
+            subtareasLocales.value.splice(index, 1)
         }
         
         eliminarSubtarea(props.tarea.id, subtarea.id)
@@ -234,13 +237,12 @@ const handleEliminarSubtarea = (subtarea) => {
 
 const handleToggleSubtarea = (subtarea) => {
     if (props.tarea) {
-        // Actualización optimista
-        const subtareasArray = props.tarea.subtareas?.data || props.tarea.subtareas
-        const index = subtareasArray?.findIndex((s) => s.id === subtarea.id)
+        // Actualización optimista en el estado local
+        const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
         
         if (index !== -1) {
-            const nuevoEstado = subtareasArray[index].estado === 'pendiente' ? 'completada' : 'pendiente'
-            subtareasArray[index] = { ...subtareasArray[index], estado: nuevoEstado }
+            const nuevoEstado = subtareasLocales.value[index].estado === 'pendiente' ? 'completada' : 'pendiente'
+            subtareasLocales.value[index] = { ...subtareasLocales.value[index], estado: nuevoEstado }
         }
         
         toggleEstado(props.tarea.id, subtarea.id)
@@ -268,7 +270,7 @@ const cerrarModal = () => {
 
 <template>
     <Dialog :open="open" @update:open="val => emit('update:open', val)">
-        <DialogContent class="sm:max-w-[650px] max-h-[90vh] overflow-y-auto p-0">
+        <DialogContent class="sm:max-w-[550px] max-h-[700px] p-0 overflow-hidden">
             <!-- Títulos ocultos para accesibilidad -->
             <VisuallyHidden>
                 <DialogTitle>Editar Tarea</DialogTitle>
@@ -276,7 +278,7 @@ const cerrarModal = () => {
             </VisuallyHidden>
 
             <!-- Header con título editable -->
-            <div class="p-6 pb-4">
+            <div class="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-800">
                 <!-- Título como input invisible -->
                 <input
                     v-model="form.titulo"
@@ -314,8 +316,7 @@ const cerrarModal = () => {
                     <button
                         type="button"
                         @click="modalPrioridadAbierto = true"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-                        :class="form.prioridad !== 2 ? 'bg-gray-100 dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
                     >
                         <Flag :size="14" :style="{ color: colorPrioridad }" />
                         <span :style="{ color: colorPrioridad }">
@@ -325,26 +326,29 @@ const cerrarModal = () => {
                 </div>
             </div>
 
-            <!-- Descripción -->
-            <div class="px-6 pb-4">
-                <Textarea
-                    v-model="form.descripcion"
-                    placeholder="Agregar descripción..."
-                    class="min-h-[80px] resize-y text-sm"
-                />
-            </div>
+            <!-- Contenido con scroll -->
+            <div class="overflow-y-auto px-6 py-4">
+                <!-- Descripción -->
+                <div class="pb-4">
+                    <Textarea
+                        v-model="form.descripcion"
+                        placeholder="Agregar descripción..."
+                        class="min-h-[80px] resize-y text-sm"
+                    />
+                </div>
 
-            <!-- Subtareas -->
-            <div class="px-6 pb-4">
-                <ListaSubtareas
-                    :tarea-id="tarea?.id"
-                    :subtareas="tarea ? (tarea.subtareas?.data || tarea.subtareas || []) : []"
-                    modo="edit"
-                    @crear="handleCrearSubtarea"
-                    @actualizar="handleActualizarSubtarea"
-                    @eliminar="handleEliminarSubtarea"
-                    @toggle="handleToggleSubtarea"
-                />
+                <!-- Subtareas -->
+                <div>
+                    <ListaSubtareas
+                        :tarea-id="tarea?.id"
+                        :subtareas="subtareasLocales"
+                        modo="edit"
+                        @crear="handleCrearSubtarea"
+                        @actualizar="handleActualizarSubtarea"
+                        @eliminar="handleEliminarSubtarea"
+                        @toggle="handleToggleSubtarea"
+                    />
+                </div>
             </div>
 
             <!-- Footer con botones -->
