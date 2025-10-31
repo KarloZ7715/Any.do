@@ -40,7 +40,7 @@ class Tarea extends Model
     {
         return [
             'fecha_completada' => 'datetime',
-            'fecha_vencimiento' => 'date',
+            'fecha_vencimiento' => 'datetime',
             'prioridad' => 'integer',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
