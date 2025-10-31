@@ -141,26 +141,28 @@ const eliminarSubtarea = (subtarea) => {
             subtareas: [...subtareasLocales.value],
         })
         
-        // 2. Petición al backend
-        router.delete(
-            route('subtareas.destroy', {
-                tarea: props.tarea.id,
-                subtarea: subtarea.id,
-            }),
-            {
-                preserveScroll: true,
-                onError: (errors) => {
-                    console.error('Error al eliminar subtarea:', errors)
-                    // Revertir en caso de error
-                    subtareasLocales.value.splice(index, 0, subtareaEliminada)
-                    // Emitir cambios revertidos
-                    emit('subtareasActualizadas', {
-                        tareaId: props.tarea.id,
-                        subtareas: [...subtareasLocales.value],
-                    })
+        // 2. Petición al backend (solo si el ID es real, no temporal)
+        if (subtarea.id > 0) {
+            router.delete(
+                route('subtareas.destroy', {
+                    tarea: props.tarea.id,
+                    subtarea: subtarea.id,
+                }),
+                {
+                    preserveScroll: true,
+                    onError: (errors) => {
+                        console.error('Error al eliminar subtarea:', errors)
+                        // Revertir en caso de error
+                        subtareasLocales.value.splice(index, 0, subtareaEliminada)
+                        // Emitir cambios revertidos
+                        emit('subtareasActualizadas', {
+                            tareaId: props.tarea.id,
+                            subtareas: [...subtareasLocales.value],
+                        })
+                    },
                 },
-            },
-        )
+            )
+        }
     }
 }
 

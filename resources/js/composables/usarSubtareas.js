@@ -108,20 +108,22 @@ export function usarSubtareas() {
 			}
 		})
 
-		// 2. Petición al backend
-		router.delete(
-			route('subtareas.destroy', {
-				tarea: tareaId,
-				subtarea: subtareaId,
-			}),
-			{
-				preserveScroll: true,
-				preserveState: true,
-				onError: (errors) => {
-					console.error('Error al eliminar subtarea:', errors)
+		// 2. Petición al backend (solo si el ID es real, no temporal)
+		if (subtareaId > 0) {
+			router.delete(
+				route('subtareas.destroy', {
+					tarea: tareaId,
+					subtarea: subtareaId,
+				}),
+				{
+					preserveScroll: true,
+					preserveState: true,
+					onError: (errors) => {
+						console.error('Error al eliminar subtarea:', errors)
+					},
 				},
-			},
-		)
+			)
+		}
 	}
 
 	/**
