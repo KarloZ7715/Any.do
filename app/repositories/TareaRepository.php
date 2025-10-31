@@ -211,11 +211,12 @@ class TareaRepository
     public function tareasProximos7DiasAgrupadas(int $usuarioId): array
     {
         $hoy = Carbon::today();
-        $sieteHoras = $hoy->copy()->addDays(7);
+        $ultimoDia = $hoy->copy()->addDays(6); // Solo 7 días (hoy + 6 días más)
 
         $tareas = Tarea::where('usuario_id', $usuarioId)
             ->where('estado', 'pendiente')
-            ->whereBetween('fecha_vencimiento', [$hoy, $sieteHoras])
+            ->whereDate('fecha_vencimiento', '>=', $hoy)
+            ->whereDate('fecha_vencimiento', '<=', $ultimoDia)
             ->with(['categoria', 'subtareas'])
             ->orderBy('fecha_vencimiento', 'asc')
             ->orderBy('prioridad', 'asc')
