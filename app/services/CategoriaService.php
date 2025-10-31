@@ -172,4 +172,32 @@ class CategoriaService
             'tareas_count' => $totalTareas,
         ];
     }
+
+    /**
+     * Crear la categoría "Personal" por defecto para un usuario si no existe.
+     *
+     * @param int $usuarioId
+     * @return Categoria
+     */
+    public function crearCategoriaPersonalPorDefecto(int $usuarioId): Categoria
+    {
+        // Verificar si ya existe
+        $categoriaPersonal = $this->categoriaRepository->obtenerCategoriaPersonal($usuarioId);
+
+        if ($categoriaPersonal) {
+            return $categoriaPersonal;
+        }
+
+        // Crear la categoría Personal
+        $datos = [
+            'nombre' => 'Personal',
+            'descripcion' => 'Categoría personal por defecto',
+            'color' => '#6366f1', // Indigo
+            'icono' => 'User',
+            'usuario_id' => $usuarioId,
+            'es_personal' => true,
+        ];
+
+        return $this->categoriaRepository->crear($datos);
+    }
 }
