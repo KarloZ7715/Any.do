@@ -29,11 +29,11 @@ const horaLocal = ref(props.hora || '')
 // Watch para actualizar cuando cambian las props
 watch(() => props.fecha, (newVal) => {
     fechaLocal.value = newVal || ''
-})
+}, { immediate: true })
 
 watch(() => props.hora, (newVal) => {
     horaLocal.value = newVal || ''
-})
+}, { immediate: true })
 
 const handleGuardar = () => {
     if (fechaLocal.value) {
