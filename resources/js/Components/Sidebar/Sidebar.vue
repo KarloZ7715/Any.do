@@ -1,26 +1,34 @@
 <script setup>
-import { computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
-import { Menu, CheckSquare, FolderOpen, CalendarDays, CalendarRange, ListTodo } from 'lucide-vue-next';
-import { usarSidebar } from '@/composables/usarSidebar';
-import SidebarSection from './SidebarSection.vue';
-import SidebarItem from './SidebarItem.vue';
+import { computed } from 'vue'
+import { usePage, router } from '@inertiajs/vue3'
+import { Pin, CheckSquare, FolderOpen, CalendarDays, CalendarRange, ListTodo, User, LogOut, Sun, Moon } from 'lucide-vue-next'
+import { usarSidebar } from '@/composables/usarSidebar'
+import { usarTema } from '@/composables/usarTema'
+import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover'
+import SidebarSection from './SidebarSection.vue'
+import SidebarItem from './SidebarItem.vue'
 
-const page = usePage();
-const { estaColapsado, alternarSidebar, clasesSidebar } = usarSidebar();
+const page = usePage()
+const { estaColapsado, estaFijado, alternarFijado, handleMouseEnter, handleMouseLeave, clasesSidebar } = usarSidebar()
+const { temaActual, toggleTema } = usarTema()
 
 // Datos del usuario autenticado
-const usuario = computed(() => page.props.auth?.user);
+const usuario = computed(() => page.props.auth?.user)
 
 // Categorías del usuario
-const categorias = computed(() => page.props.categorias || []);
+const categorias = computed(() => page.props.categorias || [])
 
 // Determinar ruta activa
-const rutaActual = computed(() => route().current());
+const rutaActual = computed(() => route().current())
 
 const esRutaActiva = (nombreRuta) => {
-    return rutaActual.value === nombreRuta;
-};
+    return rutaActual.value === nombreRuta
+}
+
+// Handler para cerrar sesión
+const cerrarSesion = () => {
+    router.post(route('logout'))
+}
 </script>
 
 <template>
@@ -30,21 +38,121 @@ const esRutaActiva = (nombreRuta) => {
             'transition-all duration-300 ease-in-out flex flex-col z-40',
             clasesSidebar,
         ]"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
     >
-        <!-- Header con Logo y Toggle -->
+        <!-- Header con Logo y Pin -->
         <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+            <!-- Versión expandida -->
             <div v-show="!estaColapsado" class="flex items-center gap-2">
-                <CheckSquare :size="24" class="text-indigo-600 dark:text-indigo-500" :stroke-width="2.5" />
-                <span class="text-lg font-bold text-gray-900 dark:text-white">Any.do</span>
+                <!-- Popover con menú de usuario -->
+                <Popover>
+                    <PopoverTrigger as-child>
+                        <button
+                            class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            <CheckSquare :size="24" class="text-indigo-600 dark:text-indigo-500" :stroke-width="2.5" />
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent class="w-48 p-2" align="start">
+                        <div class="flex flex-col gap-1">
+                            <!-- Perfil -->
+                            <a
+                                :href="route('profile.edit')"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition-colors"
+                            >
+                                <User :size="16" />
+                                <span>Perfil</span>
+                            </a>
+
+                            <!-- Dark/Light Mode Toggle -->
+                            <button
+                                @click="toggleTema"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition-colors w-full text-left"
+                            >
+                                <Sun v-if="temaActual === 'dark'" :size="16" />
+                                <Moon v-else :size="16" />
+                                <span>{{ temaActual === 'dark' ? 'Modo Claro' : 'Modo Oscuro' }}</span>
+                            </button>
+
+                            <!-- Cerrar Sesión -->
+                            <button
+                                @click="cerrarSesion"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-colors w-full text-left"
+                            >
+                                <LogOut :size="16" />
+                                <span>Cerrar Sesión</span>
+                            </button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+
+                <div class="flex flex-col">
+                    <span class="text-lg font-bold text-gray-900 dark:text-white">{{ usuario?.name || 'Usuario' }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Any.do</span>
+                </div>
             </div>
 
-            <!-- Botón toggle -->
+            <!-- Versión colapsada -->
+            <div v-show="estaColapsado" class="mx-auto">
+                <Popover>
+                    <PopoverTrigger as-child>
+                        <button
+                            class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            <CheckSquare :size="24" class="text-indigo-600 dark:text-indigo-500" :stroke-width="2.5" />
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent class="w-48 p-2" align="start">
+                        <div class="flex flex-col gap-1">
+                            <!-- Perfil -->
+                            <a
+                                :href="route('profile.edit')"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition-colors"
+                            >
+                                <User :size="16" />
+                                <span>Perfil</span>
+                            </a>
+
+                            <!-- Dark/Light Mode Toggle -->
+                            <button
+                                @click="toggleTema"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition-colors w-full text-left"
+                            >
+                                <Sun v-if="temaActual === 'dark'" :size="16" />
+                                <Moon v-else :size="16" />
+                                <span>{{ temaActual === 'dark' ? 'Modo Claro' : 'Modo Oscuro' }}</span>
+                            </button>
+
+                            <!-- Cerrar Sesión -->
+                            <button
+                                @click="cerrarSesion"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-colors w-full text-left"
+                            >
+                                <LogOut :size="16" />
+                                <span>Cerrar Sesión</span>
+                            </button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            <!-- Botón Pin (solo visible cuando expandido) -->
             <button
-                @click="alternarSidebar"
+                v-show="!estaColapsado"
+                @click="alternarFijado"
                 class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                :class="estaColapsado ? 'mx-auto' : ''"
+                :title="estaFijado ? 'Desfijar sidebar' : 'Fijar sidebar'"
             >
-                <Menu :size="20" class="text-gray-600 dark:text-gray-400" />
+                <Pin
+                    :size="20"
+                    :class="[
+                        'transition-colors',
+                        estaFijado
+                            ? 'text-indigo-600 dark:text-indigo-500'
+                            : 'text-gray-400 dark:text-gray-600'
+                    ]"
+                />
             </button>
         </div>
 
@@ -82,10 +190,10 @@ const esRutaActiva = (nombreRuta) => {
                 <SidebarItem
                     v-for="categoria in categorias"
                     :key="categoria.id"
-                    :href="route('tareas.index', { filter: { categoria_id: categoria.id } })"
+                    :href="route('tareas.todas', { categoria_id: categoria.id })"
                     :icono="FolderOpen"
                     :texto="categoria.nombre"
-                    :activo="false"
+                    :activo="esRutaActiva('tareas.todas') && $page.props.categoriaSeleccionada?.id === categoria.id"
                     :contador="categoria.tareas_count"
                     :color="categoria.color"
                 />
