@@ -16,7 +16,7 @@ import { Link } from '@inertiajs/vue3'
         <!-- Logo -->
         <div class="mb-8">
             <Link href="/">
-                <ApplicationLogo class="h-16 w-16 fill-current text-primary-600 dark:text-primary-400 transition-colors" />
+                <ApplicationLogo class="h-20 w-20 transition-colors" />
             </Link>
         </div>
 
