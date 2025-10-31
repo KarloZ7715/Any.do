@@ -20,7 +20,7 @@ const props = defineProps({
     },
 })
 
-const emit = defineEmits(['subtareasActualizadas'])
+const emit = defineEmits(['subtareasActualizadas', 'tareaEliminada'])
 
 // Estado local de subtareas para actualizaciones optimistas
 const subtareasLocales = ref([])
@@ -272,6 +272,10 @@ const eliminarTarea = () => {
     if (confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
         router.delete(route('tareas.destroy', props.tarea.id), {
             preserveScroll: true,
+            onSuccess: () => {
+                // Emitir evento para que el padre maneje la eliminación
+                emit('tareaEliminada', props.tarea.id)
+            },
         })
     }
 }

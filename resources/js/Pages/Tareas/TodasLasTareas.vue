@@ -159,18 +159,31 @@ const toggleCompletada = (tarea) => {
 // Eliminar tarea completada
 const eliminarTarea = (tarea) => {
     if (confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
+        // 1. Actualización optimista (UI primero)
+        const index = tareasLocales.value.findIndex(t => t.id === tarea.id)
+        if (index !== -1) {
+            tareasLocales.value.splice(index, 1)
+        }
+        
+        // 2. Si era la tarea seleccionada, seleccionar otra
+        if (tareaSeleccionada.value?.id === tarea.id) {
+            if (tareasLocales.value.length > 0) {
+                const grupos = tareasAgrupadas.value
+                tareaSeleccionada.value = grupos.hoy[0] || grupos.manana[0] || grupos.proximas[0] || grupos.otras[0]
+            } else {
+                tareaSeleccionada.value = null
+            }
+        }
+        
+        // 3. Petición al backend
         router.delete(route('tareas.destroy', tarea.id), {
             preserveScroll: true,
-            onSuccess: () => {
-                // Si era la tarea seleccionada, seleccionar otra
-                if (tareaSeleccionada.value?.id === tarea.id) {
-                    const tareas = props.tareas.filter(t => t.id !== tarea.id)
-                    if (tareas.length > 0) {
-                        const grupos = tareasAgrupadas.value
-                        tareaSeleccionada.value = grupos.hoy[0] || grupos.manana[0] || grupos.proximas[0] || grupos.otras[0]
-                    } else {
-                        tareaSeleccionada.value = null
-                    }
+            onError: () => {
+                // Si falla, revertir la eliminación optimista
+                tareasLocales.value.splice(index, 0, tarea)
+                // Restaurar tarea seleccionada si era la misma
+                if (tarea.id === tarea.id) {
+                    tareaSeleccionada.value = tarea
                 }
             },
         })
@@ -201,6 +214,25 @@ const manejarSubtareasActualizadas = ({ tareaId, subtareas }) => {
     // Actualizar tarea seleccionada si es la misma
     if (tareaSeleccionada.value?.id === tareaId) {
         tareaSeleccionada.value = { ...tareasLocales.value[index] }
+    }
+}
+
+// Handler para cuando se elimina una tarea desde el panel
+const manejarTareaEliminada = (tareaId) => {
+    // Eliminar de tareasLocales
+    const index = tareasLocales.value.findIndex(t => t.id === tareaId)
+    if (index !== -1) {
+        tareasLocales.value.splice(index, 1)
+    }
+    
+    // Seleccionar nueva tarea si la eliminada era la seleccionada
+    if (tareaSeleccionada.value?.id === tareaId) {
+        if (tareasLocales.value.length > 0) {
+            const grupos = tareasAgrupadas.value
+            tareaSeleccionada.value = grupos.hoy[0] || grupos.manana[0] || grupos.proximas[0] || grupos.otras[0]
+        } else {
+            tareaSeleccionada.value = null
+        }
     }
 }
 </script>
@@ -619,6 +651,7 @@ const manejarSubtareasActualizadas = ({ tareaId, subtareas }) => {
                         :tarea="tareaSeleccionada"
                         :categorias="categorias"
                         @subtareas-actualizadas="manejarSubtareasActualizadas"
+                        @tarea-eliminada="manejarTareaEliminada"
                     />
                     
                     <!-- Empty state cuando no hay tareas -->
