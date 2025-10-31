@@ -21,19 +21,25 @@ const emit = defineEmits(['crear', 'actualizar', 'eliminar', 'toggle'])
 
 const nuevoTexto = ref('')
 
-// Lista local o de props según el modo
+// Estado local solo para modo 'create'
+const subtareasLocales = ref([])
+
+// Inicializar subtareas locales solo si es modo create
+if (props.modo === 'create') {
+	subtareasLocales.value = [...(props.subtareas || [])]
+}
+
+// Lista a mostrar según el modo
 const subtareasMostrar = computed(() => {
 	return props.modo === 'create' ? subtareasLocales.value : props.subtareas
 })
 
-const subtareasLocales = ref([...props.subtareas])
-
-// Sincronizar subtareasLocales cuando cambien las props
+// Sincronizar subtareasLocales cuando cambien las props (solo en modo create)
 watch(
 	() => props.subtareas,
 	(nuevas) => {
-		if (props.modo === 'edit') {
-			subtareasLocales.value = [...nuevas]
+		if (props.modo === 'create') {
+			subtareasLocales.value = [...(nuevas || [])]
 		}
 	},
 	{ deep: true },
@@ -56,18 +62,19 @@ const handleCrear = () => {
 		return
 	}
 
+	// Crear optimistamente solo en modo create
 	if (props.modo === 'create') {
-		// Modo crear: agregar localmente
 		const nuevaSubtarea = {
 			id: Date.now(), // ID temporal
 			texto: nuevoTexto.value.trim(),
 			estado: 'pendiente',
-			tarea_id: null,
+			tarea_id: props.tareaId || null,
 		}
+		
 		subtareasLocales.value.push(nuevaSubtarea)
 		emit('crear', nuevaSubtarea)
 	} else {
-		// Modo editar: hacer petición al servidor
+		// Modo editar: solo emitir, el padre maneja la actualización optimista
 		emit('crear', nuevoTexto.value.trim())
 	}
 
@@ -78,20 +85,19 @@ const handleCrear = () => {
  * Manejar toggle de estado.
  */
 const handleToggle = (subtarea) => {
+	// En modo create, toggle optimista local
 	if (props.modo === 'create') {
-		// Modo crear: toggle local
 		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
 		if (index !== -1) {
 			subtareasLocales.value[index].estado =
 				subtareasLocales.value[index].estado === 'pendiente'
 					? 'completada'
 					: 'pendiente'
-			emit('toggle', subtareasLocales.value[index])
 		}
-	} else {
-		// Modo editar: hacer petición
-		emit('toggle', subtarea)
 	}
+	
+	// Emitir para que el padre maneje (importante en modo edit)
+	emit('toggle', subtarea)
 }
 
 /**
@@ -103,15 +109,15 @@ const handleUpdate = (subtarea, nuevoTextoParam) => {
 	
 	if (!nuevoTexto.trim()) return
 
+	// Actualizar optimistamente solo en modo create
 	if (props.modo === 'create') {
-		// Modo crear: actualizar localmente
 		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
 		if (index !== -1) {
 			subtareasLocales.value[index].texto = nuevoTexto.trim()
-			emit('actualizar', subtareasLocales.value[index])
 		}
+		emit('actualizar', subtareasLocales.value[index])
 	} else {
-		// Modo editar: hacer petición
+		// Modo editar: solo emitir, el padre maneja la actualización optimista
 		emit('actualizar', subtarea, nuevoTexto.trim())
 	}
 }
@@ -120,17 +126,16 @@ const handleUpdate = (subtarea, nuevoTextoParam) => {
  * Manejar eliminación.
  */
 const handleDelete = (subtarea) => {
+	// Eliminar optimistamente solo en modo create
 	if (props.modo === 'create') {
-		// Modo crear: eliminar localmente sin confirmación
 		const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
 		if (index !== -1) {
 			subtareasLocales.value.splice(index, 1)
-			emit('eliminar', subtarea)
 		}
-	} else {
-		// Modo editar: pedir confirmación y hacer petición
-		emit('eliminar', subtarea)
 	}
+	
+	// Emitir para que el padre maneje (importante en modo edit)
+	emit('eliminar', subtarea)
 }
 
 /**
@@ -155,7 +160,7 @@ const handleBlur = () => {
 	<div class="space-y-2">
 		<!-- Header con título y contador -->
 		<div class="flex items-center justify-between">
-			<h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+			<h3 class="text-xs font-medium text-neutral-600 dark:text-neutral-400">
 				Subtareas
 			</h3>
 			<span
