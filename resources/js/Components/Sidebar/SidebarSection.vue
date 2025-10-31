@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue';
-import { ChevronDown } from 'lucide-vue-next';
-import { usarSidebar } from '@/composables/usarSidebar';
+import { ref } from 'vue'
+import { ChevronDown } from 'lucide-vue-next'
+import { usarSidebar } from '@/composables/usarSidebar'
 
 const props = defineProps({
     titulo: {
@@ -16,16 +16,16 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-});
+})
 
-const { estaColapsado: sidebarColapsado } = usarSidebar();
-const seccionExpandida = ref(!props.colapsadoInicial);
+const { estaColapsado: sidebarColapsado } = usarSidebar()
+const seccionExpandida = ref(!props.colapsadoInicial)
 
 const alternarSeccion = () => {
     if (props.colapsable && !sidebarColapsado.value) {
-        seccionExpandida.value = !seccionExpandida.value;
+        seccionExpandida.value = !seccionExpandida.value
     }
-};
+}
 </script>
 
 <template>

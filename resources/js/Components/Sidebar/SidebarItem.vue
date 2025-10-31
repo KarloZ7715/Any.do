@@ -1,7 +1,7 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
-import { usarSidebar } from '@/composables/usarSidebar';
+import { Link } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import { usarSidebar } from '@/composables/usarSidebar'
 
 const props = defineProps({
     href: {
@@ -28,9 +28,9 @@ const props = defineProps({
         type: String,
         default: null,
     },
-});
+})
 
-const { estaColapsado } = usarSidebar();
+const { estaColapsado } = usarSidebar()
 
 // Clases dinámicas para el estado activo
 const clasesItem = computed(() => [
@@ -39,7 +39,7 @@ const clasesItem = computed(() => [
     props.activo
         ? 'bg-gray-100 dark:bg-gray-800 font-medium text-gray-900 dark:text-white'
         : 'text-gray-700 dark:text-gray-300',
-]);
+])
 
 // Borde de color para item activo
 const estiloActivo = computed(() => {
@@ -47,10 +47,10 @@ const estiloActivo = computed(() => {
         return {
             borderLeft: `3px solid ${props.color}`,
             paddingLeft: 'calc(0.75rem - 3px)',
-        };
+        }
     }
-    return {};
-});
+    return {}
+})
 </script>
 
 <template>

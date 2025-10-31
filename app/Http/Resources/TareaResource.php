@@ -44,7 +44,15 @@ class TareaResource extends JsonResource
             // Relaciones (solo si están cargadas)
             'categoria' => CategoriaResource::make($this->whenLoaded('categoria')),
             'usuario' => UsuarioResource::make($this->whenLoaded('usuario')),
-            'subtareas' => SubtareaResource::collection($this->whenLoaded('subtareas')),
+            'subtareas' => $this->when(
+                $this->relationLoaded('subtareas'),
+                function () {
+                    $subtareas = SubtareaResource::collection($this->subtareas)->resolve();
+                    // Asegurar que siempre sea un array, no un objeto vacío
+                    return empty($subtareas) ? [] : array_values($subtareas);
+                },
+                []
+            ),
             'comentarios_count' => $this->whenCounted('comentarios'),
 
             // Timestamps

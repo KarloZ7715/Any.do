@@ -1,7 +1,7 @@
 <script setup>
 import { CalendarDays } from 'lucide-vue-next'
-import { ref, onMounted, nextTick } from 'vue'
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
+import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
 import QuickAddInput from '@/Components/QuickAddInput.vue'
 import TareaCardMinimalista from '@/Components/TareaCardMinimalista.vue'
 import ModalEditarTarea from '@/Components/ModalEditarTarea.vue'
@@ -121,131 +121,360 @@ onMounted(() => {
             inicializarDragDrop(listasRefs.value, manejarDrop)
         }
         
-        // Scroll a la columna del día actual (primera columna: Hoy)
-        const primerColumna = listasRefs.value[0]
-        if (primerColumna) {
-            primerColumna.parentElement?.scrollIntoView({ 
-                behavior: 'instant', 
-                block: 'nearest',
-                inline: 'start',
-            })
+        // Scroll automático a la izquierda (mostrar "Hoy" primero)
+        const contenedorScroll = document.querySelector('.scrollbar-custom')
+        if (contenedorScroll) {
+            contenedorScroll.scrollLeft = 0
         }
+        
+        // También resetear el scroll del body por si acaso
+        window.scrollTo(0, 0)
+        document.documentElement.scrollLeft = 0
+        document.body.scrollLeft = 0
     })
 })
 </script>
 
 <template>
-    <AuthenticatedLayout>
-        <div class="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
-            <!-- Header fijo -->
-            <div class="flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-                        <CalendarDays :size="20" class="text-indigo-600 dark:text-indigo-400" :stroke-width="2" />
+    <LayoutPrincipal>
+        <!-- Contenedor principal con fondo uniforme (sin scroll vertical) -->
+        <div class="h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+            <!-- Header con título minimalista y sombra sutil -->
+            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-gray-50 dark:bg-gray-950">
+                <div 
+                    class="inline-flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 group"
+                >
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors duration-200">
+                        <CalendarDays :size="18" class="text-indigo-600 dark:text-indigo-400" :stroke-width="2.5" />
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">
-                            Próximos 7 Días
-                        </h1>
-                        <p class="text-xs text-gray-600 dark:text-gray-400">
-                            {{ totalTareasPendientes }} {{ totalTareasPendientes === 1 ? 'tarea pendiente' : 'tareas pendientes' }}
-                        </p>
-                    </div>
+                    <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        Próximos 7 Días
+                    </h1>
                 </div>
             </div>
 
-            <!-- Contenedor horizontal con scroll -->
-            <div class="flex-1 overflow-x-auto overflow-y-hidden">
-                <div class="h-full flex gap-4 px-6 py-6 min-w-max">
-                    <!-- Columna por cada día -->
+            <!-- Contenedor horizontal con scroll (SOLO horizontal, gap 24px) -->
+            <div class="flex-1 overflow-x-auto overflow-y-hidden px-6 pb-6 bg-gray-50 dark:bg-gray-950 scrollbar-custom">
+                <div class="h-full flex gap-6 pb-2">
+                    <!-- Columna por cada día (ancho fijo) -->
                     <div
-                        v-for="dia in sieteDias"
+                        v-for="(dia, index) in sieteDias"
                         :key="dia.fecha"
-                        class="flex-shrink-0 w-80 flex flex-col bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden"
+                        class="flex-shrink-0 w-[320px] flex flex-col animate-fade-in"
+                        :style="{ animationDelay: `${index * 50}ms` }"
                     >
-                        <!-- Header de la columna -->
-                        <div class="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-                            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ dia.etiqueta }}
-                                <span v-if="dia.subEtiqueta" class="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">
-                                    {{ dia.subEtiqueta }}
-                                </span>
-                            </h2>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {{ dia.totalTareas }} {{ dia.totalTareas === 1 ? 'tarea' : 'tareas' }}
-                            </p>
-                        </div>
+                        <!-- Box de la lista con sombra y hover effect -->
+                        <div 
+                            class="flex flex-col bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 max-h-full overflow-hidden group"
+                        >
+                            <!-- Header de la columna con efecto hover -->
+                            <div class="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/30 dark:to-transparent">
+                                <h2 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span class="flex items-center gap-1.5">
+                                        {{ dia.etiqueta }}
+                                        <span v-if="dia.subEtiqueta" class="text-xs font-normal text-gray-500 dark:text-gray-400">
+                                            {{ dia.subEtiqueta }}
+                                        </span>
+                                    </span>
+                                    <span 
+                                        v-if="dia.tareasPendientes.length > 0"
+                                        class="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-[11px] font-medium text-indigo-600 dark:text-indigo-400"
+                                    >
+                                        {{ dia.tareasPendientes.length }}
+                                    </span>
+                                </h2>
+                            </div>
 
-                        <!-- Wrapper para lista de tareas -->
-                        <div class="flex-1 overflow-y-auto p-3 relative">
-                            <!-- Lista de tareas con scroll vertical -->
-                            <div
-                                :ref="el => listasRefs[sieteDias.indexOf(dia)] = el"
-                                :data-fecha="dia.fecha"
-                                class="space-y-2 min-h-[60px]"
-                            >
-                                <!-- Tareas de este día -->
+                            <!-- Lista de tareas con scroll vertical suave -->
+                            <div class="flex-1 overflow-y-auto px-3 py-3 min-h-0 scrollbar-thin">
+                                <!-- Contenedor drag & drop -->
                                 <div
-                                    v-for="tarea in dia.todasLasTareas"
-                                    :key="tarea.id"
-                                    :data-tarea-id="tarea.id"
+                                    :ref="el => listasRefs[sieteDias.indexOf(dia)] = el"
+                                    :data-fecha="dia.fecha"
+                                    class="space-y-2 min-h-[40px] transition-all duration-300 rounded-lg"
+                                    :class="{ 'drop-zone-ready': true }"
                                 >
-                                    <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
+                                    <!-- Tareas de este día con animación de entrada -->
+                                    <div
+                                        v-for="(tarea, tareaIndex) in dia.todasLasTareas"
+                                        :key="tarea.id"
+                                        :data-tarea-id="tarea.id"
+                                        class="animate-slide-in"
+                                        :style="{ animationDelay: `${tareaIndex * 30}ms` }"
+                                    >
+                                        <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
+                                    </div>
+
+                                    <!-- Empty state minimalista (solo texto) -->
+                                    <div
+                                        v-if="dia.totalTareas === 0"
+                                        class="text-center py-2 opacity-0 animate-fade-in"
+                                        style="animation-delay: 200ms"
+                                    >
+                                        <p class="text-xs text-gray-400 dark:text-gray-600">
+                                            Sin tareas
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Empty state si no hay tareas (fuera del contenedor drag) -->
-                            <div
-                                v-if="dia.totalTareas === 0"
-                                class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
-                            >
-                                <p class="text-sm text-gray-400 dark:text-gray-600">
-                                    Sin tareas
-                                </p>
+                            <!-- Quick Add Input al final con sombra superior sutil -->
+                            <div class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-50/30 to-transparent dark:from-gray-800/20 dark:to-transparent">
+                                <QuickAddInput
+                                    :categorias="categorias"
+                                    :fecha-predeterminada="dia.fecha"
+                                    placeholder="+ Agregar tarea"
+                                />
                             </div>
                         </div>
-
-                        <!-- Quick Add Input al final de cada columna -->
-                        <div class="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-800">
-                            <QuickAddInput
-                                :categorias="categorias"
-                                :fecha-predeterminada="dia.fecha"
-                                placeholder="+ Agregar tarea"
-                            />
-                        </div>
                     </div>
+
+                    <!-- Espaciador al final para mejor scroll -->
+                    <div class="flex-shrink-0 w-4"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal de edición de tarea -->
+        <!-- Modal de edición de tarea con animación -->
         <ModalEditarTarea
             v-model:open="modalEditarAbierto"
             :tarea="tareaSeleccionada"
             :categorias="categorias"
             @cerrar="tareaSeleccionada = null"
         />
-    </AuthenticatedLayout>
+    </LayoutPrincipal>
 </template>
 
 <style scoped>
-/* Estilos para drag & drop */
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+
+/* Fade in para elementos principales */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide in para tareas individuales */
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+/* ========================================
+   DRAG & DROP MEJORADO
+   ======================================== */
+
 :deep(.dragging) {
-    opacity: 0.5;
-    transform: rotate(2deg);
+    opacity: 0.6;
+    transform: rotate(3deg) scale(1.02);
     cursor: grabbing !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :deep(.drop-zone-active) {
-    background-color: rgba(99, 102, 241, 0.1);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0.08) 100%);
     border: 2px dashed rgb(99, 102, 241);
+    border-radius: 0.75rem;
+    min-height: 100px;
+    animation: pulse-border 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+    0%, 100% {
+        border-color: rgb(99, 102, 241);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0.08) 100%);
+    }
+    50% {
+        border-color: rgb(129, 140, 248);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.12) 100%);
+    }
+}
+
+:deep(.drop-zone-ready) {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:deep(.drop-zone-ready:hover) {
+    background-color: rgba(99, 102, 241, 0.01);
 }
 
 :deep([data-tarea-id]) {
     cursor: grab;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:deep([data-tarea-id]:hover) {
+    transform: translateY(-2px);
 }
 
 :deep([data-tarea-id]:active) {
     cursor: grabbing;
+    transform: scale(0.98);
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADO - HORIZONTAL
+   ======================================== */
+
+.scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+    height: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.5);
+}
+
+/* Dark mode scrollbar horizontal */
+.dark .scrollbar-custom {
+    scrollbar-color: rgba(75, 85, 99, 0.4) transparent;
+}
+
+.dark .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.4);
+}
+
+.dark .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.6);
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADO - VERTICAL (LISTAS)
+   ======================================== */
+
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.2);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.4);
+}
+
+/* Dark mode scrollbar vertical */
+.dark .scrollbar-thin {
+    scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.3);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.5);
+}
+
+/* ========================================
+   EFECTOS DE HOVER EN COLUMNAS
+   ======================================== */
+
+/* Animación suave en el borde al hacer hover */
+.group:hover {
+    border-color: rgb(209, 213, 219);
+}
+
+.dark .group:hover {
+    border-color: rgb(55, 65, 81);
+}
+
+/* ========================================
+   MEJORAS DE ACCESIBILIDAD
+   ======================================== */
+
+/* Focus visible para navegación por teclado */
+:deep([data-tarea-id]:focus-visible) {
+    outline: 2px solid rgb(99, 102, 241);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+}
+
+/* Transiciones suaves en todos los elementos interactivos */
+button, a, [role="button"] {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   RESPONSIVE IMPROVEMENTS
+   ======================================== */
+
+/* Ajuste de padding en móviles */
+@media (max-width: 640px) {
+    .scrollbar-custom {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Hardware acceleration para animaciones suaves */
+.animate-fade-in,
+.animate-slide-in,
+:deep([data-tarea-id]),
+:deep(.dragging) {
+    will-change: transform, opacity;
+}
+
+/* Después de la animación, remover will-change */
+.animate-fade-in:not(:hover),
+.animate-slide-in:not(:hover) {
+    will-change: auto;
 }
 </style>
