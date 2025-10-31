@@ -1,61 +1,105 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Any.do - Gestor de Tareas Profesional 📝
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Universidad Córdoba de Colombia** | Desarrollo Web II | 2025
 
-## About Laravel
+Aplicación web moderna para gestión de tareas con características avanzadas: categorización, prioridades, subtareas, calendario interactivo y sincronización en tiempo real.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Características
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Core
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   **CRUD de Tareas**: Crear, editar, eliminar y completar tareas
+-   **Subtareas**: Desglosar tareas en pasos más pequeños
+-   **Categorías**: Organizar tareas por categoría personalizada
+-   **Prioridades**: Asignar niveles de prioridad (Alta, Media, Baja)
+-   **Fechas y Horas**: Vencimiento con fecha específica e hora opcional
 
-## Learning Laravel
+### Vistas
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   **Mi Calendario**: Vista de mes con todas las tareas
+-   **Próximos 7 Días**: Timeline horizontal de próxima semana
+-   **Todas mis Tareas**: Panel dual (lista + edición)
+-   **Categorías**: Vista de todas las categorías
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### UI/UX
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   **Dark/Light Mode**: Modo oscuro/claro con persistencia
+-   **Tailwind CSS v4**: Diseño moderno y responsive
+-   **Mobile Responsive**: Funcional en cualquier dispositivo
+-   **Transiciones Suaves**: Animaciones fluidas
+-   **Actualizaciones Optimistas**: UI sin esperar backend
 
-## Laravel Sponsors
+### Technical
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+-   **Autenticación**: Email/contraseña
+-   **Autorización**: Policies para proteger datos
+-   **Búsqueda**: Full-text search con Laravel Scout
+-   **Soft Deletes**: Tareas no se borran, se marcan como eliminadas
+-   **Tests**: PHPUnit + SQLite in-memory
 
-### Premium Partners
+## Stack Tecnológico
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Backend
 
-## Contributing
+-   **Framework**: Laravel 12.35.1
+-   **Base de Datos**: MySQL 8.2.12
+-   **ORM**: Eloquent
+-   **Validación**: Spatie Data (DTOs)
+-   **Búsqueda**: Laravel Scout (Database driver)
+-   **Autenticación**: Laravel Breeze + Inertia
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Frontend
 
-## Code of Conduct
+-   **Bundler**: Vite
+-   **Framework JS**: Vue 3 (Composition API)
+-   **Routing**: Inertia.js (Hybrid SPA)
+-   **Styling**: Tailwind CSS v4
+-   **UI Components**: shadcn-vue
+-   **State**: Pinia
+-   **Validación**: Vee-Validate + Zod
+-   **Drag & Drop**: @formkit/drag-and-drop
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### DevTools
 
-## Security Vulnerabilities
+-   **PHP Static Analysis**: PHPStan level 5
+-   **Linting**: ESLint + Prettier
+-   **Testing**: PHPUnit + Vitest
+-   **Version Control**: Git con commits organizados
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 📊 Estructura del Proyecto
 
-## License
+```
+app/
+├── Http/Controllers/       # Coordinación HTTP
+├── Services/               # Lógica de negocio
+├── Repositories/           # Acceso a datos
+├── Models/                 # Eloquent models
+├── Policies/               # Autorización
+└── Data/                   # Spatie Data DTOs
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+resources/js/
+├── Pages/                  # Páginas Inertia
+├── Components/             # Componentes Vue
+├── Composables/            # Lógica reutilizable
+├── Stores/                 # Pinia stores
+└── Utils/                  # Helpers
+
+database/
+├── Migrations/             # Esquema BD
+├── Seeders/                # Datos iniciales
+└── Factories/              # Datos fake para tests
+
+tests/
+├── Unit/                   # Tests unitarios
+├── Feature/                # Tests funcionales
+└── JavaScript/             # Tests Vue
+```
+
+## 👤 Autores
+
+**Carlos Canabal**
+**Brayan Araujo**
+
+## 📄 Licencia
+
+Este proyecto es de uso educativo. Libre para usar, modificar y distribuir.
