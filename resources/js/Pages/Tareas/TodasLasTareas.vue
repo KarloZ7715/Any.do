@@ -1,228 +1,717 @@
 <script setup>
-import { ListTodo, Search, Filter } from 'lucide-vue-next'
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { ref, computed, watch, TransitionGroup } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { ListTodo, ChevronDown, ChevronRight, X } from 'lucide-vue-next'
+import { usarSidebar } from '@/composables/usarSidebar'
+import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
 import QuickAddInput from '@/Components/QuickAddInput.vue'
-import TareaCard from '@/Components/TareaCard.vue'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/Components/ui/button'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/Components/ui/select'
+import PanelEdicionTarea from '@/Components/PanelEdicionTarea.vue'
+import CheckboxRedondo from '@/Components/CheckboxRedondo.vue'
 
 const props = defineProps({
     tareas: {
-        type: Object,
+        type: Array,
         required: true,
-    },
-    filtros: {
-        type: Object,
-        default: () => ({}),
     },
     categorias: {
         type: Array,
         default: () => [],
     },
+    categoriaSeleccionada: {
+        type: Object,
+        default: null,
+    },
 })
 
-// Filtros reactivos
-const busqueda = ref(props.filtros.buscar || '')
-const estadoSeleccionado = ref(props.filtros.estado || 'todas')
-const prioridadSeleccionada = ref(props.filtros.prioridad || 'todas')
-const categoriaSeleccionada = ref(props.filtros.categoria_id || 'todas')
-const ordenSeleccionado = ref(props.filtros.ordenar || 'orden')
+// Composable del sidebar para responsive
+const { estaColapsado } = usarSidebar()
 
-// Aplicar filtros
-const aplicarFiltros = () => {
-    router.get(
-        route('tareas.todas'),
-        {
-            buscar: busqueda.value || undefined,
-            estado: estadoSeleccionado.value !== 'todas' ? estadoSeleccionado.value : undefined,
-            prioridad: prioridadSeleccionada.value !== 'todas' ? prioridadSeleccionada.value : undefined,
-            categoria_id: categoriaSeleccionada.value !== 'todas' ? categoriaSeleccionada.value : undefined,
-            ordenar: ordenSeleccionado.value,
-        },
-        {
-            preserveState: true,
-            preserveScroll: true,
+// Estado de las distinciones (expandidas/contraídas)
+const distincionesExpandidas = ref({
+    hoy: true,
+    manana: true,
+    proximas: true,
+    otras: true,
+})
+
+// Tarea seleccionada para mostrar en panel derecho
+const tareaSeleccionada = ref(null)
+
+// Copia local de tareas para actualizaciones optimistas
+const tareasLocales = ref([...props.tareas])
+
+// Sincronizar con props cuando cambian desde backend
+watch(() => props.tareas, (nuevas) => {
+    tareasLocales.value = [...nuevas]
+}, { deep: true })
+
+// Agrupar tareas por distinción
+const tareasAgrupadas = computed(() => {
+    const hoy = new Date()
+    hoy.setHours(0, 0, 0, 0)
+    
+    const manana = new Date(hoy)
+    manana.setDate(manana.getDate() + 1)
+    
+    const grupos = {
+        hoy: [],
+        manana: [],
+        proximas: [],
+        otras: [],
+    }
+    
+    tareasLocales.value.forEach(tarea => {
+        if (!tarea.fecha_vencimiento) {
+            grupos.otras.push(tarea)
+        } else {
+            const fechaTarea = new Date(tarea.fecha_vencimiento)
+            fechaTarea.setHours(0, 0, 0, 0)
+            
+            if (fechaTarea.getTime() === hoy.getTime()) {
+                grupos.hoy.push(tarea)
+            } else if (fechaTarea.getTime() === manana.getTime()) {
+                grupos.manana.push(tarea)
+            } else if (fechaTarea > manana) {
+                grupos.proximas.push(tarea)
+            } else {
+                grupos.otras.push(tarea)
+            }
         }
-    )
-}
-
-// Limpiar filtros
-const limpiarFiltros = () => {
-    busqueda.value = ''
-    estadoSeleccionado.value = 'todas'
-    prioridadSeleccionada.value = 'todas'
-    categoriaSeleccionada.value = 'todas'
-    ordenSeleccionado.value = 'orden'
-    aplicarFiltros()
-}
-
-// Contador de filtros activos
-const filtrosActivos = computed(() => {
-    let count = 0
-    if (busqueda.value) count++
-    if (estadoSeleccionado.value !== 'todas') count++
-    if (prioridadSeleccionada.value !== 'todas') count++
-    if (categoriaSeleccionada.value !== 'todas') count++
-    return count
+    })
+    
+    // Ordenar cada grupo: pendientes primero, completadas al final
+    Object.keys(grupos).forEach(key => {
+        grupos[key].sort((a, b) => {
+            if (a.estado === 'pendiente' && b.estado === 'completada') return -1
+            if (a.estado === 'completada' && b.estado === 'pendiente') return 1
+            // Ordenar completadas por fecha de completado (últimas primero)
+            if (a.estado === 'completada' && b.estado === 'completada') {
+                return new Date(b.fecha_completada) - new Date(a.fecha_completada)
+            }
+            return 0
+        })
+    })
+    
+    return grupos
 })
 
-// Estadísticas
-const estadisticas = computed(() => {
-    const pendientes = props.tareas.data.filter((t) => t.estado === 'pendiente').length
-    const completadas = props.tareas.data.filter((t) => t.estado === 'completada').length
-    return { pendientes, completadas, total: props.tareas.meta.total }
-})
+// Seleccionar primera tarea al montar
+watch(() => props.tareas, (tareas) => {
+    if (tareas && tareas.length > 0 && !tareaSeleccionada.value) {
+        // Buscar primera tarea en orden: hoy, mañana, próximas, otras
+        const grupos = tareasAgrupadas.value
+        tareaSeleccionada.value = grupos.hoy[0] || grupos.manana[0] || grupos.proximas[0] || grupos.otras[0]
+    }
+    
+    // Actualizar tarea seleccionada si cambió (por ejemplo, subtareas agregadas/editadas)
+    if (tareaSeleccionada.value && tareas) {
+        const tareaActualizada = tareas.find(t => t.id === tareaSeleccionada.value.id)
+        if (tareaActualizada) {
+            tareaSeleccionada.value = tareaActualizada
+        }
+    }
+}, { immediate: true })
+
+// Toggle expansión de distinción
+const toggleDistincion = (distincion) => {
+    distincionesExpandidas.value[distincion] = !distincionesExpandidas.value[distincion]
+}
+
+// Seleccionar tarea
+const seleccionarTarea = (tarea) => {
+    tareaSeleccionada.value = tarea
+}
+
+// Toggle checkbox (marcar como completada/pendiente) - OPTIMISTIC
+const toggleCompletada = (tarea) => {
+    // 1. Actualizar UI inmediatamente (optimistic)
+    const index = tareasLocales.value.findIndex(t => t.id === tarea.id)
+    if (index !== -1) {
+        const nuevoEstado = tareasLocales.value[index].estado === 'completada' ? 'pendiente' : 'completada'
+        tareasLocales.value[index].estado = nuevoEstado
+        
+        // Actualizar tarea seleccionada si es la misma
+        if (tareaSeleccionada.value?.id === tarea.id) {
+            tareaSeleccionada.value = { ...tareasLocales.value[index] }
+        }
+    }
+    
+    // 2. Enviar a backend
+    router.patch(route('tareas.toggle', tarea.id), {}, {
+        preserveScroll: true,
+        onError: () => {
+            // Si falla, revertir (se sincronizará con el watch)
+            console.error('Error al toggle tarea, revirtiendo...')
+        },
+    })
+}
+
+// Eliminar tarea completada
+const eliminarTarea = (tarea) => {
+    if (confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
+        router.delete(route('tareas.destroy', tarea.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Si era la tarea seleccionada, seleccionar otra
+                if (tareaSeleccionada.value?.id === tarea.id) {
+                    const tareas = props.tareas.filter(t => t.id !== tarea.id)
+                    if (tareas.length > 0) {
+                        const grupos = tareasAgrupadas.value
+                        tareaSeleccionada.value = grupos.hoy[0] || grupos.manana[0] || grupos.proximas[0] || grupos.otras[0]
+                    } else {
+                        tareaSeleccionada.value = null
+                    }
+                }
+            },
+        })
+    }
+}
+
+// Nombres de distinciones
+const nombresDistinciones = {
+    hoy: 'Hoy',
+    manana: 'Mañana',
+    proximas: 'Próximas',
+    otras: 'Otras',
+}
+
+// Limpiar filtro de categoría
+const limpiarFiltro = () => {
+    router.get(route('tareas.todas'))
+}
+
+// Handler para cuando se actualizan las subtareas en el panel
+const manejarSubtareasActualizadas = ({ tareaId, subtareas }) => {
+    // Actualizar en tareasLocales
+    const index = tareasLocales.value.findIndex(t => t.id === tareaId)
+    if (index !== -1) {
+        tareasLocales.value[index].subtareas = subtareas
+    }
+    
+    // Actualizar tarea seleccionada si es la misma
+    if (tareaSeleccionada.value?.id === tareaId) {
+        tareaSeleccionada.value = { ...tareasLocales.value[index] }
+    }
+}
 </script>
 
 <template>
-    <AuthenticatedLayout>
-        <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
-            <!-- Header -->
-            <div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-                            <ListTodo :size="24" class="text-indigo-600 dark:text-indigo-400" :stroke-width="2" />
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                                Todas mis Tareas
-                            </h1>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {{ estadisticas.total }} tareas en total • {{ estadisticas.pendientes }} pendientes • {{ estadisticas.completadas }} completadas
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Quick Add Input -->
-                    <div class="mt-6">
-                        <QuickAddInput :categorias="categorias" />
-                    </div>
-
-                    <!-- Filtros -->
-                    <div class="mt-6 space-y-4">
-                        <!-- Búsqueda -->
-                        <div class="relative">
-                            <Search :size="20" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <Input
-                                v-model="busqueda"
-                                type="text"
-                                placeholder="Buscar tareas..."
-                                class="pl-10"
-                                @keydown.enter="aplicarFiltros"
+    <LayoutPrincipal>
+        <!-- Contenedor principal -->
+        <div class="h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+            <!-- Header con título minimalista -->
+            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-gray-50 dark:bg-gray-950">
+                <div class="flex items-start justify-between gap-4">
+                    <div 
+                        class="inline-flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 group"
+                    >
+                        <div 
+                            class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200"
+                            :class="categoriaSeleccionada 
+                                ? '' 
+                                : 'bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30'"
+                            :style="categoriaSeleccionada ? {
+                                backgroundColor: categoriaSeleccionada.color + '20',
+                            } : {}"
+                        >
+                            <ListTodo 
+                                :size="18" 
+                                :stroke-width="2.5"
+                                :class="categoriaSeleccionada ? '' : 'text-indigo-600 dark:text-indigo-400'"
+                                :style="categoriaSeleccionada ? { color: categoriaSeleccionada.color } : {}"
                             />
                         </div>
-
-                        <!-- Filtros avanzados -->
-                        <div class="flex flex-wrap gap-3">
-                            <Select v-model="estadoSeleccionado" @update:model-value="aplicarFiltros">
-                                <SelectTrigger class="w-[140px]">
-                                    <SelectValue placeholder="Estado" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="todas">Todas</SelectItem>
-                                    <SelectItem value="pendiente">Pendientes</SelectItem>
-                                    <SelectItem value="completada">Completadas</SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <Select v-model="prioridadSeleccionada" @update:model-value="aplicarFiltros">
-                                <SelectTrigger class="w-[140px]">
-                                    <SelectValue placeholder="Prioridad" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="todas">Todas</SelectItem>
-                                    <SelectItem value="1">🔴 Alta</SelectItem>
-                                    <SelectItem value="2">🟡 Media</SelectItem>
-                                    <SelectItem value="3">🟢 Baja</SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <Select v-model="categoriaSeleccionada" @update:model-value="aplicarFiltros">
-                                <SelectTrigger class="w-[160px]">
-                                    <SelectValue placeholder="Categoría" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="todas">Todas</SelectItem>
-                                    <SelectItem
-                                        v-for="categoria in categorias"
-                                        :key="categoria.id"
-                                        :value="String(categoria.id)"
-                                    >
-                                        {{ categoria.nombre }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <Select v-model="ordenSeleccionado" @update:model-value="aplicarFiltros">
-                                <SelectTrigger class="w-[160px]">
-                                    <SelectValue placeholder="Ordenar por" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="orden">Orden personalizado</SelectItem>
-                                    <SelectItem value="prioridad">Prioridad</SelectItem>
-                                    <SelectItem value="fecha_vencimiento">Fecha vencimiento</SelectItem>
-                                    <SelectItem value="created_at">Fecha creación</SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <Button
-                                v-if="filtrosActivos > 0"
-                                variant="outline"
-                                size="sm"
-                                @click="limpiarFiltros"
-                            >
-                                Limpiar filtros ({{ filtrosActivos }})
-                            </Button>
+                        <div>
+                            <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                {{ categoriaSeleccionada ? categoriaSeleccionada.nombre : 'Todas mis Tareas' }}
+                            </h1>
+                            <div v-if="categoriaSeleccionada" class="flex items-center gap-2 mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                    Filtrando por categoría
+                                </span>
+                                <button
+                                    @click="limpiarFiltro"
+                                    class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors flex items-center gap-1"
+                                >
+                                    <X :size="12" />
+                                    Ver todas
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Contenido Principal -->
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <!-- Lista de tareas -->
-                <div v-if="tareas.data.length > 0" class="space-y-2">
-                    <TareaCard
-                        v-for="tarea in tareas.data"
-                        :key="tarea.id"
-                        :tarea="tarea"
-                    />
+            <!-- Contenedor de dos listas -->
+            <div class="flex-1 overflow-hidden px-6 pb-6 flex gap-6">
+                <!-- Lista Izquierda: Tareas agrupadas (52% con sidebar, 50% sin sidebar) -->
+                <div 
+                    :class="[
+                        'flex flex-col bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden',
+                        estaColapsado ? 'w-[50%]' : 'w-[52%]'
+                    ]"
+                >
+                    <!-- Área scrolleable de tareas -->
+                    <div class="flex-1 overflow-y-auto scrollbar-thin p-4">
+                        <!-- Empty state cuando no hay tareas en ninguna distinción -->
+                        <div 
+                            v-if="tareas.length === 0"
+                            class="h-full flex flex-col items-center justify-center p-8"
+                        >
+                            <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                                <ListTodo :size="32" class="text-gray-400 dark:text-gray-600" />
+                            </div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                                {{ categoriaSeleccionada ? 'No hay tareas en esta categoría' : 'No tienes tareas' }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 text-center max-w-xs mb-3">
+                                {{ categoriaSeleccionada 
+                                    ? 'Agrega tareas a esta categoría o cambia el filtro' 
+                                    : 'Crea tu primera tarea usando el formulario de abajo' 
+                                }}
+                            </p>
+                            <button
+                                v-if="categoriaSeleccionada"
+                                @click="limpiarFiltro"
+                                class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors flex items-center gap-1"
+                            >
+                                <X :size="14" />
+                                Ver todas las tareas
+                            </button>
+                        </div>
+                        
+                        <!-- Distinción: Hoy -->
+                        <div v-if="tareasAgrupadas.hoy.length > 0" class="mb-4">
+                            <button
+                                @click="toggleDistincion('hoy')"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <ChevronDown 
+                                        v-if="distincionesExpandidas.hoy"
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <ChevronRight 
+                                        v-else
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {{ nombresDistinciones.hoy }}
+                                    </span>
+                                </div>
+                                <span 
+                                    v-if="!distincionesExpandidas.hoy"
+                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                >
+                                    {{ tareasAgrupadas.hoy.length }}
+                                </span>
+                            </button>
+                            
+                            <!-- Tareas de hoy -->
+                            <TransitionGroup
+                                v-if="distincionesExpandidas.hoy"
+                                name="tarea-list"
+                                tag="div"
+                                class="mt-2 space-y-1"
+                            >
+                                <div
+                                    v-for="tarea in tareasAgrupadas.hoy"
+                                    :key="tarea.id"
+                                    @click="seleccionarTarea(tarea)"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    :class="[
+                                        tareaSeleccionada?.id === tarea.id 
+                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
+                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    ]"
+                                >
+                                    <!-- Checkbox -->
+                                    <div class="flex-shrink-0">
+                                        <CheckboxRedondo
+                                            :checked="tarea.estado === 'completada'"
+                                            @update:checked="toggleCompletada(tarea)"
+                                            @click.stop
+                                        />
+                                    </div>
+                                    
+                                    <!-- Título de la tarea -->
+                                    <div class="flex-1 min-w-0">
+                                        <p 
+                                            class="text-sm font-medium transition-all duration-300"
+                                            :class="[
+                                                tarea.estado === 'completada' 
+                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
+                                                    : 'text-gray-900 dark:text-white'
+                                            ]"
+                                        >
+                                            {{ tarea.titulo }}
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Botón eliminar (solo si está completada) -->
+                                    <button
+                                        v-if="tarea.estado === 'completada'"
+                                        @click.stop="eliminarTarea(tarea)"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                    >
+                                        <X :size="16" />
+                                    </button>
+                                </div>
+                            </TransitionGroup>
+                        </div>
 
-                    <!-- Paginación simple -->
-                    <div v-if="tareas.meta.last_page > 1" class="flex items-center justify-center gap-2 mt-8">
-                        <Button
-                            v-for="link in tareas.links"
-                            :key="link.label"
-                            :variant="link.active ? 'default' : 'outline'"
-                            size="sm"
-                            :disabled="!link.url"
-                            @click="link.url && router.get(link.url)"
-                            v-html="link.label"
-                        />
+                        <!-- Distinción: Mañana -->
+                        <div v-if="tareasAgrupadas.manana.length > 0" class="mb-4">
+                            <button
+                                @click="toggleDistincion('manana')"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <ChevronDown 
+                                        v-if="distincionesExpandidas.manana"
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <ChevronRight 
+                                        v-else
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {{ nombresDistinciones.manana }}
+                                    </span>
+                                </div>
+                                <span 
+                                    v-if="!distincionesExpandidas.manana"
+                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                >
+                                    {{ tareasAgrupadas.manana.length }}
+                                </span>
+                            </button>
+                            
+                            <TransitionGroup
+                                v-if="distincionesExpandidas.manana"
+                                name="tarea-list"
+                                tag="div"
+                                class="mt-2 space-y-1"
+                            >
+                                <div
+                                    v-for="tarea in tareasAgrupadas.manana"
+                                    :key="tarea.id"
+                                    @click="seleccionarTarea(tarea)"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    :class="[
+                                        tareaSeleccionada?.id === tarea.id 
+                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
+                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    ]"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <CheckboxRedondo
+                                            :checked="tarea.estado === 'completada'"
+                                            @update:checked="toggleCompletada(tarea)"
+                                            @click.stop
+                                        />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p 
+                                            class="text-sm font-medium transition-all duration-300"
+                                            :class="[
+                                                tarea.estado === 'completada' 
+                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
+                                                    : 'text-gray-900 dark:text-white'
+                                            ]"
+                                        >
+                                            {{ tarea.titulo }}
+                                        </p>
+                                    </div>
+                                    <button
+                                        v-if="tarea.estado === 'completada'"
+                                        @click.stop="eliminarTarea(tarea)"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                    >
+                                        <X :size="16" />
+                                    </button>
+                                </div>
+                            </TransitionGroup>
+                        </div>
+
+                        <!-- Distinción: Próximas -->
+                        <div v-if="tareasAgrupadas.proximas.length > 0" class="mb-4">
+                            <button
+                                @click="toggleDistincion('proximas')"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <ChevronDown 
+                                        v-if="distincionesExpandidas.proximas"
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <ChevronRight 
+                                        v-else
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {{ nombresDistinciones.proximas }}
+                                    </span>
+                                </div>
+                                <span 
+                                    v-if="!distincionesExpandidas.proximas"
+                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                >
+                                    {{ tareasAgrupadas.proximas.length }}
+                                </span>
+                            </button>
+                            
+                            <TransitionGroup
+                                v-if="distincionesExpandidas.proximas"
+                                name="tarea-list"
+                                tag="div"
+                                class="mt-2 space-y-1"
+                            >
+                                <div
+                                    v-for="tarea in tareasAgrupadas.proximas"
+                                    :key="tarea.id"
+                                    @click="seleccionarTarea(tarea)"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    :class="[
+                                        tareaSeleccionada?.id === tarea.id 
+                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
+                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    ]"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <CheckboxRedondo
+                                            :checked="tarea.estado === 'completada'"
+                                            @update:checked="toggleCompletada(tarea)"
+                                            @click.stop
+                                        />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p 
+                                            class="text-sm font-medium transition-all duration-300"
+                                            :class="[
+                                                tarea.estado === 'completada' 
+                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
+                                                    : 'text-gray-900 dark:text-white'
+                                            ]"
+                                        >
+                                            {{ tarea.titulo }}
+                                        </p>
+                                    </div>
+                                    <button
+                                        v-if="tarea.estado === 'completada'"
+                                        @click.stop="eliminarTarea(tarea)"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                    >
+                                        <X :size="16" />
+                                    </button>
+                                </div>
+                            </TransitionGroup>
+                        </div>
+
+                        <!-- Distinción: Otras -->
+                        <div v-if="tareasAgrupadas.otras.length > 0" class="mb-4">
+                            <button
+                                @click="toggleDistincion('otras')"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <ChevronDown 
+                                        v-if="distincionesExpandidas.otras"
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <ChevronRight 
+                                        v-else
+                                        :size="18" 
+                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                    />
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {{ nombresDistinciones.otras }}
+                                    </span>
+                                </div>
+                                <span 
+                                    v-if="!distincionesExpandidas.otras"
+                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                >
+                                    {{ tareasAgrupadas.otras.length }}
+                                </span>
+                            </button>
+                            
+                            <TransitionGroup
+                                v-if="distincionesExpandidas.otras"
+                                name="tarea-list"
+                                tag="div"
+                                class="mt-2 space-y-1"
+                            >
+                                <div
+                                    v-for="tarea in tareasAgrupadas.otras"
+                                    :key="tarea.id"
+                                    @click="seleccionarTarea(tarea)"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    :class="[
+                                        tareaSeleccionada?.id === tarea.id 
+                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
+                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    ]"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <CheckboxRedondo
+                                            :checked="tarea.estado === 'completada'"
+                                            @update:checked="toggleCompletada(tarea)"
+                                            @click.stop
+                                        />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p 
+                                            class="text-sm font-medium transition-all duration-300"
+                                            :class="[
+                                                tarea.estado === 'completada' 
+                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
+                                                    : 'text-gray-900 dark:text-white'
+                                            ]"
+                                        >
+                                            {{ tarea.titulo }}
+                                        </p>
+                                    </div>
+                                    <button
+                                        v-if="tarea.estado === 'completada'"
+                                        @click.stop="eliminarTarea(tarea)"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                    >
+                                        <X :size="16" />
+                                    </button>
+                                </div>
+                            </TransitionGroup>
+                        </div>
+                    </div>
+
+                    <!-- QuickAddInput al final -->
+                    <div class="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-50/30 to-transparent dark:from-gray-800/20 dark:to-transparent">
+                        <QuickAddInput :categorias="categorias" placeholder="+ Agregar tarea" />
                     </div>
                 </div>
 
-                <!-- Empty State -->
-                <div v-else class="flex flex-col items-center justify-center py-16 text-center">
-                    <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
-                        <ListTodo :size="48" class="text-gray-400 dark:text-gray-600" />
+                <!-- Lista Derecha: Panel de edición (48% con sidebar, 50% sin sidebar) -->
+                <div 
+                    :class="[
+                        'flex-shrink-0',
+                        estaColapsado ? 'w-[50%]' : 'w-[48%]'
+                    ]"
+                >
+                    <PanelEdicionTarea 
+                        v-if="tareaSeleccionada"
+                        :tarea="tareaSeleccionada"
+                        :categorias="categorias"
+                        @subtareas-actualizadas="manejarSubtareasActualizadas"
+                    />
+                    
+                    <!-- Empty state cuando no hay tareas -->
+                    <div 
+                        v-else
+                        class="h-full flex flex-col items-center justify-center bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-8"
+                    >
+                        <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                            <ListTodo :size="32" class="text-gray-400 dark:text-gray-600" />
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                            No hay tareas
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 text-center max-w-xs">
+                            Agrega tu primera tarea usando el formulario de la izquierda
+                        </p>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        No se encontraron tareas
-                    </h3>
-                    <p class="text-gray-600 dark:text-gray-400 max-w-sm">
-                        {{ filtrosActivos > 0 ? 'Intenta ajustar los filtros para ver más resultados.' : 'Aún no has creado ninguna tarea. Comienza agregando una nueva tarea arriba.' }}
-                    </p>
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </LayoutPrincipal>
 </template>
+
+<style scoped>
+/* Animación fade-in para distinciones expandidas */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Scrollbar personalizado para lista de tareas */
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.2);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.4);
+}
+
+/* Dark mode scrollbar */
+.dark .scrollbar-thin {
+    scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.3);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.5);
+}
+
+/* Transición suave para line-through */
+.line-through {
+    text-decoration-thickness: 2px;
+}
+
+/* TransitionGroup animations para tareas */
+.tarea-list-move,
+.tarea-list-enter-active,
+.tarea-list-leave-active {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tarea-list-enter-from {
+    opacity: 0;
+    transform: translateX(-20px) scale(0.95);
+}
+
+.tarea-list-leave-to {
+    opacity: 0;
+    transform: translateX(20px) scale(0.95);
+}
+
+.tarea-list-leave-active {
+    position: absolute;
+    width: 100%;
+}
+</style>
+

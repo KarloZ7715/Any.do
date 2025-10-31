@@ -248,42 +248,41 @@ class TareaController extends Controller
     {
         $this->authorize('viewAny', Tarea::class);
 
-        $filtros = $request->only([
-            'estado',
-            'prioridad',
-            'categoria_id',
-            'vencimiento',
-            'buscar',
-            'ordenar',
-            'direccion',
-        ]);
+        // Obtener filtro de categoría si existe
+        $categoriaId = $request->input('categoria_id');
 
-        $filtros['usuario_id'] = auth()->id();
+        // Query base: tareas del usuario
+        $query = Tarea::where('usuario_id', auth()->id())
+            ->with(['categoria', 'subtareas']);
 
-        $perPage = $request->input('per_page', 20);
+        // Aplicar filtro de categoría si se proporciona
+        if ($categoriaId) {
+            $query->where('categoria_id', $categoriaId);
+        }
 
-        $tareas = $this->tareaService->obtenerTodasLasTareas($filtros, $perPage);
+        // Ordenar: pendientes primero, luego por fecha de creación
+        $tareas = $query
+            ->orderByRaw("CASE WHEN estado = 'pendiente' THEN 0 ELSE 1 END")
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // Obtener categorías del usuario
         $categorias = Categoria::where('usuario_id', auth()->id())
             ->orderBy('nombre')
             ->get();
 
+        // Obtener la categoría seleccionada si existe
+        $categoriaSeleccionada = null;
+        if ($categoriaId) {
+            $categoriaSeleccionada = Categoria::where('id', $categoriaId)
+                ->where('usuario_id', auth()->id())
+                ->first();
+        }
+
         return Inertia::render('Tareas/TodasLasTareas', [
-            'tareas' => [
-                'data' => TareaResource::collection($tareas->items())->resolve(),
-                'links' => $tareas->linkCollection()->toArray(),
-                'meta' => [
-                    'current_page' => $tareas->currentPage(),
-                    'last_page' => $tareas->lastPage(),
-                    'per_page' => $tareas->perPage(),
-                    'total' => $tareas->total(),
-                    'from' => $tareas->firstItem(),
-                    'to' => $tareas->lastItem(),
-                ],
-            ],
-            'filtros' => $filtros,
+            'tareas' => TareaResource::collection($tareas)->resolve(),
             'categorias' => CategoriaResource::collection($categorias)->resolve(),
+            'categoriaSeleccionada' => $categoriaSeleccionada ? CategoriaResource::make($categoriaSeleccionada)->resolve() : null,
         ]);
     }
 
@@ -296,8 +295,8 @@ class TareaController extends Controller
     {
         $this->authorize('viewAny', Tarea::class);
 
-        $mes = $request->input('mes', now()->month);
-        $anio = $request->input('anio', now()->year);
+        $mes = (int) $request->input('mes', now()->month);
+        $anio = (int) $request->input('anio', now()->year);
 
         $tareasPorDia = $this->tareaService->obtenerTareasPorCalendario(auth()->id(), $mes, $anio);
 
