@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('tareas.index', absolute: false));
+        return redirect()->intended(route('tareas.proximos-siete-dias', absolute: false));
     }
 
     /**

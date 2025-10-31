@@ -46,6 +46,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('tareas.index', absolute: false));
+        return redirect(route('tareas.proximos-siete-dias', absolute: false));
     }
 }
