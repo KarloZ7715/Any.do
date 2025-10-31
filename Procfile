@@ -1,1 +1,2 @@
-web: vendor/bin/heroku-php-apache2 public/
+web: bash scripts/railway_start.sh
+
