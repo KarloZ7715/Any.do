@@ -55,14 +55,14 @@ const handleClose = () => {
 
 <template>
     <Dialog :open="open" @update:open="handleClose">
-        <DialogContent class="sm:max-w-md">
-            <DialogHeader>
+        <DialogContent class="sm:max-w-[380px] max-h-[400px] p-0 overflow-hidden">
+            <DialogHeader class="px-6 pt-6 pb-0">
                 <DialogTitle class="text-lg font-semibold text-gray-900 dark:text-white">
                     Seleccionar Prioridad
                 </DialogTitle>
             </DialogHeader>
 
-            <div class="space-y-2 py-4">
+            <div class="space-y-2 px-6 py-4 overflow-y-auto">
                 <button
                     v-for="prioridad in prioridades"
                     :key="prioridad.valor"
@@ -98,7 +98,7 @@ const handleClose = () => {
                 </button>
             </div>
 
-            <div class="flex justify-end gap-2 pt-2">
+            <div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-800">
                 <Button
                     variant="outline"
                     @click="handleClose"
@@ -110,3 +110,4 @@ const handleClose = () => {
         </DialogContent>
     </Dialog>
 </template>
+

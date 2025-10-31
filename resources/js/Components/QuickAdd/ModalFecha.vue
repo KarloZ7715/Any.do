@@ -92,14 +92,14 @@ const seleccionarAtajo = (atajo) => {
 
 <template>
     <Dialog :open="open" @update:open="handleClose">
-        <DialogContent class="sm:max-w-md">
-            <DialogHeader>
+        <DialogContent class="sm:max-w-[420px] max-h-[450px] p-0 overflow-hidden">
+            <DialogHeader class="px-6 pt-6 pb-0">
                 <DialogTitle class="text-lg font-semibold text-gray-900 dark:text-white">
                     Seleccionar Fecha y Hora
                 </DialogTitle>
             </DialogHeader>
 
-            <div class="space-y-4 py-4">
+            <div class="space-y-4 px-6 py-4 overflow-y-auto">
                 <!-- Atajos rápidos -->
                 <div class="flex gap-2">
                     <Button
@@ -147,7 +147,7 @@ const seleccionarAtajo = (atajo) => {
                 </div>
             </div>
 
-            <div class="flex justify-between gap-2 pt-2">
+            <div class="flex justify-between gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-800">
                 <Button
                     variant="outline"
                     @click="handleLimpiar"
