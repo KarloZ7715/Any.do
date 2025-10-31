@@ -125,7 +125,7 @@ const seleccionarAtajo = (atajo) => {
                         v-model="fechaLocal"
                         type="date"
                         :min="fechaMinima"
-                        class="transition-all duration-200 focus:border-indigo-500 dark:focus:border-indigo-400"
+                        class="transition-all duration-200 focus:border-indigo-500 dark:focus:border-indigo-400 dark:text-white dark:[color-scheme:dark]"
                     />
                 </div>
 
@@ -139,7 +139,7 @@ const seleccionarAtajo = (atajo) => {
                         id="hora"
                         v-model="horaLocal"
                         type="time"
-                        class="transition-all duration-200 focus:border-indigo-500 dark:focus:border-indigo-400"
+                        class="transition-all duration-200 focus:border-indigo-500 dark:focus:border-indigo-400 dark:text-white dark:[color-scheme:dark]"
                     />
                     <p class="text-xs text-gray-500 dark:text-gray-400">
                         Si no especificas hora, la tarea vence al final del día
