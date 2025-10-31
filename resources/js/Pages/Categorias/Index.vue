@@ -125,9 +125,11 @@ const manejarEliminar = (idCategoria) => {
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
                 >
                     <CategoriaCard
-                        v-for="categoria in categorias"
+                        v-for="(categoria, index) in categorias"
                         :key="categoria.id"
                         :categoria="categoria"
+                        :class="`animate-slide-in`"
+                        :style="{ animationDelay: `${index * 50}ms` }"
                         @edit="abrirModalEditar"
                         @delete="manejarEliminar"
                     />
@@ -191,7 +193,44 @@ const manejarEliminar = (idCategoria) => {
 </template>
 
 <style scoped>
-/* Scrollbar personalizado */
+/* ANIMACIONES */
+
+/* Fade in para elementos principales */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide in para categorías individuales */
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+/* SCROLLBAR PERSONALIZADO */
+
 .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
@@ -208,6 +247,7 @@ const manejarEliminar = (idCategoria) => {
 .scrollbar-thin::-webkit-scrollbar-thumb {
     background: rgba(156, 163, 175, 0.2);
     border-radius: 3px;
+    transition: background 0.2s ease;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
@@ -224,5 +264,58 @@ const manejarEliminar = (idCategoria) => {
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: rgba(75, 85, 99, 0.5);
+}
+
+/* EFECTOS DE HOVER Y TRANSICIONES */
+
+/* Hover suave en elementos clickeables */
+.group:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Transiciones suaves en todos los elementos interactivos */
+button, a, [role="button"], .clickable {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover, a:hover, [role="button"]:hover, .clickable:hover {
+    transform: translateY(-1px);
+}
+
+/* MEJORAS DE ACCESIBILIDAD */
+
+/* Focus visible para navegación por teclado */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+.clickable:focus-visible {
+    outline: 2px solid rgb(99, 102, 241);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+}
+
+/* PERFORMANCE OPTIMIZATIONS */
+
+/* Hardware acceleration para animaciones suaves */
+.animate-fade-in,
+.animate-slide-in {
+    will-change: transform, opacity;
+}
+
+/* Después de la animación, remover will-change */
+.animate-fade-in:not(:hover),
+.animate-slide-in:not(:hover) {
+    will-change: auto;
+}
+
+/* RESPONSIVE IMPROVEMENTS */
+
+/* Ajustes para móviles */
+@media (max-width: 640px) {
+    .animate-fade-in,
+    .animate-slide-in {
+        animation-duration: 0.2s;
+    }
 }
 </style>

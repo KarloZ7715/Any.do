@@ -35,6 +35,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    class: {
+        type: String,
+        default: '',
+    },
 })
 
 const emit = defineEmits(['edit', 'delete'])
@@ -77,7 +81,10 @@ const puedeEliminar = computed(() => !props.categoria.es_personal)
 
 <template>
     <div
-        class="group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600"
+        :class="[
+            'group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600',
+            props.class
+        ]"
     >
         <!-- Badge de Protegida (si es Personal) -->
         <div v-if="categoria.es_personal" class="absolute top-2 right-2">

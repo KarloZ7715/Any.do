@@ -97,8 +97,8 @@ tests/
 
 ## 👤 Autores
 
-**Carlos Canabal**
-**Brayan Araujo**
+-   **Carlos Canabal**
+-   **Brayan Araujo**
 
 ## 📄 Licencia
 

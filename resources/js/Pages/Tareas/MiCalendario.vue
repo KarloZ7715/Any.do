@@ -192,7 +192,7 @@ const toggleEstadoTarea = (tarea) => {
             <!-- Contenedor del calendario con scroll -->
             <div class="flex-1 overflow-y-auto px-6 pb-6 bg-gray-50 dark:bg-gray-950 scrollbar-thin">
                 <!-- Calendario con estilo consistente -->
-                <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+                <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden animate-fade-in">
                     <!-- Header días de la semana -->
                     <div class="grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/30 dark:to-transparent">
                         <div
@@ -277,14 +277,15 @@ const toggleEstadoTarea = (tarea) => {
                 <div class="overflow-y-auto px-6 py-4 max-h-[500px] scrollbar-thin">
                     <div class="space-y-2">
                         <div
-                            v-for="tarea in diaSeleccionado?.tareas"
+                            v-for="(tarea, tareaIndex) in diaSeleccionado?.tareas"
                             :key="tarea.id"
                             :class="[
-                                'p-4 rounded-lg border transition-all group',
+                                'p-4 rounded-lg border transition-all group animate-slide-in',
                                 tarea.estado === 'completada'
                                     ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
                                     : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                             ]"
+                            :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                         >
                             <div class="flex items-start gap-3">
                                 <!-- Checkbox -->
@@ -360,7 +361,44 @@ const toggleEstadoTarea = (tarea) => {
 </template>
 
 <style scoped>
-/* Scrollbar personalizado para área de tareas en modal */
+/* ANIMACIONES */
+
+/* Fade in para elementos principales */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide in para tareas individuales */
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+/* SCROLLBAR PERSONALIZADO */
+
 .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
@@ -396,5 +434,58 @@ const toggleEstadoTarea = (tarea) => {
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: rgba(75, 85, 99, 0.5);
+}
+
+/* EFECTOS DE HOVER Y TRANSICIONES */
+
+/* Hover suave en elementos clickeables */
+.group:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Transiciones suaves en todos los elementos interactivos */
+button, a, [role="button"], .clickable {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover, a:hover, [role="button"]:hover, .clickable:hover {
+    transform: translateY(-1px);
+}
+
+/* MEJORAS DE ACCESIBILIDAD */
+
+/* Focus visible para navegación por teclado */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+.clickable:focus-visible {
+    outline: 2px solid rgb(99, 102, 241);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+}
+
+/* PERFORMANCE OPTIMIZATIONS*/
+
+/* Hardware acceleration para animaciones suaves */
+.animate-fade-in,
+.animate-slide-in {
+    will-change: transform, opacity;
+}
+
+/* Después de la animación, remover will-change */
+.animate-fade-in:not(:hover),
+.animate-slide-in:not(:hover) {
+    will-change: auto;
+}
+
+/* RESPONSIVE IMPROVEMENTS*/
+
+/* Ajustes para móviles */
+@media (max-width: 640px) {
+    .animate-fade-in,
+    .animate-slide-in {
+        animation-duration: 0.2s;
+    }
 }
 </style>

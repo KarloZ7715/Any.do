@@ -359,10 +359,11 @@ const manejarTareaEliminada = (tareaId) => {
                                 class="mt-2 space-y-1"
                             >
                                 <div
-                                    v-for="tarea in tareasAgrupadas.hoy"
+                                    v-for="(tarea, tareaIndex) in tareasAgrupadas.hoy"
                                     :key="tarea.id"
                                     @click="seleccionarTarea(tarea)"
-                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 animate-slide-in"
+                                    :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
                                             ? 'bg-indigo-50 dark:bg-indigo-900/20' 
@@ -440,10 +441,11 @@ const manejarTareaEliminada = (tareaId) => {
                                 class="mt-2 space-y-1"
                             >
                                 <div
-                                    v-for="tarea in tareasAgrupadas.manana"
+                                    v-for="(tarea, tareaIndex) in tareasAgrupadas.manana"
                                     :key="tarea.id"
                                     @click="seleccionarTarea(tarea)"
-                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 animate-slide-in"
+                                    :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
                                             ? 'bg-indigo-50 dark:bg-indigo-900/20' 
@@ -516,10 +518,11 @@ const manejarTareaEliminada = (tareaId) => {
                                 class="mt-2 space-y-1"
                             >
                                 <div
-                                    v-for="tarea in tareasAgrupadas.proximas"
+                                    v-for="(tarea, tareaIndex) in tareasAgrupadas.proximas"
                                     :key="tarea.id"
                                     @click="seleccionarTarea(tarea)"
-                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 animate-slide-in"
+                                    :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
                                             ? 'bg-indigo-50 dark:bg-indigo-900/20' 
@@ -592,10 +595,11 @@ const manejarTareaEliminada = (tareaId) => {
                                 class="mt-2 space-y-1"
                             >
                                 <div
-                                    v-for="tarea in tareasAgrupadas.otras"
+                                    v-for="(tarea, tareaIndex) in tareasAgrupadas.otras"
                                     :key="tarea.id"
                                     @click="seleccionarTarea(tarea)"
-                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200"
+                                    class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 animate-slide-in"
+                                    :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
                                             ? 'bg-indigo-50 dark:bg-indigo-900/20' 
@@ -692,7 +696,27 @@ const manejarTareaEliminada = (tareaId) => {
     animation: fade-in 0.3s ease-out forwards;
 }
 
-/* Scrollbar personalizado para lista de tareas */
+/* ANIMACIONES ADICIONALES */
+
+/* Slide in para tareas individuales */
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+/* SCROLLBAR PERSONALIZADO */
+
 .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
@@ -730,6 +754,8 @@ const manejarTareaEliminada = (tareaId) => {
     background: rgba(75, 85, 99, 0.5);
 }
 
+/* EFECTOS DE HOVER Y TRANSICIONES */
+
 /* Transición suave para line-through */
 .line-through {
     text-decoration-thickness: 2px;
@@ -755,6 +781,62 @@ const manejarTareaEliminada = (tareaId) => {
 .tarea-list-leave-active {
     position: absolute;
     width: 100%;
+}
+
+/* EFECTOS DE HOVER EN ELEMENTOS INTERACTIVOS */
+
+/* Hover suave en elementos clickeables */
+.group:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Transiciones suaves en todos los elementos interactivos */
+button, a, [role="button"], .clickable {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover, a:hover, [role="button"]:hover, .clickable:hover {
+    transform: translateY(-1px);
+}
+
+/* MEJORAS DE ACCESIBILIDAD  */
+
+/* Focus visible para navegación por teclado */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+.clickable:focus-visible {
+    outline: 2px solid rgb(99, 102, 241);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+}
+
+/* PERFORMANCE OPTIMIZATIONS */
+
+/* Hardware acceleration para animaciones suaves */
+.animate-fade-in,
+.animate-slide-in,
+.tarea-list-move,
+.tarea-list-enter-active,
+.tarea-list-leave-active {
+    will-change: transform, opacity;
+}
+
+/* Después de la animación, remover will-change */
+.animate-fade-in:not(:hover),
+.animate-slide-in:not(:hover) {
+    will-change: auto;
+}
+
+/* RESPONSIVE IMPROVEMENTS */
+
+/* Ajustes para móviles */
+@media (max-width: 640px) {
+    .animate-fade-in,
+    .animate-slide-in {
+        animation-duration: 0.2s;
+    }
 }
 </style>
 
