@@ -68,10 +68,10 @@ const colorPrioridad = computed(() => {
         <div class="p-3 flex items-start gap-3">
             <!-- Checkbox circular -->
             <button @click.stop="toggleCompletada" :class="[
-                'flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center',
+                'shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center',
                 estaCompletada
                     ? 'bg-muted-foreground/30 dark:bg-muted-foreground/30 border-muted-foreground/30 dark:border-muted-foreground/30'
-                    : 'border-[color:var(--task-checkbox-border)] hover:border-sidebar-primary dark:hover:border-sidebar-primary',
+                    : 'border-(--task-checkbox-border) hover:border-sidebar-primary dark:hover:border-sidebar-primary',
             ]">
                 <Check v-if="estaCompletada" :size="14" class="text-white" :stroke-width="3" />
             </button>
@@ -110,9 +110,10 @@ const colorPrioridad = computed(() => {
 
             <!-- Botón eliminar (solo visible si está completada) -->
             <button v-if="estaCompletada" @click.stop="eliminarTarea"
-                class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-200">
+                class="shrink-0 relative w-5 h-5 flex items-center justify-center rounded-full border border-(--task-checkbox-border) group-hover:border-primary/50 transition-colors duration-200 mt-0.5">
                 <X :size="14" />
             </button>
         </div>
     </div>
 </template>
+```

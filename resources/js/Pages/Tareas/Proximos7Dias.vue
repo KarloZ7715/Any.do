@@ -185,33 +185,33 @@ const getGhostParent = () => {
             <!-- Contenedor Horizontal -->
             <div
                 class="flex-1 overflow-x-auto overflow-y-hidden px-6 pb-6 bg-background dark:bg-background scrollbar-custom">
-                <div class="h-full flex gap-6 pb-2">
+                <div class="h-full flex gap-3 pb-2">
                     <div v-for="(dia, diaIndex) in sieteDias" :key="dia.fecha"
-                        class="flex-shrink-0 w-[320px] flex flex-col animate-fade-in"
+                        class="flex-shrink-0 w-[270px] flex flex-col animate-fade-in"
                         :style="{ animationDelay: `${diaIndex * 50}ms` }">
 
                         <div
                             class="flex flex-col bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm transition-all duration-200 max-h-full overflow-hidden">
                             <!-- Header Columna -->
-                            <div class="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
+                            <div class="flex-shrink-0 px-3 py-2.5 border-b border-border dark:border-border">
                                 <h2
-                                    class="text-sm font-semibold text-foreground dark:text-foreground flex items-center gap-2">
+                                    class="text-[13px] font-semibold text-foreground dark:text-foreground flex items-center gap-2">
                                     <span class="flex items-center gap-1.5">
                                         {{ dia.etiqueta }}
                                         <span v-if="dia.subEtiqueta"
-                                            class="text-xs font-normal text-muted-foreground dark:text-muted-foreground">
+                                            class="text-[11px] font-normal text-muted-foreground dark:text-muted-foreground">
                                             {{ dia.subEtiqueta }}
                                         </span>
                                     </span>
                                     <span v-if="dia.tareasPendientes.length > 0"
-                                        class="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary/10 text-[11px] font-medium text-primary">
+                                        class="ml-auto flex items-center justify-center min-w-[18px] h-4.5 px-1 rounded-full bg-primary/10 text-[10px] font-medium text-primary">
                                         {{ dia.tareasPendientes.length }}
                                     </span>
                                 </h2>
                             </div>
 
                             <!-- Lista / Container D&D -->
-                            <div class="flex-1 overflow-y-auto px-3 py-3 min-h-0 scrollbar-thin">
+                            <div class="flex-1 overflow-y-auto px-1 min-h-0 scrollbar-thin">
                                 <Container orientation="vertical" group-name="col"
                                     :get-child-payload="getChildPayload(diaIndex)" :get-ghost-parent="getGhostParent"
                                     :animation-duration="250" @drop="onColumnDrop(diaIndex, $event)"
@@ -219,7 +219,7 @@ const getGhostParent = () => {
                                         className: 'drop-preview',
                                         animationDuration: 250,
                                         showOnTop: true
-                                    }" class="min-h-[100px]">
+                                    }" class="min-h-[5px]">
                                     <Draggable v-for="tarea in dia.todasLasTareas" :key="tarea.id">
                                         <div class="draggable-item">
                                             <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
@@ -229,9 +229,9 @@ const getGhostParent = () => {
                             </div>
 
                             <!-- Quick Add -->
-                            <div class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-border dark:border-border">
+                            <div class="flex-shrink-0 px-2 pb-2 pt-1 border-t border-border dark:border-border">
                                 <QuickAddInput :categorias="categorias" :fecha-predeterminada="dia.fecha"
-                                    placeholder="+ Agregar tarea" />
+                                    placeholder="+ Añadir tarea" />
                             </div>
                         </div>
                     </div>

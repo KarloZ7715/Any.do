@@ -172,18 +172,18 @@ onMounted(() => {
                 : 'border-[#868686] hover:border-sidebar-primary',
         ]">
             <!-- Input Principal -->
-            <div class="flex items-center gap-3 px-4 py-3">
+            <div class="flex items-center gap-2 px-3 py-2">
                 <input ref="inputRef" v-model="texto" type="text" :placeholder="placeholderTexto" @input="manejarCambio"
                     @keydown.enter="manejarEnter"
-                    class="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground text-base" />
+                    class="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground text-[13px]" />
 
                 <!-- Flecha condicional (solo cuando hay texto) -->
                 <Transition enter-active-class="transition-all duration-200"
                     leave-active-class="transition-all duration-200" enter-from-class="opacity-0 scale-90"
                     leave-to-class="opacity-0 scale-90">
                     <button v-if="mostrarFlecha" @click="manejarEnter"
-                        class="flex-shrink-0 p-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200">
-                        <ArrowRight :size="18" />
+                        class="flex-shrink-0 p-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200">
+                        <ArrowRight :size="16" />
                     </button>
                 </Transition>
             </div>
