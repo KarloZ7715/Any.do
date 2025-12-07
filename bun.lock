@@ -25,8 +25,8 @@
                 "tailwind-merge": "^3.3.1",
                 "tailwindcss-animate": "^1.0.7",
                 "vee-validate": "^4.15.1",
-                "vue-smooth-dnd": "^0.8.1",
                 "vue-sonner": "^2.0.9",
+                "vue3-smooth-dnd": "^0.0.6",
                 "zod": "^3.24.0"
             },
             "devDependencies": {
@@ -4207,13 +4207,6 @@
             "sha512-CydUvFOQKD928UzZhTp4pr2vWz1L+H99t7Pkln2QSPdvmURT0MoC4wUccfCnuEaihNsu9aYYyk+bep8rlfkUXw=="
         ],
 
-        "vue-smooth-dnd": [
-            "vue-smooth-dnd@0.8.1",
-            "",
-            { "dependencies": { "smooth-dnd": "0.12.1" } },
-            "sha512-eZVVPTwz4A1cs0+CjXx/ihV+gAl3QBoWQnU6+23Gp59t0WBU99z7ducBQ4FvjBamqOlg8SDOE5eFHQedxwB4Wg=="
-        ],
-
         "vue-sonner": [
             "vue-sonner@2.0.9",
             "",
@@ -4226,6 +4219,16 @@
                 "optionalPeers": ["@nuxt/kit", "@nuxt/schema", "nuxt"]
             },
             "sha512-i6BokNlNDL93fpzNxN/LZSn6D6MzlO+i3qXt6iVZne3x1k7R46d5HlFB4P8tYydhgqOrRbIZEsnRd3kG7qGXyw=="
+        ],
+
+        "vue3-smooth-dnd": [
+            "vue3-smooth-dnd@0.0.6",
+            "",
+            {
+                "dependencies": { "smooth-dnd": "^0.12.1" },
+                "peerDependencies": { "vue": "^3.0.11" }
+            },
+            "sha512-CH9ZZhEfE7qU1ef2rlfgBG+nZtQX8PnWlspB2HDDz1uVGU7fXM0Pr65DftBMz4X81S+edw2H+ZFG6Dyb5J81KA=="
         ],
 
         "w3c-xmlserializer": [

@@ -1,6 +1,7 @@
 <script setup>
 import { CalendarDays } from 'lucide-vue-next'
-import { ref, onMounted, nextTick, computed } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
+import { Container, Draggable } from 'vue3-smooth-dnd'
 import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
 import QuickAddInput from '@/Components/QuickAddInput.vue'
 import TareaCardMinimalista from '@/Components/TareaCardMinimalista.vue'
@@ -22,13 +23,13 @@ const props = defineProps({
 const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const diasSemanaCortos = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
-// Refs para las listas de drag & drop
-const listasRefs = ref([])
+// Composable (solo necesitamos la función de actualizar)
+const { actualizarFechaTarea } = usarDragDropTareas()
 
-// Composable drag & drop
-const { inicializarDragDrop, actualizarFechaTarea } = usarDragDropTareas()
+// Estado local para los días y tareas (necesario para mutaciones de D&D)
+const sieteDias = ref([])
 
-// Generar array de 7 días desde hoy
+// Generar estructura de días
 const generarSieteDias = () => {
     const dias = []
     const hoy = new Date()
@@ -45,10 +46,8 @@ const generarSieteDias = () => {
         const tareasPendientes = tareas.filter(t => t.estado === 'pendiente')
         const tareasCompletadas = tareas.filter(t => t.estado === 'completada')
 
-        // Ordenar completadas: últimas completadas primero
-        tareasCompletadas.sort((a, b) => {
-            return new Date(b.fecha_completada) - new Date(a.fecha_completada)
-        })
+        // Ordenar completadas
+        tareasCompletadas.sort((a, b) => new Date(b.fecha_completada) - new Date(a.fecha_completada))
 
         let etiqueta = ''
         let subEtiqueta = ''
@@ -69,99 +68,110 @@ const generarSieteDias = () => {
             fechaObj: fecha,
             etiqueta,
             subEtiqueta,
-            tareasPendientes,
-            tareasCompletadas,
             todasLasTareas: [...tareasPendientes, ...tareasCompletadas],
-            totalTareas: tareas.length,
+            tareasPendientes, // Referencia para contador
         })
     }
-
     return dias
 }
 
-const sieteDias = computed(() => generarSieteDias())
+// Sincronizar estado local cuando cambian las props
+watch(() => props.tareasPorFecha, () => {
+    sieteDias.value = generarSieteDias()
+}, { immediate: true, deep: true })
 
-// Contador total de tareas pendientes
-const totalTareasPendientes = computed(() => {
-    return sieteDias.value.reduce((total, dia) => total + dia.tareasPendientes.length, 0)
-})
+// Helper para aplicar el resultado del drag
+const applyDrag = (arr, dragResult) => {
+    const { removedIndex, addedIndex, payload } = dragResult
+    if (removedIndex === null && addedIndex === null) return arr
+
+    const result = [...arr]
+    let itemToAdd = payload
+
+    if (removedIndex !== null) {
+        itemToAdd = result.splice(removedIndex, 1)[0]
+    }
+
+    if (addedIndex !== null) {
+        result.splice(addedIndex, 0, itemToAdd)
+    }
+
+    return result
+}
+
+// Payload para D&D: Retorna el objeto tarea
+const getChildPayload = (diaIndex) => {
+    return (index) => {
+        return sieteDias.value[diaIndex].todasLasTareas[index]
+    }
+}
+
+// Manejador del Drop
+const onColumnDrop = (diaIndex, dropResult) => {
+    const { removedIndex, addedIndex, payload } = dropResult
+
+    // Si no hubo cambios en esta columna, salir
+    if (removedIndex === null && addedIndex === null) return
+
+    const dia = sieteDias.value[diaIndex]
+
+    // Actualizar estado local
+    dia.todasLasTareas = applyDrag(dia.todasLasTareas, dropResult)
+
+    // Actualizar contadores de pendientes (recalculando)
+    dia.tareasPendientes = dia.todasLasTareas.filter(t => t.estado === 'pendiente')
+
+    // Lógica de backend: Si se agregó una tarea (addedIndex !== null)
+    if (addedIndex !== null && payload) {
+        const tarea = payload
+        const nuevaFecha = dia.fecha
+
+        if (removedIndex === null) {
+            // Tarea vino de OTRA columna
+            // Obtener hora vencimiento si existe
+            let horaVencimiento = null
+            if (tarea.hora_vencimiento && tarea.hora_vencimiento !== '00:00') {
+                horaVencimiento = tarea.hora_vencimiento
+            }
+
+            actualizarFechaTarea(tarea.id, nuevaFecha, horaVencimiento)
+        }
+    }
+}
 
 // Estado del modal de edición
 const tareaSeleccionada = ref(null)
 const modalEditarAbierto = ref(false)
 
-// Abrir modal para editar tarea
 const abrirModalEdicion = (tarea) => {
     tareaSeleccionada.value = tarea
     modalEditarAbierto.value = true
 }
 
-// Handler cuando se suelta una tarea en otra columna
-const manejarDrop = (data) => {
-    // Extraer el elemento arrastrado
-    const tareaElement = data.draggedNode?.el
-    if (!tareaElement) return
-
-    // Obtener el parent destino (el contenedor con data-fecha)
-    const parentElement = tareaElement.parentElement
-    if (!parentElement) return
-
-    const tareaId = parseInt(tareaElement.getAttribute('data-tarea-id'))
-    const nuevaFecha = parentElement.getAttribute('data-fecha')
-
-    if (tareaId && nuevaFecha) {
-        // Buscar la tarea en los datos para obtener la hora existente
-        let tareaEncontrada = null
-        for (const dia of sieteDias.value) {
-            const tarea = dia.todasLasTareas.find(t => t.id === tareaId)
-            if (tarea) {
-                tareaEncontrada = tarea
-                break
-            }
-        }
-
-        // Usar hora_vencimiento directamente si existe, sino intentar extraerla
-        let horaVencimiento = null
-        if (tareaEncontrada) {
-            // Usar hora_vencimiento del Resource si existe
-            if (tareaEncontrada.hora_vencimiento && tareaEncontrada.hora_vencimiento !== '00:00') {
-                horaVencimiento = tareaEncontrada.hora_vencimiento
-            }
-        }
-
-        actualizarFechaTarea(tareaId, nuevaFecha, horaVencimiento)
-    }
-}
-
-// Inicializar drag & drop después de montar
 onMounted(() => {
+    // Scroll inicial
     nextTick(() => {
-        if (listasRefs.value.length > 0) {
-            inicializarDragDrop(listasRefs.value, manejarDrop)
-        }
-
-        // Scroll automático a la izquierda (mostrar "Hoy" primero)
         const contenedorScroll = document.querySelector('.scrollbar-custom')
         if (contenedorScroll) {
             contenedorScroll.scrollLeft = 0
         }
-
-        // También resetear el scroll del body por si acaso
-        window.scrollTo(0, 0)
-        document.documentElement.scrollLeft = 0
-        document.body.scrollLeft = 0
     })
 })
+
+// Fix para el posicionamiento del ghost: usar document.body como parent
+// Esto evita problemas cuando hay transforms en elementos ancestros
+const getGhostParent = () => {
+    return document.body
+}
 </script>
 
 <template>
     <LayoutPrincipal>
-        <!-- Contenedor principal con fondo uniforme-->
         <div class="h-screen flex flex-col overflow-hidden bg-background dark:bg-background">
-            <!-- Header con título minimalista y sombra sutil -->
+            <!-- Header -->
             <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-background dark:bg-background">
                 <div
-                    class="inline-flex items-center gap-3 px-4 py-3 bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm hover:shadow-md transition-all duration-200 group">
+                    class="inline-flex items-center gap-3 px-4 py-3 bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm hover:shadow-md transition-all duration-200 header-card group">
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
                         <CalendarDays :size="18" class="text-primary" :stroke-width="2.5" />
@@ -172,18 +182,17 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Contenedor horizontal con scroll (SOLO horizontal, gap 24px) -->
+            <!-- Contenedor Horizontal -->
             <div
                 class="flex-1 overflow-x-auto overflow-y-hidden px-6 pb-6 bg-background dark:bg-background scrollbar-custom">
                 <div class="h-full flex gap-6 pb-2">
-                    <!-- Columna por cada día (ancho fijo) -->
-                    <div v-for="(dia, index) in sieteDias" :key="dia.fecha"
+                    <div v-for="(dia, diaIndex) in sieteDias" :key="dia.fecha"
                         class="flex-shrink-0 w-[320px] flex flex-col animate-fade-in"
-                        :style="{ animationDelay: `${index * 50}ms` }">
-                        <!-- Box de la lista con sombra y hover effect -->
+                        :style="{ animationDelay: `${diaIndex * 50}ms` }">
+
                         <div
                             class="flex flex-col bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm transition-all duration-200 max-h-full overflow-hidden">
-                            <!-- Header de la columna con efecto hover -->
+                            <!-- Header Columna -->
                             <div class="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
                                 <h2
                                     class="text-sm font-semibold text-foreground dark:text-foreground flex items-center gap-2">
@@ -201,47 +210,89 @@ onMounted(() => {
                                 </h2>
                             </div>
 
-                            <!-- Lista de tareas con scroll vertical suave -->
+                            <!-- Lista / Container D&D -->
                             <div class="flex-1 overflow-y-auto px-3 py-3 min-h-0 scrollbar-thin">
-                                <!-- Contenedor drag & drop -->
-                                <div :ref="el => listasRefs[sieteDias.indexOf(dia)] = el" :data-fecha="dia.fecha"
-                                    class="space-y-2 min-h-[40px] transition-all duration-300 rounded-lg"
-                                    :class="{ 'drop-zone-ready': true }">
-                                    <!-- Tareas de este día con animación de entrada -->
-                                    <div v-for="(tarea, tareaIndex) in dia.todasLasTareas" :key="tarea.id"
-                                        :data-tarea-id="tarea.id" class="animate-slide-in"
-                                        :style="{ animationDelay: `${tareaIndex * 30}ms` }">
-                                        <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
-                                    </div>
-                                </div>
+                                <Container orientation="vertical" group-name="col"
+                                    :get-child-payload="getChildPayload(diaIndex)" :get-ghost-parent="getGhostParent"
+                                    :animation-duration="250" @drop="onColumnDrop(diaIndex, $event)"
+                                    drag-class="card-ghost" drop-class="card-ghost-drop" :drop-placeholder="{
+                                        className: 'drop-preview',
+                                        animationDuration: 250,
+                                        showOnTop: true
+                                    }" class="min-h-[100px]">
+                                    <Draggable v-for="tarea in dia.todasLasTareas" :key="tarea.id">
+                                        <div class="draggable-item">
+                                            <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
+                                        </div>
+                                    </Draggable>
+                                </Container>
                             </div>
 
-                            <!-- Quick Add Input al final con sombra superior sutil -->
+                            <!-- Quick Add -->
                             <div class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-border dark:border-border">
                                 <QuickAddInput :categorias="categorias" :fecha-predeterminada="dia.fecha"
                                     placeholder="+ Agregar tarea" />
                             </div>
                         </div>
                     </div>
-
-                    <!-- Espaciador al final para mejor scroll -->
                     <div class="flex-shrink-0 w-4"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal de edición de tarea con animación -->
         <ModalEditarTarea v-model:open="modalEditarAbierto" :tarea="tareaSeleccionada" :categorias="categorias"
             @cerrar="tareaSeleccionada = null" />
     </LayoutPrincipal>
 </template>
 
 <style scoped>
-/* ========================================
-   ANIMACIONES
-   ======================================== */
+/* Estilos para Smooth DnD */
 
-/* Fade in para elementos principales */
+/* Clase para el elemento que se está arrastrando (ghost) */
+:deep(.card-ghost) {
+    transition: transform 0.25s ease !important;
+    opacity: 0.85;
+    z-index: 10000;
+    cursor: grabbing;
+}
+
+/* Aplicar la rotación y estilos visuales al primer hijo (el contenido real) */
+:deep(.card-ghost > div) {
+    transform: rotateZ(5deg);
+    background-color: rgb(31, 31, 31);
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35);
+    border-radius: 0.5rem;
+}
+
+:deep(.card-ghost-drop) {
+    transition: transform 0.25s ease-in-out !important;
+}
+
+:deep(.card-ghost-drop > div) {
+    transform: rotateZ(0deg);
+    transition: transform 0.25s ease-in-out;
+}
+
+/* Estilos para items arrastrables */
+.draggable-item {
+    margin-bottom: 0.5rem;
+}
+
+/* Animación suave cuando los items se reorganizan */
+:deep(.smooth-dnd-draggable-wrapper) {
+    transition: transform 0.25s ease-out;
+}
+
+/* Placeholder donde caerá el elemento */
+:deep(.drop-preview) {
+    background-color: rgba(99, 102, 241, 0.15);
+    border: 2px dashed rgba(99, 102, 241, 0.5);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    min-height: 60px;
+}
+
+/* Animaciones de entrada */
 @keyframes fade-in {
     from {
         opacity: 0;
@@ -254,89 +305,12 @@ onMounted(() => {
     }
 }
 
-/* Slide in para tareas individuales */
-@keyframes slide-in {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
 .animate-fade-in {
     animation: fade-in 0.4s ease-out forwards;
     opacity: 0;
 }
 
-.animate-slide-in {
-    animation: slide-in 0.3s ease-out forwards;
-    opacity: 0;
-}
-
-/* ========================================
-   DRAG & DROP MEJORADO
-   ======================================== */
-
-:deep(.dragging) {
-    opacity: 0.6;
-    transform: rotate(3deg) scale(1.02);
-    cursor: grabbing !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:deep(.drop-zone-active) {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0.08) 100%);
-    border: 2px dashed rgb(99, 102, 241);
-    border-radius: 0.75rem;
-    min-height: 100px;
-    animation: pulse-border 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-border {
-
-    0%,
-    100% {
-        border-color: rgb(99, 102, 241);
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0.08) 100%);
-    }
-
-    50% {
-        border-color: rgb(129, 140, 248);
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.12) 100%);
-    }
-}
-
-:deep(.drop-zone-ready) {
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:deep(.drop-zone-ready:hover) {
-    background-color: rgba(99, 102, 241, 0.01);
-}
-
-:deep([data-tarea-id]) {
-    cursor: grab;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:deep([data-tarea-id]:hover) {
-    transform: translateY(-2px);
-}
-
-:deep([data-tarea-id]:active) {
-    cursor: grabbing;
-    transform: scale(0.98);
-}
-
-/* ========================================
-   SCROLLBAR PERSONALIZADO - HORIZONTAL
-   ======================================== */
-
+/* Scrollbars */
 .scrollbar-custom {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
@@ -361,7 +335,6 @@ onMounted(() => {
     background: rgba(156, 163, 175, 0.5);
 }
 
-/* Dark mode scrollbar horizontal */
 .dark .scrollbar-custom {
     scrollbar-color: rgba(75, 85, 99, 0.4) transparent;
 }
@@ -373,10 +346,6 @@ onMounted(() => {
 .dark .scrollbar-custom::-webkit-scrollbar-thumb:hover {
     background: rgba(75, 85, 99, 0.6);
 }
-
-/* ========================================
-   SCROLLBAR PERSONALIZADO - VERTICAL (LISTAS)
-   ======================================== */
 
 .scrollbar-thin {
     scrollbar-width: thin;
@@ -402,7 +371,6 @@ onMounted(() => {
     background: rgba(156, 163, 175, 0.4);
 }
 
-/* Dark mode scrollbar vertical */
 .dark .scrollbar-thin {
     scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
 }
@@ -415,15 +383,21 @@ onMounted(() => {
     background: rgba(75, 85, 99, 0.5);
 }
 
-/* ========================================
-   EFECTOS DE HOVER EN ELEMENTOS INTERACTIVOS
-   ======================================== */
-
-/* Hover suave en elementos clickeables */
-.group:hover {
+/* Hover elements */
+.header-card:hover {
     transform: translateY(-1px);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Override para las tareas: NADA de transform en hover para evitar glitch visual en D&D */
+:deep([data-tarea-id]) {
+    cursor: grab;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transform: none !important;
+    /* Importante para sobreescribir .group:hover */
+}
+
+
 
 /* ========================================
    MEJORAS DE ACCESIBILIDAD

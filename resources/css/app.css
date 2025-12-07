@@ -182,4 +182,19 @@
     html.dark * {
         scrollbar-color: rgba(75, 85, 99, 0.4) transparent;
     }
+
+    /* Fix para vue-smooth-dnd positioning */
+    .smooth-dnd-ghost {
+        pointer-events: none !important;
+    }
+
+    /* Animación suave para el container y los items */
+    .smooth-dnd-container.vertical > .smooth-dnd-draggable-wrapper {
+        transition: transform 0.25s ease-out;
+    }
+
+    /* Asegurar que el container tenga min-height */
+    .smooth-dnd-container {
+        min-height: 10px;
+    }
 }

@@ -169,7 +169,7 @@ onMounted(() => {
             'border-1 transition-all duration-200',
             mostrarIconos
                 ? 'border-ring shadow-md'
-                : 'border-border hover:border-sidebar-primary',
+                : 'border-[#868686] hover:border-sidebar-primary',
         ]">
             <!-- Input Principal -->
             <div class="flex items-center gap-3 px-4 py-3">

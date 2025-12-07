@@ -58,10 +58,11 @@ const colorPrioridad = computed(() => {
 
 <template>
     <div :class="[
-        'group relative rounded-lg border transition-all duration-200',
+        'group relative rounded-lg border',
+        'transition-[background-color,border-color] duration-200',
         estaCompletada
             ? 'bg-muted/50 border-border'
-            : 'bg-task-card border-border hover:border-sidebar-primary hover:shadow-md',
+            : 'bg-task-card border-border hover:bg-[#393939] dark:hover:bg-[#393939]',
     ]">
         <!-- Contenido principal -->
         <div class="p-3 flex items-start gap-3">
