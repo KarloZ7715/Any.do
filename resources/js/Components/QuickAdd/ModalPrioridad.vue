@@ -57,57 +57,40 @@ const handleClose = () => {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="sm:max-w-[380px] max-h-[400px] p-0 overflow-hidden">
             <DialogHeader class="px-6 pt-6 pb-0">
-                <DialogTitle class="text-lg font-semibold text-gray-900 dark:text-white">
+                <DialogTitle class="text-lg font-semibold text-foreground">
                     Seleccionar Prioridad
                 </DialogTitle>
             </DialogHeader>
 
             <div class="space-y-2 px-6 py-4 overflow-y-auto">
-                <button
-                    v-for="prioridad in prioridades"
-                    :key="prioridad.valor"
-                    @click="handleSeleccionar(prioridad.valor)"
-                    :class="[
+                <button v-for="prioridad in prioridades" :key="prioridad.valor"
+                    @click="handleSeleccionar(prioridad.valor)" :class="[
                         'w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200',
                         'border-2',
                         prioridad.bgHover,
                         prioridadSeleccionada === prioridad.valor
                             ? `bg-opacity-10 ${prioridad.border}`
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-                    ]"
-                >
+                            : 'bg-card border-border hover:border-sidebar-primary/50',
+                    ]">
                     <div class="flex items-center gap-3">
-                        <span
-                            :class="[prioridad.bgColor, 'w-4 h-4 rounded-full']"
-                        />
-                        <span class="font-medium text-gray-900 dark:text-white">
+                        <span :class="[prioridad.bgColor, 'w-4 h-4 rounded-full']" />
+                        <span class="font-medium text-foreground">
                             {{ prioridad.label }}
                         </span>
-                        <span
-                            v-if="prioridad.valor === 2"
-                            class="text-xs text-gray-500 dark:text-gray-400"
-                        >
+                        <span v-if="prioridad.valor === 2" class="text-xs text-muted-foreground">
                             (Por defecto)
                         </span>
                     </div>
-                    <Check
-                        v-if="prioridadSeleccionada === prioridad.valor"
-                        :size="20"
-                        :style="{ color: prioridad.color }"
-                    />
+                    <Check v-if="prioridadSeleccionada === prioridad.valor" :size="20"
+                        :style="{ color: prioridad.color }" />
                 </button>
             </div>
 
-            <div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-800">
-                <Button
-                    variant="outline"
-                    @click="handleClose"
-                    class="transition-all duration-200"
-                >
+            <div class="flex justify-end gap-2 px-6 py-4 border-t border-border">
+                <Button variant="outline" @click="handleClose" class="transition-all duration-200">
                     Cancelar
                 </Button>
             </div>
         </DialogContent>
     </Dialog>
 </template>
-

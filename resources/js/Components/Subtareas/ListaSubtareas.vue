@@ -70,7 +70,7 @@ const handleCrear = () => {
 			estado: 'pendiente',
 			tarea_id: props.tareaId || null,
 		}
-		
+
 		subtareasLocales.value.push(nuevaSubtarea)
 		emit('crear', nuevaSubtarea)
 	} else {
@@ -95,7 +95,7 @@ const handleToggle = (subtarea) => {
 					: 'pendiente'
 		}
 	}
-	
+
 	// Emitir para que el padre maneje (importante en modo edit)
 	emit('toggle', subtarea)
 }
@@ -106,7 +106,7 @@ const handleToggle = (subtarea) => {
 const handleUpdate = (subtarea, nuevoTextoParam) => {
 	// Asegurar que nuevoTextoParam es string
 	const nuevoTexto = typeof nuevoTextoParam === 'string' ? nuevoTextoParam : String(nuevoTextoParam || '')
-	
+
 	if (!nuevoTexto.trim()) return
 
 	// Actualizar optimistamente solo en modo create
@@ -133,7 +133,7 @@ const handleDelete = (subtarea) => {
 			subtareasLocales.value.splice(index, 1)
 		}
 	}
-	
+
 	// Emitir para que el padre maneje (importante en modo edit)
 	emit('eliminar', subtarea)
 }
@@ -160,50 +160,30 @@ const handleBlur = () => {
 	<div class="space-y-2">
 		<!-- Header con título y contador -->
 		<div class="flex items-center justify-between">
-			<h3 class="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+			<h3 class="text-xs font-medium text-muted-foreground">
 				Subtareas
 			</h3>
-			<span
-				v-if="totalSubtareas > 0"
-				class="text-xs text-neutral-500 dark:text-neutral-400"
-			>
+			<span v-if="totalSubtareas > 0" class="text-xs text-muted-foreground">
 				{{ completadas }}/{{ totalSubtareas }}
 			</span>
 		</div>
 
 		<!-- Contenedor con scroll (max 5 visibles) -->
-		<div
-			v-if="subtareasMostrar.length > 0"
-			class="max-h-[180px] space-y-1 overflow-y-auto"
-		>
-			<SubtareaItem
-				v-for="subtarea in subtareasMostrar"
-				:key="subtarea.id"
-				:subtarea="subtarea"
-				@toggle="handleToggle(subtarea)"
-				@update="(nuevoTextoParam) => handleUpdate(subtarea, nuevoTextoParam)"
-				@delete="handleDelete(subtarea)"
-			/>
+		<div v-if="subtareasMostrar.length > 0" class="max-h-[180px] space-y-1 overflow-y-auto">
+			<SubtareaItem v-for="subtarea in subtareasMostrar" :key="subtarea.id" :subtarea="subtarea"
+				@toggle="handleToggle(subtarea)" @update="(nuevoTextoParam) => handleUpdate(subtarea, nuevoTextoParam)"
+				@delete="handleDelete(subtarea)" />
 		</div>
 
 		<!-- Input para crear nueva subtarea -->
 		<div class="pt-2">
-			<input
-				v-model="nuevoTexto"
-				type="text"
-				placeholder="Nueva subtarea..."
-				:disabled="limiteAlcanzado"
-				class="w-full rounded-md border-neutral-300 px-3 py-1.5 text-sm transition-colors placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-neutral-600 dark:focus:ring-neutral-600 dark:disabled:bg-neutral-800"
-				@keydown="handleKeydown"
-				@blur="handleBlur"
-			/>
+			<input v-model="nuevoTexto" type="text" placeholder="Nueva subtarea..." :disabled="limiteAlcanzado"
+				class="w-full rounded-md border-input px-3 py-1.5 text-sm transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground bg-transparent text-foreground"
+				@keydown="handleKeydown" @blur="handleBlur" />
 		</div>
 
 		<!-- Advertencia si límite alcanzado -->
-		<p
-			v-if="limiteAlcanzado"
-			class="text-xs text-amber-600 dark:text-amber-500"
-		>
+		<p v-if="limiteAlcanzado" class="text-xs text-amber-600 dark:text-amber-500">
 			⚠️ Límite de 30 subtareas alcanzado
 		</p>
 	</div>

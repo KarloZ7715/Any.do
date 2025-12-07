@@ -54,13 +54,11 @@ const esColorActivo = (color) => {
     <div class="space-y-3">
         <!-- Preview compacto del color seleccionado -->
         <div class="flex items-center gap-3">
-            <div
-                class="h-10 w-10 rounded-md border-2 border-gray-200 dark:border-gray-700 shadow-sm"
-                :style="{ backgroundColor: colorSeleccionado }"
-            ></div>
+            <div class="h-10 w-10 rounded-md border-2 border-border shadow-sm"
+                :style="{ backgroundColor: colorSeleccionado }"></div>
             <div class="flex-1">
                 <Label class="text-sm font-medium">Color seleccionado</Label>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ colorSeleccionado }}</p>
+                <p class="text-xs text-muted-foreground mt-0.5">{{ colorSeleccionado }}</p>
             </div>
         </div>
 
@@ -68,37 +66,19 @@ const esColorActivo = (color) => {
         <div>
             <Label class="text-sm font-medium mb-2 block">Colores predefinidos</Label>
             <div class="grid grid-cols-8 gap-1.5">
-                <button
-                    v-for="color in coloresPredefinidos.slice(0, 8)"
-                    :key="color.valor"
-                    type="button"
-                    class="group relative h-8 w-full rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800"
+                <button v-for="color in coloresPredefinidos.slice(0, 8)" :key="color.valor" type="button"
+                    class="group relative h-8 w-full rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-background"
                     :class="[
                         color.clase,
                         esColorActivo(color.valor)
-                            ? 'border-gray-900 dark:border-white ring-2 ring-gray-900 dark:ring-white ring-offset-1 scale-110'
-                            : 'border-transparent hover:border-gray-300 dark:hover:border-gray-500',
-                    ]"
-                    :title="color.nombre"
-                    @click="seleccionarColor(color.valor)"
-                >
+                            ? 'border-foreground ring-2 ring-foreground ring-offset-1 scale-110'
+                            : 'border-transparent hover:border-border',
+                    ]" :title="color.nombre" @click="seleccionarColor(color.valor)">
                     <!-- Checkmark cuando está seleccionado -->
-                    <span
-                        v-if="esColorActivo(color.valor)"
-                        class="absolute inset-0 flex items-center justify-center"
-                    >
-                        <svg
-                            class="h-4 w-4 text-white drop-shadow-lg"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="3"
-                                d="M5 13l4 4L19 7"
-                            />
+                    <span v-if="esColorActivo(color.valor)" class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-4 w-4 text-white drop-shadow-lg" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                         </svg>
                     </span>
                 </button>
@@ -107,25 +87,14 @@ const esColorActivo = (color) => {
 
         <!-- Input manual de color (compacto) -->
         <div class="space-y-1.5">
-            <Label for="color-manual" class="text-xs font-medium text-gray-600 dark:text-gray-400">
+            <Label for="color-manual" class="text-xs font-medium text-muted-foreground">
                 Color personalizado
             </Label>
             <div class="flex gap-2">
-                <Input
-                    id="color-manual"
-                    v-model="colorManual"
-                    type="text"
-                    placeholder="#3B82F6"
-                    maxlength="7"
-                    class="flex-1 font-mono text-xs h-9"
-                    @input="actualizarColorManual"
-                />
-                <input
-                    type="color"
-                    :value="colorSeleccionado"
-                    class="h-9 w-9 cursor-pointer rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                    @input="actualizarColorManual"
-                />
+                <Input id="color-manual" v-model="colorManual" type="text" placeholder="#3B82F6" maxlength="7"
+                    class="flex-1 font-mono text-xs h-9" @input="actualizarColorManual" />
+                <input type="color" :value="colorSeleccionado"
+                    class="h-9 w-9 cursor-pointer rounded border border-input bg-card" @input="actualizarColorManual" />
             </div>
         </div>
     </div>

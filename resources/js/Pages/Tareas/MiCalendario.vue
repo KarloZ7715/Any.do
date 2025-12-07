@@ -145,22 +145,22 @@ const toggleEstadoTarea = (tarea) => {
 <template>
     <LayoutPrincipal>
         <!-- Contenedor principal con fondo uniforme -->
-        <div class="h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+        <div class="h-screen flex flex-col overflow-hidden bg-background">
             <!-- Header con título minimalista y sombra sutil -->
-            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-gray-50 dark:bg-gray-950">
+            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-background">
                 <div class="flex items-start justify-between gap-4 mb-4">
                     <!-- Título con estilo consistente -->
                     <div 
-                        class="inline-flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 group"
+                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 group"
                     >
-                        <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors duration-200">
-                            <CalendarRange :size="18" class="text-indigo-600 dark:text-indigo-400" :stroke-width="2.5" />
+                        <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
+                            <CalendarRange :size="18" class="text-primary" :stroke-width="2.5" />
                         </div>
                         <div>
-                            <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            <h1 class="text-lg font-semibold text-foreground">
                                 Mi Calendario
                             </h1>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                            <p class="text-xs text-muted-foreground">
                                 {{ nombresMeses[mes - 1] }} {{ anio }}
                             </p>
                         </div>
@@ -190,15 +190,15 @@ const toggleEstadoTarea = (tarea) => {
             </div>
 
             <!-- Contenedor del calendario con scroll -->
-            <div class="flex-1 overflow-y-auto px-6 pb-6 bg-gray-50 dark:bg-gray-950 scrollbar-thin">
+            <div class="flex-1 overflow-y-auto px-6 pb-6 bg-background scrollbar-thin">
                 <!-- Calendario con estilo consistente -->
-                <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden animate-fade-in">
+                <div class="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden animate-fade-in">
                     <!-- Header días de la semana -->
-                    <div class="grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/30 dark:to-transparent">
+                    <div class="grid grid-cols-7 border-b border-border bg-gradient-to-b from-muted/50 to-transparent dark:from-muted/30 dark:to-transparent">
                         <div
                             v-for="dia in diasSemana"
                             :key="dia"
-                            class="p-1.5 sm:p-2 md:p-3 text-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            class="p-1.5 sm:p-2 md:p-3 text-center text-xs sm:text-sm font-semibold text-muted-foreground"
                         >
                             {{ dia }}
                         </div>
@@ -210,9 +210,9 @@ const toggleEstadoTarea = (tarea) => {
                             v-for="(dia, index) in diasDelMes"
                             :key="index"
                             :class="[
-                                'min-h-[80px] sm:min-h-[90px] md:min-h-[100px] p-1 sm:p-1.5 md:p-2 border-r border-b border-gray-200 dark:border-gray-800 transition-all duration-200',
-                                dia ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50' : 'bg-gray-50 dark:bg-gray-900/50',
-                                dia?.esHoy ? 'bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30' : '',
+                                'min-h-[80px] sm:min-h-[90px] md:min-h-[100px] p-1 sm:p-1.5 md:p-2 border-r border-b border-border transition-all duration-200',
+                                dia ? 'cursor-pointer hover:bg-accent' : 'bg-muted/30',
+                                dia?.esHoy ? 'bg-primary/10 hover:bg-primary/20' : '',
                             ]"
                             @click="dia && seleccionarDia(dia)"
                         >
@@ -222,8 +222,8 @@ const toggleEstadoTarea = (tarea) => {
                                         :class="[
                                             'text-xs sm:text-sm font-medium transition-all',
                                             dia.esHoy
-                                                ? 'w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-indigo-600 text-white shadow-md text-xs'
-                                                : 'text-gray-900 dark:text-white',
+                                                ? 'w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md text-xs'
+                                                : 'text-foreground',
                                         ]"
                                     >
                                         {{ dia.numero }}
@@ -238,15 +238,15 @@ const toggleEstadoTarea = (tarea) => {
                                         :class="[
                                             'text-[10px] sm:text-xs p-1 sm:p-1.5 rounded text-left truncate transition-all',
                                             tarea.estado === 'completada'
-                                                ? 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 line-through opacity-60'
-                                                : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/50'
+                                                ? 'bg-muted text-muted-foreground line-through opacity-60'
+                                                : 'bg-primary/20 text-primary hover:bg-primary/30'
                                         ]"
                                     >
                                         {{ tarea.titulo }}
                                     </div>
                                     <div
                                         v-if="dia.cantidadTareas > 2"
-                                        class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium pl-1 sm:pl-1.5"
+                                        class="text-[10px] sm:text-xs text-muted-foreground font-medium pl-1 sm:pl-1.5"
                                     >
                                         +{{ dia.cantidadTareas - 2 }} más
                                     </div>
@@ -261,13 +261,13 @@ const toggleEstadoTarea = (tarea) => {
         <!-- Modal detalle del día -->
         <Dialog v-model:open="modalAbierto">
             <DialogContent class="sm:max-w-[600px] max-h-[700px] p-0 overflow-hidden">
-                <DialogHeader class="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <DialogHeader class="px-6 pt-6 pb-4 border-b border-border">
                     <div class="flex items-start justify-between">
                         <div>
-                            <DialogTitle class="text-xl font-bold text-gray-900 dark:text-white">
+                            <DialogTitle class="text-xl font-bold text-foreground">
                                 {{ diaSeleccionado ? formatearFechaLegible(diaSeleccionado.fecha) : '' }}
                             </DialogTitle>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p class="text-sm text-muted-foreground mt-1">
                                 {{ diaSeleccionado?.cantidadTareas }} {{ diaSeleccionado?.cantidadTareas === 1 ? 'tarea' : 'tareas' }}
                             </p>
                         </div>
@@ -282,8 +282,8 @@ const toggleEstadoTarea = (tarea) => {
                             :class="[
                                 'p-4 rounded-lg border transition-all group animate-slide-in',
                                 tarea.estado === 'completada'
-                                    ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
-                                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                    ? 'bg-muted/50 border-border'
+                                    : 'bg-card border-border hover:border-primary/50'
                             ]"
                             :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                         >
@@ -300,7 +300,7 @@ const toggleEstadoTarea = (tarea) => {
                                 <div class="flex-1 min-w-0">
                                     <h3
                                         :class="[
-                                            'font-medium text-gray-900 dark:text-white transition-all',
+                                            'font-medium text-foreground transition-all',
                                             tarea.estado === 'completada' ? 'line-through opacity-60' : ''
                                         ]"
                                     >
@@ -309,7 +309,7 @@ const toggleEstadoTarea = (tarea) => {
                                     <p
                                         v-if="tarea.descripcion"
                                         :class="[
-                                            'text-sm text-gray-600 dark:text-gray-400 mt-1',
+                                            'text-sm text-muted-foreground mt-1',
                                             tarea.estado === 'completada' ? 'opacity-60' : ''
                                         ]"
                                     >
@@ -350,7 +350,7 @@ const toggleEstadoTarea = (tarea) => {
                     </div>
                 </div>
 
-                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-50/30 to-transparent dark:from-gray-800/20 dark:to-transparent">
+                <div class="px-6 py-4 border-t border-border bg-gradient-to-t from-muted/30 to-transparent dark:from-muted/20 dark:to-transparent">
                     <Button variant="outline" class="w-full" @click="cerrarModal">
                         Cerrar
                     </Button>

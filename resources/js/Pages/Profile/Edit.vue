@@ -21,26 +21,26 @@ defineProps({
 
     <LayoutPrincipal>
         <!-- Contenedor principal con fondo uniforme -->
-        <div class="h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+        <div class="h-screen flex flex-col overflow-hidden bg-background">
             <!-- Header con título minimalista -->
-            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-gray-50 dark:bg-gray-950">
+            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-background">
                 <div 
-                    class="inline-flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 group"
+                    class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 group"
                 >
                     <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors duration-200">
                         <User :size="18" class="text-indigo-600 dark:text-indigo-400" :stroke-width="2.5" />
                     </div>
-                    <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h1 class="text-lg font-semibold text-foreground">
                         Mi Perfil
                     </h1>
                 </div>
             </div>
 
             <!-- Contenedor scrolleable -->
-            <div class="flex-1 overflow-y-auto px-6 pb-6 bg-gray-50 dark:bg-gray-950 scrollbar-thin">
+            <div class="flex-1 overflow-y-auto px-6 pb-6 bg-background scrollbar-thin">
                 <div class="mx-auto max-w-4xl space-y-6">
                     <!-- Información del perfil -->
-                    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 p-6">
+                    <div class="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 p-6">
                         <UpdateProfileInformationForm
                             :must-verify-email="mustVerifyEmail"
                             :status="status"
@@ -49,12 +49,12 @@ defineProps({
                     </div>
 
                     <!-- Actualizar contraseña -->
-                    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 p-6">
+                    <div class="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 p-6">
                         <UpdatePasswordForm class="max-w-xl" />
                     </div>
 
                     <!-- Eliminar cuenta -->
-                    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 p-6">
+                    <div class="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 p-6">
                         <DeleteUserForm class="max-w-xl" />
                     </div>
                 </div>

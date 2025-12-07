@@ -37,7 +37,7 @@ watch(() => props.tarea, (tarea) => {
 // Handlers para subtareas con actualizaciones optimistas
 const crearSubtarea = (texto) => {
     if (!props.tarea?.id) return
-    
+
     // 1. Actualización optimista (UI primero)
     const subtareaTemporal = {
         id: -Date.now(), // ID temporal negativo
@@ -48,13 +48,13 @@ const crearSubtarea = (texto) => {
         updated_at: new Date().toISOString(),
     }
     subtareasLocales.value.push(subtareaTemporal)
-    
+
     // Emitir cambios al padre
     emit('subtareasActualizadas', {
         tareaId: props.tarea.id,
         subtareas: [...subtareasLocales.value],
     })
-    
+
     // 2. Petición al backend
     router.post(
         route('subtareas.store', { tarea: props.tarea.id }),
@@ -83,20 +83,20 @@ const crearSubtarea = (texto) => {
 
 const actualizarSubtarea = (subtarea, texto) => {
     if (!props.tarea?.id) return
-    
+
     // 1. Actualización optimista (UI primero)
     const index = subtareasLocales.value.findIndex(s => s.id === subtarea.id)
     if (index !== -1) {
         const textoAnterior = subtareasLocales.value[index].texto
         subtareasLocales.value[index].texto = texto
         subtareasLocales.value[index].updated_at = new Date().toISOString()
-        
+
         // Emitir cambios al padre
         emit('subtareasActualizadas', {
             tareaId: props.tarea.id,
             subtareas: [...subtareasLocales.value],
         })
-        
+
         // 2. Petición al backend
         router.patch(
             route('subtareas.update', {
@@ -128,19 +128,19 @@ const actualizarSubtarea = (subtarea, texto) => {
 
 const eliminarSubtarea = (subtarea) => {
     if (!props.tarea?.id) return
-    
+
     // 1. Actualización optimista (UI primero)
     const index = subtareasLocales.value.findIndex(s => s.id === subtarea.id)
     if (index !== -1) {
         const subtareaEliminada = subtareasLocales.value[index]
         subtareasLocales.value.splice(index, 1)
-        
+
         // Emitir cambios al padre
         emit('subtareasActualizadas', {
             tareaId: props.tarea.id,
             subtareas: [...subtareasLocales.value],
         })
-        
+
         // 2. Petición al backend (solo si el ID es real, no temporal)
         if (subtarea.id > 0) {
             router.delete(
@@ -168,7 +168,7 @@ const eliminarSubtarea = (subtarea) => {
 
 const toggleEstado = (subtarea) => {
     if (!props.tarea?.id) return
-    
+
     // 1. Actualización optimista (UI primero)
     const index = subtareasLocales.value.findIndex(s => s.id === subtarea.id)
     if (index !== -1) {
@@ -176,13 +176,13 @@ const toggleEstado = (subtarea) => {
         const nuevoEstado = estadoAnterior === 'completada' ? 'pendiente' : 'completada'
         subtareasLocales.value[index].estado = nuevoEstado
         subtareasLocales.value[index].updated_at = new Date().toISOString()
-        
+
         // Emitir cambios al padre
         emit('subtareasActualizadas', {
             tareaId: props.tarea.id,
             subtareas: [...subtareasLocales.value],
         })
-        
+
         // 2. Petición al backend
         router.post(
             route('subtareas.toggle', {
@@ -230,16 +230,16 @@ watch(() => props.tarea, (tarea) => {
         // Usar hora_vencimiento del Resource si existe, sino intentar parsearlo
         let fecha = null
         let hora = null
-        
+
         if (tarea.fecha_vencimiento) {
             fecha = tarea.fecha_vencimiento // Ya viene en formato YYYY-MM-DD
-            
+
             // Usar hora_vencimiento del Resource directamente si existe
             if (tarea.hora_vencimiento && tarea.hora_vencimiento !== '00:00') {
                 hora = tarea.hora_vencimiento
             }
         }
-        
+
         form.value = {
             titulo: tarea.titulo || '',
             descripcion: tarea.descripcion || '',
@@ -260,7 +260,7 @@ const actualizarTarea = () => {
         ...form.value,
         estado: props.tarea.estado || 'pendiente',
     }
-    
+
     router.put(route('tareas.update', props.tarea.id), payload, {
         preserveScroll: true,
     })
@@ -268,7 +268,7 @@ const actualizarTarea = () => {
 
 const eliminarTarea = () => {
     if (!props.tarea?.id) return
-    
+
     if (confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
         router.delete(route('tareas.destroy', props.tarea.id), {
             preserveScroll: true,
@@ -316,14 +316,14 @@ const iconoPrioridad = computed(() => {
 
 const fechaFormateada = computed(() => {
     if (!form.value.fecha_vencimiento) return 'Sin fecha'
-    
+
     const fecha = new Date(form.value.fecha_vencimiento + 'T00:00:00')
     const hoy = new Date()
     hoy.setHours(0, 0, 0, 0)
-    
+
     const manana = new Date(hoy)
     manana.setDate(manana.getDate() + 1)
-    
+
     if (fecha.getTime() === hoy.getTime()) {
         return form.value.hora_vencimiento ? `Hoy ${form.value.hora_vencimiento}` : 'Hoy'
     } else if (fecha.getTime() === manana.getTime()) {
@@ -337,17 +337,12 @@ const fechaFormateada = computed(() => {
 </script>
 
 <template>
-    <div v-if="tarea" class="h-full flex flex-col bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+    <div v-if="tarea" class="h-full flex flex-col bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <!-- Header con título editable -->
-        <div class="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-800">
-            <Textarea
-                v-model="form.titulo"
-                placeholder="Título de la tarea"
-                class="text-xl font-semibold resize-none border-0 p-0 focus:ring-0 min-h-[32px]"
-                rows="1"
-                @blur="actualizarTarea"
-                @keydown.enter.prevent="actualizarTarea"
-            />
+        <div class="flex-shrink-0 p-4 border-b border-border">
+            <Textarea v-model="form.titulo" placeholder="Título de la tarea"
+                class="text-xl font-semibold resize-none border-0 p-0 focus:ring-0 min-h-[32px]" rows="1"
+                @blur="actualizarTarea" @keydown.enter.prevent="actualizarTarea" />
         </div>
 
         <!-- Área scrolleable -->
@@ -355,34 +350,28 @@ const fechaFormateada = computed(() => {
             <!-- Iconos de categoría, fecha, prioridad -->
             <div class="flex items-center gap-2">
                 <!-- Categoría -->
-                <button
-                    @click="modalCategoriaAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                    <Folder :size="16" class="text-indigo-600 dark:text-indigo-400" />
-                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                <button @click="modalCategoriaAbierto = true"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-accent transition-colors">
+                    <Folder :size="16" class="text-primary" />
+                    <span class="text-sm text-foreground">
                         {{ categoriaSeleccionada?.nombre || 'Sin categoría' }}
                     </span>
                 </button>
 
                 <!-- Fecha -->
-                <button
-                    @click="modalFechaAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
+                <button @click="modalFechaAbierto = true"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-accent transition-colors">
                     <Calendar :size="16" class="text-blue-600 dark:text-blue-400" />
-                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                    <span class="text-sm text-foreground">
                         {{ fechaFormateada }}
                     </span>
                 </button>
 
                 <!-- Prioridad -->
-                <button
-                    @click="modalPrioridadAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
+                <button @click="modalPrioridadAbierto = true"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-accent transition-colors">
                     <Flag :size="16" :class="iconoPrioridad.color" />
-                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                    <span class="text-sm text-foreground">
                         {{ iconoPrioridad.label }}
                     </span>
                 </button>
@@ -390,61 +379,34 @@ const fechaFormateada = computed(() => {
 
             <!-- Descripción -->
             <div>
-                <Textarea
-                    v-model="form.descripcion"
-                    placeholder="Agregar descripción..."
-                    class="resize-none min-h-[100px]"
-                    @blur="actualizarTarea"
-                    @keydown.enter.prevent
-                />
+                <Textarea v-model="form.descripcion" placeholder="Agregar descripción..."
+                    class="resize-none min-h-[100px]" @blur="actualizarTarea" @keydown.enter.prevent />
             </div>
 
             <!-- Subtareas -->
             <div v-if="tarea">
-                <ListaSubtareas
-                    :tarea-id="tarea.id"
-                    :subtareas="subtareasLocales"
-                    @crear="crearSubtarea"
-                    @actualizar="actualizarSubtarea"
-                    @eliminar="eliminarSubtarea"
-                    @toggle="toggleEstado"
-                />
+                <ListaSubtareas :tarea-id="tarea.id" :subtareas="subtareasLocales" @crear="crearSubtarea"
+                    @actualizar="actualizarSubtarea" @eliminar="eliminarSubtarea" @toggle="toggleEstado" />
             </div>
         </div>
 
         <!-- Footer con botón eliminar -->
-        <div class="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-800">
-            <Button
-                variant="destructive"
-                size="sm"
-                class="w-full"
-                @click="eliminarTarea"
-            >
+        <div class="flex-shrink-0 p-4 border-t border-border">
+            <Button variant="destructive" size="sm" class="w-full" @click="eliminarTarea">
                 <Trash2 :size="16" class="mr-2" />
                 Eliminar Tarea
             </Button>
         </div>
 
         <!-- Modales -->
-        <ModalCategoria
-            v-model:open="modalCategoriaAbierto"
-            :categorias="categorias"
-            :categoria-seleccionada-id="form.categoria_id"
-            @seleccionar="seleccionarCategoria"
-        />
+        <ModalCategoria v-model:open="modalCategoriaAbierto" :categorias="categorias"
+            :categoria-seleccionada-id="form.categoria_id" @seleccionar="seleccionarCategoria" />
 
-        <ModalFecha
-            v-model:open="modalFechaAbierto"
-            :fecha="form.fecha_vencimiento"
-            :hora="form.hora_vencimiento"
-            @seleccionar="seleccionarFecha"
-        />
+        <ModalFecha v-model:open="modalFechaAbierto" :fecha="form.fecha_vencimiento" :hora="form.hora_vencimiento"
+            @seleccionar="seleccionarFecha" />
 
-        <ModalPrioridad
-            v-model:open="modalPrioridadAbierto"
-            :prioridad-seleccionada="form.prioridad"
-            @seleccionar="seleccionarPrioridad"
-        />
+        <ModalPrioridad v-model:open="modalPrioridadAbierto" :prioridad-seleccionada="form.prioridad"
+            @seleccionar="seleccionarPrioridad" />
     </div>
 </template>
 

@@ -240,18 +240,18 @@ const manejarTareaEliminada = (tareaId) => {
 <template>
     <LayoutPrincipal>
         <!-- Contenedor principal -->
-        <div class="h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+        <div class="h-screen flex flex-col overflow-hidden bg-background">
             <!-- Header con título minimalista -->
-            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-gray-50 dark:bg-gray-950">
+            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-background">
                 <div class="flex items-start justify-between gap-4">
                     <div 
-                        class="inline-flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 group"
+                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 group"
                     >
                         <div 
                             class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200"
                             :class="categoriaSeleccionada 
                                 ? '' 
-                                : 'bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30'"
+                                : 'bg-primary/10 group-hover:bg-primary/20'"
                             :style="categoriaSeleccionada ? {
                                 backgroundColor: categoriaSeleccionada.color + '20',
                             } : {}"
@@ -259,21 +259,21 @@ const manejarTareaEliminada = (tareaId) => {
                             <ListTodo 
                                 :size="18" 
                                 :stroke-width="2.5"
-                                :class="categoriaSeleccionada ? '' : 'text-indigo-600 dark:text-indigo-400'"
+                                :class="categoriaSeleccionada ? '' : 'text-primary'"
                                 :style="categoriaSeleccionada ? { color: categoriaSeleccionada.color } : {}"
                             />
                         </div>
                         <div>
-                            <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            <h1 class="text-lg font-semibold text-foreground">
                                 {{ categoriaSeleccionada ? categoriaSeleccionada.nombre : 'Todas mis Tareas' }}
                             </h1>
                             <div v-if="categoriaSeleccionada" class="flex items-center gap-2 mt-1">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                <span class="text-xs text-muted-foreground">
                                     Filtrando por categoría
                                 </span>
                                 <button
                                     @click="limpiarFiltro"
-                                    class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors flex items-center gap-1"
+                                    class="text-xs text-primary hover:text-primary/80 font-medium transition-colors flex items-center gap-1"
                                 >
                                     <X :size="12" />
                                     Ver todas
@@ -289,7 +289,7 @@ const manejarTareaEliminada = (tareaId) => {
                 <!-- Lista Izquierda: Tareas agrupadas (52% con sidebar, 50% sin sidebar) -->
                 <div 
                     :class="[
-                        'flex flex-col bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden',
+                        'flex flex-col bg-card rounded-xl border border-border shadow-sm overflow-hidden',
                         estaColapsado ? 'w-[50%]' : 'w-[52%]'
                     ]"
                 >
@@ -300,13 +300,13 @@ const manejarTareaEliminada = (tareaId) => {
                             v-if="tareas.length === 0"
                             class="h-full flex flex-col items-center justify-center p-8"
                         >
-                            <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                                <ListTodo :size="32" class="text-gray-400 dark:text-gray-600" />
+                            <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                                <ListTodo :size="32" class="text-muted-foreground/50" />
                             </div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                            <p class="text-sm font-medium text-foreground mb-1">
                                 {{ categoriaSeleccionada ? 'No hay tareas en esta categoría' : 'No tienes tareas' }}
                             </p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 text-center max-w-xs mb-3">
+                            <p class="text-xs text-muted-foreground text-center max-w-xs mb-3">
                                 {{ categoriaSeleccionada 
                                     ? 'Agrega tareas a esta categoría o cambia el filtro' 
                                     : 'Crea tu primera tarea usando el formulario de abajo' 
@@ -315,7 +315,7 @@ const manejarTareaEliminada = (tareaId) => {
                             <button
                                 v-if="categoriaSeleccionada"
                                 @click="limpiarFiltro"
-                                class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors flex items-center gap-1"
+                                class="text-sm text-primary hover:text-primary/80 font-medium transition-colors flex items-center gap-1"
                             >
                                 <X :size="14" />
                                 Ver todas las tareas
@@ -326,26 +326,26 @@ const manejarTareaEliminada = (tareaId) => {
                         <div v-if="tareasAgrupadas.hoy.length > 0" class="mb-4">
                             <button
                                 @click="toggleDistincion('hoy')"
-                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent transition-colors group"
                             >
                                 <div class="flex items-center gap-2">
                                     <ChevronDown 
                                         v-if="distincionesExpandidas.hoy"
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
                                     <ChevronRight 
                                         v-else
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    <span class="text-sm font-semibold text-foreground">
                                         {{ nombresDistinciones.hoy }}
                                     </span>
                                 </div>
                                 <span 
                                     v-if="!distincionesExpandidas.hoy"
-                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                    class="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
                                 >
                                     {{ tareasAgrupadas.hoy.length }}
                                 </span>
@@ -366,8 +366,8 @@ const manejarTareaEliminada = (tareaId) => {
                                     :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
-                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
-                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                            ? 'bg-primary/10' 
+                                            : 'hover:bg-accent'
                                     ]"
                                 >
                                     <!-- Checkbox -->
@@ -385,8 +385,8 @@ const manejarTareaEliminada = (tareaId) => {
                                             class="text-sm font-medium transition-all duration-300"
                                             :class="[
                                                 tarea.estado === 'completada' 
-                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
-                                                    : 'text-gray-900 dark:text-white'
+                                                    ? 'line-through text-muted-foreground opacity-60' 
+                                                    : 'text-foreground'
                                             ]"
                                         >
                                             {{ tarea.titulo }}
@@ -397,7 +397,7 @@ const manejarTareaEliminada = (tareaId) => {
                                     <button
                                         v-if="tarea.estado === 'completada'"
                                         @click.stop="eliminarTarea(tarea)"
-                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 text-destructive transition-all duration-200"
                                     >
                                         <X :size="16" />
                                     </button>
@@ -409,26 +409,26 @@ const manejarTareaEliminada = (tareaId) => {
                         <div v-if="tareasAgrupadas.manana.length > 0" class="mb-4">
                             <button
                                 @click="toggleDistincion('manana')"
-                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent transition-colors group"
                             >
                                 <div class="flex items-center gap-2">
                                     <ChevronDown 
                                         v-if="distincionesExpandidas.manana"
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
                                     <ChevronRight 
                                         v-else
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    <span class="text-sm font-semibold text-foreground">
                                         {{ nombresDistinciones.manana }}
                                     </span>
                                 </div>
                                 <span 
                                     v-if="!distincionesExpandidas.manana"
-                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                    class="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
                                 >
                                     {{ tareasAgrupadas.manana.length }}
                                 </span>
@@ -448,8 +448,8 @@ const manejarTareaEliminada = (tareaId) => {
                                     :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
-                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
-                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                            ? 'bg-primary/10' 
+                                            : 'hover:bg-accent'
                                     ]"
                                 >
                                     <div class="flex-shrink-0">
@@ -464,8 +464,8 @@ const manejarTareaEliminada = (tareaId) => {
                                             class="text-sm font-medium transition-all duration-300"
                                             :class="[
                                                 tarea.estado === 'completada' 
-                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
-                                                    : 'text-gray-900 dark:text-white'
+                                                    ? 'line-through text-muted-foreground opacity-60' 
+                                                    : 'text-foreground'
                                             ]"
                                         >
                                             {{ tarea.titulo }}
@@ -474,7 +474,7 @@ const manejarTareaEliminada = (tareaId) => {
                                     <button
                                         v-if="tarea.estado === 'completada'"
                                         @click.stop="eliminarTarea(tarea)"
-                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 text-destructive transition-all duration-200"
                                     >
                                         <X :size="16" />
                                     </button>
@@ -486,26 +486,26 @@ const manejarTareaEliminada = (tareaId) => {
                         <div v-if="tareasAgrupadas.proximas.length > 0" class="mb-4">
                             <button
                                 @click="toggleDistincion('proximas')"
-                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent transition-colors group"
                             >
                                 <div class="flex items-center gap-2">
                                     <ChevronDown 
                                         v-if="distincionesExpandidas.proximas"
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
                                     <ChevronRight 
                                         v-else
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    <span class="text-sm font-semibold text-foreground">
                                         {{ nombresDistinciones.proximas }}
                                     </span>
                                 </div>
                                 <span 
                                     v-if="!distincionesExpandidas.proximas"
-                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                    class="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
                                 >
                                     {{ tareasAgrupadas.proximas.length }}
                                 </span>
@@ -525,8 +525,8 @@ const manejarTareaEliminada = (tareaId) => {
                                     :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
-                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
-                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                            ? 'bg-primary/10' 
+                                            : 'hover:bg-accent'
                                     ]"
                                 >
                                     <div class="flex-shrink-0">
@@ -541,8 +541,8 @@ const manejarTareaEliminada = (tareaId) => {
                                             class="text-sm font-medium transition-all duration-300"
                                             :class="[
                                                 tarea.estado === 'completada' 
-                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
-                                                    : 'text-gray-900 dark:text-white'
+                                                    ? 'line-through text-muted-foreground opacity-60' 
+                                                    : 'text-foreground'
                                             ]"
                                         >
                                             {{ tarea.titulo }}
@@ -551,7 +551,7 @@ const manejarTareaEliminada = (tareaId) => {
                                     <button
                                         v-if="tarea.estado === 'completada'"
                                         @click.stop="eliminarTarea(tarea)"
-                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 text-destructive transition-all duration-200"
                                     >
                                         <X :size="16" />
                                     </button>
@@ -563,26 +563,26 @@ const manejarTareaEliminada = (tareaId) => {
                         <div v-if="tareasAgrupadas.otras.length > 0" class="mb-4">
                             <button
                                 @click="toggleDistincion('otras')"
-                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent transition-colors group"
                             >
                                 <div class="flex items-center gap-2">
                                     <ChevronDown 
                                         v-if="distincionesExpandidas.otras"
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
                                     <ChevronRight 
                                         v-else
                                         :size="18" 
-                                        class="text-gray-500 dark:text-gray-400 transition-transform"
+                                        class="text-muted-foreground transition-transform"
                                     />
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    <span class="text-sm font-semibold text-foreground">
                                         {{ nombresDistinciones.otras }}
                                     </span>
                                 </div>
                                 <span 
                                     v-if="!distincionesExpandidas.otras"
-                                    class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+                                    class="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
                                 >
                                     {{ tareasAgrupadas.otras.length }}
                                 </span>
@@ -602,8 +602,8 @@ const manejarTareaEliminada = (tareaId) => {
                                     :style="{ animationDelay: `${tareaIndex * 30}ms` }"
                                     :class="[
                                         tareaSeleccionada?.id === tarea.id 
-                                            ? 'bg-indigo-50 dark:bg-indigo-900/20' 
-                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                            ? 'bg-primary/10' 
+                                            : 'hover:bg-accent'
                                     ]"
                                 >
                                     <div class="flex-shrink-0">
@@ -618,8 +618,8 @@ const manejarTareaEliminada = (tareaId) => {
                                             class="text-sm font-medium transition-all duration-300"
                                             :class="[
                                                 tarea.estado === 'completada' 
-                                                    ? 'line-through text-gray-400 dark:text-gray-600 opacity-60' 
-                                                    : 'text-gray-900 dark:text-white'
+                                                    ? 'line-through text-muted-foreground opacity-60' 
+                                                    : 'text-foreground'
                                             ]"
                                         >
                                             {{ tarea.titulo }}
@@ -628,7 +628,7 @@ const manejarTareaEliminada = (tareaId) => {
                                     <button
                                         v-if="tarea.estado === 'completada'"
                                         @click.stop="eliminarTarea(tarea)"
-                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-200"
+                                        class="flex-shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 text-destructive transition-all duration-200"
                                     >
                                         <X :size="16" />
                                     </button>
@@ -638,7 +638,7 @@ const manejarTareaEliminada = (tareaId) => {
                     </div>
 
                     <!-- QuickAddInput al final -->
-                    <div class="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-50/30 to-transparent dark:from-gray-800/20 dark:to-transparent">
+                    <div class="flex-shrink-0 p-4 border-t border-border bg-gradient-to-t from-background/30 to-transparent">
                         <QuickAddInput :categorias="categorias" placeholder="+ Agregar tarea" />
                     </div>
                 </div>
@@ -661,15 +661,15 @@ const manejarTareaEliminada = (tareaId) => {
                     <!-- Empty state cuando no hay tareas -->
                     <div 
                         v-else
-                        class="h-full flex flex-col items-center justify-center bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-8"
+                        class="h-full flex flex-col items-center justify-center bg-card rounded-xl border border-border shadow-sm p-8"
                     >
-                        <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                            <ListTodo :size="32" class="text-gray-400 dark:text-gray-600" />
+                        <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                            <ListTodo :size="32" class="text-muted-foreground/50" />
                         </div>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                        <p class="text-sm font-medium text-foreground mb-1">
                             No hay tareas
                         </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 text-center max-w-xs">
+                        <p class="text-xs text-muted-foreground text-center max-w-xs">
                             Agrega tu primera tarea usando el formulario de la izquierda
                         </p>
                     </div>

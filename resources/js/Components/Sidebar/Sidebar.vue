@@ -34,7 +34,7 @@ const cerrarSesion = () => {
 <template>
     <aside
         :class="[
-            'fixed left-0 top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800',
+            'fixed left-0 top-0 h-screen bg-sidebar dark:bg-sidebar border-r border-sidebar-border dark:border-sidebar-border',
             'transition-all duration-300 ease-in-out flex flex-col z-40',
             clasesSidebar,
         ]"
@@ -42,14 +42,14 @@ const cerrarSesion = () => {
         @mouseleave="handleMouseLeave"
     >
         <!-- Header con Logo y Pin -->
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between p-4 border-b border-sidebar-border dark:border-sidebar-border">
             <!-- Versión expandida -->
             <div v-show="!estaColapsado" class="flex items-center gap-2">
                 <!-- Popover con menú de usuario -->
                 <Popover>
                     <PopoverTrigger as-child>
                         <button
-                            class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            class="p-1.5 rounded-lg hover:bg-sidebar-accent dark:hover:bg-sidebar-accent transition-colors"
                         >
                             <CheckSquare :size="24" class="text-indigo-600 dark:text-indigo-500" :stroke-width="2.5" />
                         </button>
@@ -59,7 +59,7 @@ const cerrarSesion = () => {
                             <!-- Perfil -->
                             <a
                                 :href="route('profile.edit')"
-                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition-colors"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-sidebar-accent dark:hover:bg-sidebar-accent text-sidebar-foreground dark:text-sidebar-foreground transition-colors"
                             >
                                 <User :size="16" />
                                 <span>Perfil</span>
@@ -68,7 +68,7 @@ const cerrarSesion = () => {
                             <!-- Dark/Light Mode Toggle -->
                             <button
                                 @click="toggleTema"
-                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 transition-colors w-full text-left"
+                                class="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-sidebar-accent dark:hover:bg-sidebar-accent text-sidebar-foreground dark:text-sidebar-foreground transition-colors w-full text-left"
                             >
                                 <Sun v-if="temaActual === 'dark'" :size="16" />
                                 <Moon v-else :size="16" />
@@ -88,7 +88,7 @@ const cerrarSesion = () => {
                 </Popover>
 
                 <div class="flex flex-col">
-                    <span class="text-lg font-bold text-gray-900 dark:text-white">{{ usuario?.name || 'Usuario' }}</span>
+                    <span class="text-lg font-bold text-sidebar-foreground dark:text-sidebar-foreground">{{ usuario?.name || 'Usuario' }}</span>
                     <span class="text-xs text-gray-500 dark:text-gray-400">Any.do</span>
                 </div>
             </div>
@@ -141,7 +141,7 @@ const cerrarSesion = () => {
             <button
                 v-show="!estaColapsado"
                 @click="alternarFijado"
-                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                class="p-2 rounded-lg hover:bg-sidebar-accent dark:hover:bg-sidebar-accent transition-colors"
                 :title="estaFijado ? 'Desfijar sidebar' : 'Fijar sidebar'"
             >
                 <Pin
@@ -212,14 +212,14 @@ const cerrarSesion = () => {
         <!-- Footer con usuario (opcional) -->
         <div
             v-if="usuario"
-            class="border-t border-gray-200 dark:border-gray-800 p-4"
+            class="border-t border-sidebar-border dark:border-sidebar-border p-4"
         >
             <div v-show="!estaColapsado" class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
                     {{ usuario.name.charAt(0).toUpperCase() }}
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    <p class="text-sm font-medium text-sidebar-foreground dark:text-sidebar-foreground truncate">
                         {{ usuario.name }}
                     </p>
                     <p class="text-xs text-gray-500 dark:text-gray-400 truncate">

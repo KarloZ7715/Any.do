@@ -101,11 +101,11 @@ const manejarDrop = (data) => {
     // Extraer el elemento arrastrado
     const tareaElement = data.draggedNode?.el
     if (!tareaElement) return
-    
+
     // Obtener el parent destino (el contenedor con data-fecha)
     const parentElement = tareaElement.parentElement
     if (!parentElement) return
-    
+
     const tareaId = parseInt(tareaElement.getAttribute('data-tarea-id'))
     const nuevaFecha = parentElement.getAttribute('data-fecha')
 
@@ -119,7 +119,7 @@ const manejarDrop = (data) => {
                 break
             }
         }
-        
+
         // Usar hora_vencimiento directamente si existe, sino intentar extraerla
         let horaVencimiento = null
         if (tareaEncontrada) {
@@ -128,7 +128,7 @@ const manejarDrop = (data) => {
                 horaVencimiento = tareaEncontrada.hora_vencimiento
             }
         }
-        
+
         actualizarFechaTarea(tareaId, nuevaFecha, horaVencimiento)
     }
 }
@@ -139,13 +139,13 @@ onMounted(() => {
         if (listasRefs.value.length > 0) {
             inicializarDragDrop(listasRefs.value, manejarDrop)
         }
-        
+
         // Scroll automático a la izquierda (mostrar "Hoy" primero)
         const contenedorScroll = document.querySelector('.scrollbar-custom')
         if (contenedorScroll) {
             contenedorScroll.scrollLeft = 0
         }
-        
+
         // También resetear el scroll del body por si acaso
         window.scrollTo(0, 0)
         document.documentElement.scrollLeft = 0
@@ -156,49 +156,47 @@ onMounted(() => {
 
 <template>
     <LayoutPrincipal>
-        <!-- Contenedor principal con fondo uniforme (sin scroll vertical) -->
-        <div class="h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+        <!-- Contenedor principal con fondo uniforme-->
+        <div class="h-screen flex flex-col overflow-hidden bg-background dark:bg-background">
             <!-- Header con título minimalista y sombra sutil -->
-            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-gray-50 dark:bg-gray-950">
-                <div 
-                    class="inline-flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 group"
-                >
-                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors duration-200">
+            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-background dark:bg-background">
+                <div
+                    class="inline-flex items-center gap-3 px-4 py-3 bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm hover:shadow-md transition-all duration-200 group">
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors duration-200">
                         <CalendarDays :size="18" class="text-indigo-600 dark:text-indigo-400" :stroke-width="2.5" />
                     </div>
-                    <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h1 class="text-lg font-semibold text-foreground dark:text-foreground">
                         Próximos 7 Días
                     </h1>
                 </div>
             </div>
 
             <!-- Contenedor horizontal con scroll (SOLO horizontal, gap 24px) -->
-            <div class="flex-1 overflow-x-auto overflow-y-hidden px-6 pb-6 bg-gray-50 dark:bg-gray-950 scrollbar-custom">
+            <div
+                class="flex-1 overflow-x-auto overflow-y-hidden px-6 pb-6 bg-background dark:bg-background scrollbar-custom">
                 <div class="h-full flex gap-6 pb-2">
                     <!-- Columna por cada día (ancho fijo) -->
-                    <div
-                        v-for="(dia, index) in sieteDias"
-                        :key="dia.fecha"
+                    <div v-for="(dia, index) in sieteDias" :key="dia.fecha"
                         class="flex-shrink-0 w-[320px] flex flex-col animate-fade-in"
-                        :style="{ animationDelay: `${index * 50}ms` }"
-                    >
+                        :style="{ animationDelay: `${index * 50}ms` }">
                         <!-- Box de la lista con sombra y hover effect -->
-                        <div 
-                            class="flex flex-col bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 max-h-full overflow-hidden group"
-                        >
+                        <div
+                            class="flex flex-col bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm hover:shadow-md transition-all duration-200 max-h-full overflow-hidden group">
                             <!-- Header de la columna con efecto hover -->
-                            <div class="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50/50 to-transparent dark:from-gray-800/30 dark:to-transparent">
-                                <h2 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <div
+                                class="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border bg-gradient-to-b from-gray-50/50 to-transparent dark:from-white/5 dark:to-transparent">
+                                <h2
+                                    class="text-sm font-semibold text-foreground dark:text-foreground flex items-center gap-2">
                                     <span class="flex items-center gap-1.5">
                                         {{ dia.etiqueta }}
-                                        <span v-if="dia.subEtiqueta" class="text-xs font-normal text-gray-500 dark:text-gray-400">
+                                        <span v-if="dia.subEtiqueta"
+                                            class="text-xs font-normal text-muted-foreground dark:text-muted-foreground">
                                             {{ dia.subEtiqueta }}
                                         </span>
                                     </span>
-                                    <span 
-                                        v-if="dia.tareasPendientes.length > 0"
-                                        class="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-[11px] font-medium text-indigo-600 dark:text-indigo-400"
-                                    >
+                                    <span v-if="dia.tareasPendientes.length > 0"
+                                        class="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-[11px] font-medium text-indigo-600 dark:text-indigo-400">
                                         {{ dia.tareasPendientes.length }}
                                     </span>
                                 </h2>
@@ -207,43 +205,23 @@ onMounted(() => {
                             <!-- Lista de tareas con scroll vertical suave -->
                             <div class="flex-1 overflow-y-auto px-3 py-3 min-h-0 scrollbar-thin">
                                 <!-- Contenedor drag & drop -->
-                                <div
-                                    :ref="el => listasRefs[sieteDias.indexOf(dia)] = el"
-                                    :data-fecha="dia.fecha"
+                                <div :ref="el => listasRefs[sieteDias.indexOf(dia)] = el" :data-fecha="dia.fecha"
                                     class="space-y-2 min-h-[40px] transition-all duration-300 rounded-lg"
-                                    :class="{ 'drop-zone-ready': true }"
-                                >
+                                    :class="{ 'drop-zone-ready': true }">
                                     <!-- Tareas de este día con animación de entrada -->
-                                    <div
-                                        v-for="(tarea, tareaIndex) in dia.todasLasTareas"
-                                        :key="tarea.id"
-                                        :data-tarea-id="tarea.id"
-                                        class="animate-slide-in"
-                                        :style="{ animationDelay: `${tareaIndex * 30}ms` }"
-                                    >
+                                    <div v-for="(tarea, tareaIndex) in dia.todasLasTareas" :key="tarea.id"
+                                        :data-tarea-id="tarea.id" class="animate-slide-in"
+                                        :style="{ animationDelay: `${tareaIndex * 30}ms` }">
                                         <TareaCardMinimalista :tarea="tarea" @editar="abrirModalEdicion" />
-                                    </div>
-
-                                    <!-- Empty state minimalista (solo texto) -->
-                                    <div
-                                        v-if="dia.totalTareas === 0"
-                                        class="text-center py-2 opacity-0 animate-fade-in"
-                                        style="animation-delay: 200ms"
-                                    >
-                                        <p class="text-xs text-gray-400 dark:text-gray-600">
-                                            Sin tareas
-                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Quick Add Input al final con sombra superior sutil -->
-                            <div class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-50/30 to-transparent dark:from-gray-800/20 dark:to-transparent">
-                                <QuickAddInput
-                                    :categorias="categorias"
-                                    :fecha-predeterminada="dia.fecha"
-                                    placeholder="+ Agregar tarea"
-                                />
+                            <div
+                                class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-border dark:border-border bg-gradient-to-t from-gray-50/30 to-transparent dark:from-white/5 dark:to-transparent">
+                                <QuickAddInput :categorias="categorias" :fecha-predeterminada="dia.fecha"
+                                    placeholder="+ Agregar tarea" />
                             </div>
                         </div>
                     </div>
@@ -255,12 +233,8 @@ onMounted(() => {
         </div>
 
         <!-- Modal de edición de tarea con animación -->
-        <ModalEditarTarea
-            v-model:open="modalEditarAbierto"
-            :tarea="tareaSeleccionada"
-            :categorias="categorias"
-            @cerrar="tareaSeleccionada = null"
-        />
+        <ModalEditarTarea v-model:open="modalEditarAbierto" :tarea="tareaSeleccionada" :categorias="categorias"
+            @cerrar="tareaSeleccionada = null" />
     </LayoutPrincipal>
 </template>
 
@@ -275,6 +249,7 @@ onMounted(() => {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -287,6 +262,7 @@ onMounted(() => {
         opacity: 0;
         transform: translateX(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -324,10 +300,13 @@ onMounted(() => {
 }
 
 @keyframes pulse-border {
-    0%, 100% {
+
+    0%,
+    100% {
         border-color: rgb(99, 102, 241);
         background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0.08) 100%);
     }
+
     50% {
         border-color: rgb(129, 140, 248);
         background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.12) 100%);
@@ -463,7 +442,9 @@ onMounted(() => {
 }
 
 /* Transiciones suaves en todos los elementos interactivos */
-button, a, [role="button"] {
+button,
+a,
+[role="button"] {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

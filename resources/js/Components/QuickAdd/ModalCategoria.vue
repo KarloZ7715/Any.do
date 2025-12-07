@@ -31,7 +31,7 @@ const handleClose = () => {
 }
 
 // Encontrar categoría Personal para mostrar por defecto
-const categoriaPersonal = computed(() => 
+const categoriaPersonal = computed(() =>
     props.categorias.find(c => c.nombre === 'Personal'),
 )
 </script>
@@ -40,7 +40,7 @@ const categoriaPersonal = computed(() =>
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="sm:max-w-[420px] max-h-[420px] p-0 overflow-hidden">
             <DialogHeader class="px-6 pt-6 pb-0">
-                <DialogTitle class="text-lg font-semibold text-gray-900 dark:text-white">
+                <DialogTitle class="text-lg font-semibold text-foreground">
                     Seleccionar Categoría
                 </DialogTitle>
             </DialogHeader>
@@ -49,73 +49,47 @@ const categoriaPersonal = computed(() =>
             <div class="px-6 py-4 overflow-y-auto flex-1">
                 <div class="space-y-2 overflow-y-auto max-h-[320px] pr-1 scrollbar-thin">
                     <!-- Opción: Sin categoría (Personal por defecto) -->
-                    <button
-                        v-if="categoriaPersonal"
-                        @click="handleSeleccionar(categoriaPersonal.id)"
-                        :class="[
-                            'w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200',
-                            'border-2 hover:border-indigo-300 dark:hover:border-indigo-600',
-                            categoriaSeleccionada === categoriaPersonal.id
-                                ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 dark:border-indigo-400'
-                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-                        ]"
-                    >
+                    <button v-if="categoriaPersonal" @click="handleSeleccionar(categoriaPersonal.id)" :class="[
+                        'w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200',
+                        'border-2 hover:border-primary/50',
+                        categoriaSeleccionada === categoriaPersonal.id
+                            ? 'bg-primary/10 border-primary'
+                            : 'bg-card border-border',
+                    ]">
                         <div class="flex items-center gap-3">
-                            <span
-                                class="w-4 h-4 rounded"
-                                :style="{ backgroundColor: categoriaPersonal.color }"
-                            />
-                            <span class="font-medium text-gray-900 dark:text-white">
+                            <span class="w-4 h-4 rounded" :style="{ backgroundColor: categoriaPersonal.color }" />
+                            <span class="font-medium text-foreground">
                                 {{ categoriaPersonal.nombre }}
                             </span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                            <span class="text-xs text-muted-foreground">
                                 (Por defecto)
                             </span>
                         </div>
-                        <Check
-                            v-if="categoriaSeleccionada === categoriaPersonal.id"
-                            :size="20"
-                            class="text-indigo-600 dark:text-indigo-400"
-                        />
+                        <Check v-if="categoriaSeleccionada === categoriaPersonal.id" :size="20" class="text-primary" />
                     </button>
 
                     <!-- Otras categorías -->
-                    <button
-                        v-for="categoria in categorias.filter(c => c.nombre !== 'Personal')"
-                        :key="categoria.id"
-                        @click="handleSeleccionar(categoria.id)"
-                        :class="[
+                    <button v-for="categoria in categorias.filter(c => c.nombre !== 'Personal')" :key="categoria.id"
+                        @click="handleSeleccionar(categoria.id)" :class="[
                             'w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200',
-                            'border-2 hover:border-indigo-300 dark:hover:border-indigo-600',
+                            'border-2 hover:border-primary/50',
                             categoriaSeleccionada === categoria.id
-                                ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 dark:border-indigo-400'
-                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-                        ]"
-                    >
+                                ? 'bg-primary/10 border-primary'
+                                : 'bg-card border-border',
+                        ]">
                         <div class="flex items-center gap-3">
-                            <span
-                                class="w-4 h-4 rounded"
-                                :style="{ backgroundColor: categoria.color }"
-                            />
-                            <span class="font-medium text-gray-900 dark:text-white">
+                            <span class="w-4 h-4 rounded" :style="{ backgroundColor: categoria.color }" />
+                            <span class="font-medium text-foreground">
                                 {{ categoria.nombre }}
                             </span>
                         </div>
-                        <Check
-                            v-if="categoriaSeleccionada === categoria.id"
-                            :size="20"
-                            class="text-indigo-600 dark:text-indigo-400"
-                        />
+                        <Check v-if="categoriaSeleccionada === categoria.id" :size="20" class="text-primary" />
                     </button>
                 </div>
             </div>
 
-            <div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-800">
-                <Button
-                    variant="outline"
-                    @click="handleClose"
-                    class="transition-all duration-200"
-                >
+            <div class="flex justify-end gap-2 px-6 py-4 border-t border-border">
+                <Button variant="outline" @click="handleClose" class="transition-all duration-200">
                     Cancelar
                 </Button>
             </div>

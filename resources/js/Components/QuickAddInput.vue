@@ -56,21 +56,21 @@ const nombreCategoriaSeleccionada = computed(() => {
 // Formatear fecha para mostrar (Ej: "Lun 4:00PM")
 const fechaFormateada = computed(() => {
     if (!fechaSeleccionada.value) return null
-    
+
     const fecha = new Date(fechaSeleccionada.value + 'T00:00:00')
     const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
     const diaNombre = dias[fecha.getDay()]
-    
+
     if (!horaSeleccionada.value) {
         return diaNombre
     }
-    
+
     // Formatear hora (Ej: 16:00 -> 4:00PM)
     const [horas, minutos] = horaSeleccionada.value.split(':')
     const horasNum = parseInt(horas)
     const periodo = horasNum >= 12 ? 'PM' : 'AM'
     const horas12 = horasNum % 12 || 12
-    
+
     return `${diaNombre} ${horas12}:${minutos}${periodo}`
 })
 
@@ -123,7 +123,7 @@ const manejarEnter = async () => {
 
     // Encontrar categoría Personal como default
     const categoriaPersonal = props.categorias.find(c => c.nombre === 'Personal')
-    
+
     // Crear objeto de tarea con valores por defecto
     const nuevaTarea = {
         titulo: textoLimpio,
@@ -164,124 +164,76 @@ onMounted(() => {
 <template>
     <div class="w-full max-w-4xl mx-auto px-4 py-6">
         <!-- Quick Add Input Container -->
-        <div
-            :class="[
-                'relative bg-white dark:bg-gray-800 rounded-lg shadow-sm',
-                'border-2 transition-all duration-200',
-                mostrarIconos
-                    ? 'border-indigo-500 dark:border-indigo-400 shadow-md'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
-            ]"
-        >
+        <div :class="[
+            'relative bg-card rounded-lg shadow-sm',
+            'border-1 transition-all duration-200',
+            mostrarIconos
+                ? 'border-ring shadow-md'
+                : 'border-border hover:border-sidebar-primary',
+        ]">
             <!-- Input Principal -->
             <div class="flex items-center gap-3 px-4 py-3">
-                <input
-                    ref="inputRef"
-                    v-model="texto"
-                    type="text"
-                    :placeholder="placeholderTexto"
-                    @input="manejarCambio"
+                <input ref="inputRef" v-model="texto" type="text" :placeholder="placeholderTexto" @input="manejarCambio"
                     @keydown.enter="manejarEnter"
-                    class="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-base"
-                />
+                    class="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground text-base" />
 
                 <!-- Flecha condicional (solo cuando hay texto) -->
-                <Transition
-                    enter-active-class="transition-all duration-200"
-                    leave-active-class="transition-all duration-200"
-                    enter-from-class="opacity-0 scale-90"
-                    leave-to-class="opacity-0 scale-90"
-                >
-                    <button
-                        v-if="mostrarFlecha"
-                        @click="manejarEnter"
-                        class="flex-shrink-0 p-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200"
-                    >
+                <Transition enter-active-class="transition-all duration-200"
+                    leave-active-class="transition-all duration-200" enter-from-class="opacity-0 scale-90"
+                    leave-to-class="opacity-0 scale-90">
+                    <button v-if="mostrarFlecha" @click="manejarEnter"
+                        class="flex-shrink-0 p-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200">
                         <ArrowRight :size="18" />
                     </button>
                 </Transition>
             </div>
 
             <!-- Iconos Animados (solo cuando hay texto) -->
-            <Transition
-                enter-active-class="transition-all duration-300 ease-out"
-                leave-active-class="transition-all duration-200 ease-in"
-                enter-from-class="opacity-0 -translate-y-1"
-                leave-to-class="opacity-0 -translate-y-1"
-            >
-                <div
-                    v-if="mostrarIconos"
-                    class="flex items-center gap-2 px-4 pb-3 border-t border-gray-100 dark:border-gray-700 pt-3"
-                >
+            <Transition enter-active-class="transition-all duration-300 ease-out"
+                leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1"
+                leave-to-class="opacity-0 -translate-y-1">
+                <div v-if="mostrarIconos" class="flex items-center gap-2 px-4 pb-3 border-t border-border pt-3">
                     <!-- Icono/Texto Categoría -->
-                    <button
-                        v-if="!nombreCategoriaSeleccionada"
-                        @click="abrirModalCategoria"
-                        :class="[
-                            'p-2 rounded-md transition-all duration-200',
-                            'hover:bg-indigo-100 dark:hover:bg-indigo-900/30',
-                            'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400',
-                        ]"
-                        title="Seleccionar categoría"
-                    >
+                    <button v-if="!nombreCategoriaSeleccionada" @click="abrirModalCategoria" :class="[
+                        'p-2 rounded-md transition-all duration-200',
+                        'hover:bg-accent',
+                        'text-muted-foreground hover:text-primary',
+                    ]" title="Seleccionar categoría">
                         <Folder :size="18" />
                     </button>
-                    <button
-                        v-else
-                        @click="abrirModalCategoria"
-                        class="px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50"
-                    >
+                    <button v-else @click="abrirModalCategoria"
+                        class="px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-primary/10 text-primary hover:bg-primary/20">
                         {{ nombreCategoriaSeleccionada }}
                     </button>
 
                     <!-- Icono/Texto Fecha -->
-                    <button
-                        v-if="!fechaFormateada"
-                        @click="abrirModalFecha"
-                        :class="[
-                            'p-2 rounded-md transition-all duration-200',
-                            'hover:bg-blue-100 dark:hover:bg-blue-900/30',
-                            'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400',
-                        ]"
-                        title="Seleccionar fecha"
-                    >
+                    <button v-if="!fechaFormateada" @click="abrirModalFecha" :class="[
+                        'p-2 rounded-md transition-all duration-200',
+                        'hover:bg-blue-100 dark:hover:bg-blue-900/30',
+                        'text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400',
+                    ]" title="Seleccionar fecha">
                         <Calendar :size="18" />
                     </button>
-                    <button
-                        v-else
-                        @click="abrirModalFecha"
-                        class="px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50"
-                    >
+                    <button v-else @click="abrirModalFecha"
+                        class="px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50">
                         {{ fechaFormateada }}
                     </button>
 
                     <!-- Icono/Círculo Prioridad -->
-                    <button
-                        v-if="!colorPrioridad"
-                        @click="abrirModalPrioridad"
-                        :class="[
-                            'p-2 rounded-md transition-all duration-200',
-                            'hover:bg-red-100 dark:hover:bg-red-900/30',
-                            'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400',
-                        ]"
-                        title="Seleccionar prioridad"
-                    >
+                    <button v-if="!colorPrioridad" @click="abrirModalPrioridad" :class="[
+                        'p-2 rounded-md transition-all duration-200',
+                        'hover:bg-red-100 dark:hover:bg-red-900/30',
+                        'text-muted-foreground hover:text-red-600 dark:hover:text-red-400',
+                    ]" title="Seleccionar prioridad">
                         <Flag :size="18" />
                     </button>
-                    <button
-                        v-else
-                        @click="abrirModalPrioridad"
-                        class="p-2 rounded-md transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        title="Cambiar prioridad"
-                    >
-                        <span
-                            class="inline-block w-4 h-4 rounded-full"
-                            :style="{ backgroundColor: colorPrioridad }"
-                        />
+                    <button v-else @click="abrirModalPrioridad"
+                        class="p-2 rounded-md transition-all duration-200 hover:bg-accent" title="Cambiar prioridad">
+                        <span class="inline-block w-4 h-4 rounded-full" :style="{ backgroundColor: colorPrioridad }" />
                     </button>
 
                     <!-- Texto de ayuda -->
-                    <span class="ml-auto text-xs text-gray-400 dark:text-gray-500">
+                    <span class="ml-auto text-xs text-muted-foreground">
                         Presiona Enter para guardar
                     </span>
                 </div>
@@ -289,24 +241,13 @@ onMounted(() => {
         </div>
 
         <!-- Modals -->
-        <ModalCategoria
-            v-model:open="modalCategoriaAbierto"
-            :categorias="categorias"
-            :categoria-seleccionada="categoriaSeleccionada"
-            @seleccionar="seleccionarCategoria"
-        />
+        <ModalCategoria v-model:open="modalCategoriaAbierto" :categorias="categorias"
+            :categoria-seleccionada="categoriaSeleccionada" @seleccionar="seleccionarCategoria" />
 
-        <ModalFecha
-            v-model:open="modalFechaAbierto"
-            :fecha="fechaSeleccionada"
-            :hora="horaSeleccionada"
-            @seleccionar="seleccionarFecha"
-        />
+        <ModalFecha v-model:open="modalFechaAbierto" :fecha="fechaSeleccionada" :hora="horaSeleccionada"
+            @seleccionar="seleccionarFecha" />
 
-        <ModalPrioridad
-            v-model:open="modalPrioridadAbierto"
-            :prioridad-seleccionada="prioridadSeleccionada"
-            @seleccionar="seleccionarPrioridad"
-        />
+        <ModalPrioridad v-model:open="modalPrioridadAbierto" :prioridad-seleccionada="prioridadSeleccionada"
+            @seleccionar="seleccionarPrioridad" />
     </div>
 </template>

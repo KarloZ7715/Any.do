@@ -103,26 +103,20 @@ const esIconoActivo = (icono) => {
         <!-- Preview del icono seleccionado -->
         <div class="flex items-center gap-3">
             <div
-                class="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 shadow-sm"
-            >
-                <component :is="iconoActualComponente" class="h-8 w-8 text-gray-700 dark:text-gray-300" />
+                class="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-border bg-muted/50 shadow-sm">
+                <component :is="iconoActualComponente" class="h-8 w-8 text-foreground" />
             </div>
             <div class="flex-1">
                 <Label class="text-sm font-medium">Icono seleccionado</Label>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ iconoSeleccionado }}</p>
+                <p class="text-xs text-muted-foreground mt-1">{{ iconoSeleccionado }}</p>
             </div>
         </div>
 
         <!-- Búsqueda de iconos -->
         <div class="space-y-2">
             <Label for="buscar-icono" class="text-sm font-medium">Buscar icono</Label>
-            <Input
-                id="buscar-icono"
-                v-model="busqueda"
-                type="text"
-                placeholder="Ej: trabajo, hogar, música..."
-                class="text-sm"
-            />
+            <Input id="buscar-icono" v-model="busqueda" type="text" placeholder="Ej: trabajo, hogar, música..."
+                class="text-sm" />
         </div>
 
         <!-- Grid de iconos -->
@@ -130,51 +124,30 @@ const esIconoActivo = (icono) => {
             <Label class="text-sm font-medium block">
                 Iconos disponibles ({{ iconosFiltrados.length }})
             </Label>
-            <div
-                v-if="iconosFiltrados.length > 0"
-                class="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto border dark:border-gray-700 rounded-lg p-2 bg-white dark:bg-gray-900"
-            >
-                <button
-                    v-for="icono in iconosFiltrados"
-                    :key="icono.valor"
-                    type="button"
-                    class="group relative flex h-12 w-full items-center justify-center rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            <div v-if="iconosFiltrados.length > 0"
+                class="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto border border-border rounded-lg p-2 bg-card">
+                <button v-for="icono in iconosFiltrados" :key="icono.valor" type="button"
+                    class="group relative flex h-12 w-full items-center justify-center rounded-md border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:focus:ring-offset-background"
                     :class="[
                         esIconoActivo(icono)
-                            ? 'border-gray-900 dark:border-indigo-500 bg-gray-100 dark:bg-indigo-900/30 scale-110'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700',
-                    ]"
-                    :title="icono.nombre"
-                    @click="seleccionarIcono(icono)"
-                >
-                    <component
-                        :is="icono.componente"
-                        class="h-6 w-6 transition-colors"
-                        :class="esIconoActivo(icono) ? 'text-gray-900 dark:text-indigo-300' : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200'"
-                    />
+                            ? 'border-primary bg-primary/10 scale-110'
+                            : 'border-border hover:border-primary/50 hover:bg-muted/50',
+                    ]" :title="icono.nombre" @click="seleccionarIcono(icono)">
+                    <component :is="icono.componente" class="h-6 w-6 transition-colors"
+                        :class="esIconoActivo(icono) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'" />
 
                     <!-- Checkmark cuando está seleccionado -->
-                    <span
-                        v-if="esIconoActivo(icono)"
-                        class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 dark:bg-indigo-500"
-                    >
-                        <svg
-                            class="h-3 w-3 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="3"
-                                d="M5 13l4 4L19 7"
-                            />
+                    <span v-if="esIconoActivo(icono)"
+                        class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                        <svg class="h-3 w-3 text-primary-foreground" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                         </svg>
                     </span>
                 </button>
             </div>
-            <div v-else class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm border dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800">
+            <div v-else
+                class="text-center py-4 text-muted-foreground text-sm border border-border rounded-md bg-muted/20">
                 No se encontraron iconos
             </div>
         </div>

@@ -45,40 +45,24 @@ const handleClick = () => {
 </script>
 
 <template>
-	<button
-		type="button"
-		@click="handleClick"
-		:disabled="disabled"
-		:class="[
-			'relative flex items-center justify-center rounded-full border-2 transition-all duration-300 ease-out',
-			sizeClasses,
-			checked
-				? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500 scale-100'
-				: 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-indigo-400 dark:hover:border-indigo-500',
-			disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-110 active:scale-95',
-		]"
-	>
+	<button type="button" @click="handleClick" :disabled="disabled" :class="[
+		'relative flex items-center justify-center rounded-full border-2 transition-all duration-300 ease-out',
+		sizeClasses,
+		checked
+			? 'bg-primary border-primary scale-100'
+			: 'bg-card border-[color:var(--task-checkbox-border)] hover:border-primary',
+		disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-110 active:scale-95',
+	]">
 		<!-- Check icon con animación -->
-		<Transition
-			enter-active-class="transition-all duration-200 ease-out"
-			enter-from-class="scale-0 rotate-90 opacity-0"
-			enter-to-class="scale-100 rotate-0 opacity-100"
-			leave-active-class="transition-all duration-150 ease-in"
-			leave-from-class="scale-100 rotate-0 opacity-100"
-			leave-to-class="scale-0 rotate-90 opacity-0"
-		>
-			<Check
-				v-if="checked"
-				:size="iconSize"
-				class="text-white stroke-[3]"
-			/>
+		<Transition enter-active-class="transition-all duration-200 ease-out"
+			enter-from-class="scale-0 rotate-90 opacity-0" enter-to-class="scale-100 rotate-0 opacity-100"
+			leave-active-class="transition-all duration-150 ease-in" leave-from-class="scale-100 rotate-0 opacity-100"
+			leave-to-class="scale-0 rotate-90 opacity-0">
+			<Check v-if="checked" :size="iconSize" class="text-primary-foreground stroke-[3]" />
 		</Transition>
 
 		<!-- Ripple effect (opcional) -->
-		<span
-			v-if="checked"
-			class="absolute inset-0 rounded-full bg-indigo-600 dark:bg-indigo-500 animate-ping opacity-20"
-		/>
+		<span v-if="checked" class="absolute inset-0 rounded-full bg-primary animate-ping opacity-20" />
 	</button>
 </template>
 
@@ -88,9 +72,11 @@ const handleClick = () => {
 		transform: scale(1);
 		opacity: 0.2;
 	}
+
 	50% {
 		opacity: 0.1;
 	}
+
 	100% {
 		transform: scale(1.5);
 		opacity: 0;

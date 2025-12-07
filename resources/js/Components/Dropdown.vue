@@ -12,7 +12,7 @@ const props = defineProps({
     },
     contentClasses: {
         type: String,
-        default: 'py-1 bg-white dark:bg-gray-800',
+        default: 'py-1 bg-card border border-border',
     },
 })
 
@@ -58,7 +58,7 @@ const open = ref(false)
             leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
             <div v-show="open" class="absolute z-50 mt-2 rounded-md shadow-lg" :class="[widthClass, alignmentClasses]"
                 style="display: none" @click="open = false">
-                <div class="rounded-md ring-1 ring-black dark:ring-gray-700 ring-opacity-5 dark:ring-opacity-50" :class="contentClasses">
+                <div class="rounded-md ring-1 ring-border ring-opacity-5" :class="contentClasses">
                     <slot name="content" />
                 </div>
             </div>

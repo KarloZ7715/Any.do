@@ -31,19 +31,21 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+
         <Head title="Iniciar Sesión" />
 
         <!-- Encabezado -->
         <div class="mb-8 text-center">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+            <h1 class="text-2xl font-semibold text-foreground">
                 Bienvenido de nuevo
             </h1>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p class="mt-2 text-sm text-muted-foreground">
                 Inicia sesión para continuar con tus tareas
             </p>
         </div>
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-success-600 dark:text-success-400 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-lg px-4 py-3">
+        <div v-if="status"
+            class="mb-4 text-sm font-medium text-success-600 dark:text-success-400 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-lg px-4 py-3">
             {{ status }}
         </div>
 
@@ -52,16 +54,8 @@ const submit = () => {
             <div>
                 <InputLabel for="email" value="Correo Electrónico" />
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                    placeholder="tu@email.com"
-                />
+                <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required autofocus
+                    autocomplete="username" placeholder="tu@email.com" />
 
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
@@ -70,15 +64,8 @@ const submit = () => {
             <div>
                 <InputLabel for="password" value="Contraseña" />
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                    placeholder="••••••••"
-                />
+                <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required
+                    autocomplete="current-password" placeholder="••••••••" />
 
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
@@ -87,38 +74,30 @@ const submit = () => {
             <div class="flex items-center justify-between">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span class="ms-2 text-sm text-muted-foreground">
                         Recordarme
                     </span>
                 </label>
 
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 underline focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-                >
+                <Link v-if="canResetPassword" :href="route('password.request')"
+                    class="rounded-md text-sm text-primary hover:text-primary/90 underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors">
                     ¿Olvidaste tu contraseña?
                 </Link>
             </div>
 
             <!-- Submit Button -->
             <div>
-                <PrimaryButton
-                    class="w-full justify-center"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
+                <PrimaryButton class="w-full justify-center" :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing">
                     Iniciar Sesión
                 </PrimaryButton>
             </div>
 
             <!-- Register Link -->
             <div class="text-center text-sm">
-                <span class="text-gray-600 dark:text-gray-400">¿No tienes una cuenta?</span>
-                <Link
-                    :href="route('register')"
-                    class="ms-1 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium underline focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded transition-colors"
-                >
+                <span class="text-muted-foreground">¿No tienes una cuenta?</span>
+                <Link :href="route('register')"
+                    class="ms-1 text-primary hover:text-primary/90 font-medium underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded transition-colors">
                     Regístrate
                 </Link>
             </div>

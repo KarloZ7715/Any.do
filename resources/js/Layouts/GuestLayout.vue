@@ -6,7 +6,7 @@ import { Link } from '@inertiajs/vue3'
 
 <template>
     <div
-        class="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 transition-colors duration-300 bg-gray-50 dark:bg-gray-950"
+        class="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 transition-colors duration-300 bg-background"
     >
         <!-- Theme Toggle (esquina superior derecha) -->
         <div class="absolute top-4 right-4">
@@ -22,13 +22,13 @@ import { Link } from '@inertiajs/vue3'
 
         <!-- Card de Formulario -->
         <div
-            class="w-full overflow-hidden px-8 py-10 shadow-xl sm:max-w-md sm:rounded-2xl transition-colors duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+            class="w-full overflow-hidden px-8 py-10 shadow-xl sm:max-w-md sm:rounded-2xl transition-colors duration-300 bg-card border border-border"
         >
             <slot />
         </div>
 
         <!-- Footer -->
-        <div class="mt-8 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors">
+        <div class="mt-8 text-center text-sm text-muted-foreground transition-colors">
             <p>Any.do - Gestión de Tareas</p>
             <p class="mt-1 text-xs">© {{ new Date().getFullYear() }} - Proyecto Universitario DWII</p>
         </div>

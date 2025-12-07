@@ -165,10 +165,10 @@ const decodificarHtml = (html) => {
             <!-- Header con botón opcional (secundario) -->
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    <h2 class="text-2xl font-bold tracking-tight text-foreground">
                         Mis Tareas
                     </h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                    <p class="text-sm text-muted-foreground">
                         Gestiona tus tareas de manera eficiente
                     </p>
                 </div>

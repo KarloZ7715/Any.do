@@ -53,15 +53,15 @@ const manejarSubmit = () => {
     // Si es categoría Personal, solo enviar color e icono
     const datos = esPersonal.value
         ? {
-              color: form.color,
-              icono: form.icono,
-          }
+            color: form.color,
+            icono: form.icono,
+        }
         : {
-              nombre: form.nombre,
-              descripcion: form.descripcion,
-              color: form.color,
-              icono: form.icono,
-          }
+            nombre: form.nombre,
+            descripcion: form.descripcion,
+            color: form.color,
+            icono: form.icono,
+        }
 
     emit('submit', datos)
 }
@@ -75,12 +75,9 @@ const manejarCancelar = () => {
 <template>
     <form @submit.prevent="manejarSubmit" class="space-y-6">
         <!-- Mensaje si es categoría Personal -->
-        <div
-            v-if="esPersonal"
-            class="rounded-lg bg-blue-50 border border-blue-200 p-4 text-sm text-blue-800"
-        >
+        <div v-if="esPersonal" class="rounded-lg bg-primary/10 border border-primary/20 p-4 text-sm text-primary">
             <p class="font-medium">Categoría Personal (Protegida)</p>
-            <p class="mt-1 text-blue-700">
+            <p class="mt-1 text-primary/80">
                 Solo puedes editar el color y el icono. El nombre no se puede cambiar.
             </p>
         </div>
@@ -94,18 +91,10 @@ const manejarCancelar = () => {
                     <Label for="nombre" class="text-sm font-medium">
                         Nombre <span class="text-red-500">*</span>
                     </Label>
-                    <Input
-                        id="nombre"
-                        v-model="form.nombre"
-                        type="text"
-                        placeholder="Ej: Trabajo, Hogar, Estudios..."
-                        maxlength="100"
-                        required
-                        :disabled="loading"
-                        class="text-sm"
-                    />
+                    <Input id="nombre" v-model="form.nombre" type="text" placeholder="Ej: Trabajo, Hogar, Estudios..."
+                        maxlength="100" required :disabled="loading" class="text-sm" />
                     <InputError :message="form.errors.nombre" class="mt-1" />
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-muted-foreground">
                         Máximo 100 caracteres. Debe ser único.
                     </p>
                 </div>
@@ -115,17 +104,10 @@ const manejarCancelar = () => {
                     <Label for="descripcion" class="text-sm font-medium">
                         Descripción (opcional)
                     </Label>
-                    <Textarea
-                        id="descripcion"
-                        v-model="form.descripcion"
-                        placeholder="Describe esta categoría..."
-                        maxlength="500"
-                        rows="4"
-                        :disabled="loading"
-                        class="text-sm resize-none"
-                    />
+                    <Textarea id="descripcion" v-model="form.descripcion" placeholder="Describe esta categoría..."
+                        maxlength="500" rows="4" :disabled="loading" class="text-sm resize-none" />
                     <InputError :message="form.errors.descripcion" class="mt-1" />
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-muted-foreground">
                         Máximo 500 caracteres.
                     </p>
                 </div>
@@ -151,19 +133,10 @@ const manejarCancelar = () => {
 
         <!-- Botones -->
         <div class="flex items-center justify-end gap-3 pt-4 border-t">
-            <Button
-                type="button"
-                variant="outline"
-                :disabled="loading"
-                @click="manejarCancelar"
-            >
+            <Button type="button" variant="outline" :disabled="loading" @click="manejarCancelar">
                 Cancelar
             </Button>
-            <Button
-                type="submit"
-                :disabled="loading || form.processing"
-                class="min-w-[100px]"
-            >
+            <Button type="submit" :disabled="loading || form.processing" class="min-w-[100px]">
                 <span v-if="loading || form.processing">Guardando...</span>
                 <span v-else>{{ modoEdicion ? 'Actualizar' : 'Crear' }}</span>
             </Button>

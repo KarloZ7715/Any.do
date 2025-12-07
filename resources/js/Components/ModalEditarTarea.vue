@@ -56,27 +56,27 @@ watch(() => props.tarea, (tarea) => {
         // Separar fecha y hora si viene como datetime
         let fecha = null
         let hora = null
-        
+
         if (tarea.fecha_vencimiento) {
             const datetime = tarea.fecha_vencimiento
-            
+
             // Si es string ISO (2025-10-31T00:00:00.000000Z o 2025-10-31T14:30:00.000000Z)
             if (typeof datetime === 'string') {
                 try {
                     // Parsear como Date para manejar timezone correctamente
                     const dateObj = new Date(datetime)
-                    
+
                     if (!isNaN(dateObj.getTime())) {
                         // Extraer fecha en formato YYYY-MM-DD (local)
                         const year = dateObj.getFullYear()
                         const month = String(dateObj.getMonth() + 1).padStart(2, '0')
                         const day = String(dateObj.getDate()).padStart(2, '0')
                         fecha = `${year}-${month}-${day}`
-                        
+
                         // Extraer hora en formato HH:MM (local)
                         const hours = String(dateObj.getHours()).padStart(2, '0')
                         const minutes = String(dateObj.getMinutes()).padStart(2, '0')
-                        
+
                         // Solo guardar hora si no es 00:00
                         if (hours !== '00' || minutes !== '00') {
                             hora = `${hours}:${minutes}`
@@ -87,7 +87,7 @@ watch(() => props.tarea, (tarea) => {
                 }
             }
         }
-        
+
         form.value = {
             titulo: tarea.titulo || '',
             descripcion: tarea.descripcion || '',
@@ -96,7 +96,7 @@ watch(() => props.tarea, (tarea) => {
             fecha_vencimiento: fecha,
             hora_vencimiento: hora,
         }
-        
+
         // Cargar subtareas locales
         subtareasLocales.value = [...(tarea.subtareas?.data || tarea.subtareas || [])]
     }
@@ -113,23 +113,23 @@ const nombreCategoriaSeleccionada = computed(() => {
 
 const fechaFormateada = computed(() => {
     if (!form.value.fecha_vencimiento) return null
-    
+
     try {
         const fecha = new Date(form.value.fecha_vencimiento + 'T00:00:00')
-        
+
         // Verificar que la fecha es válida
         if (isNaN(fecha.getTime())) return null
-        
+
         const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
         const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-        
+
         let resultado = `${dias[fecha.getDay()]} ${fecha.getDate()} ${meses[fecha.getMonth()]}`
-        
+
         // Agregar hora si está disponible
         if (form.value.hora_vencimiento) {
             resultado += ` ${form.value.hora_vencimiento}`
         }
-        
+
         return resultado
     } catch (error) {
         return null
@@ -200,10 +200,10 @@ const handleCrearSubtarea = (texto) => {
             estado: 'pendiente',
             tarea_id: props.tarea.id,
         }
-        
+
         // Agregar al estado local inmediatamente
         subtareasLocales.value.push(nuevaSubtarea)
-        
+
         // Luego hacer la petición al servidor
         crearSubtarea(props.tarea.id, texto)
     }
@@ -213,11 +213,11 @@ const handleActualizarSubtarea = (subtarea, nuevoTexto) => {
     if (props.tarea) {
         // Actualización optimista en el estado local
         const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
-        
+
         if (index !== -1) {
             subtareasLocales.value[index] = { ...subtareasLocales.value[index], texto: nuevoTexto }
         }
-        
+
         actualizarSubtarea(props.tarea.id, subtarea.id, nuevoTexto)
     }
 }
@@ -226,11 +226,11 @@ const handleEliminarSubtarea = (subtarea) => {
     if (props.tarea) {
         // Actualización optimista en el estado local
         const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
-        
+
         if (index !== -1) {
             subtareasLocales.value.splice(index, 1)
         }
-        
+
         eliminarSubtarea(props.tarea.id, subtarea.id)
     }
 }
@@ -239,12 +239,12 @@ const handleToggleSubtarea = (subtarea) => {
     if (props.tarea) {
         // Actualización optimista en el estado local
         const index = subtareasLocales.value.findIndex((s) => s.id === subtarea.id)
-        
+
         if (index !== -1) {
             const nuevoEstado = subtareasLocales.value[index].estado === 'pendiente' ? 'completada' : 'pendiente'
             subtareasLocales.value[index] = { ...subtareasLocales.value[index], estado: nuevoEstado }
         }
-        
+
         toggleEstado(props.tarea.id, subtarea.id)
     }
 }
@@ -278,46 +278,33 @@ const cerrarModal = () => {
             </VisuallyHidden>
 
             <!-- Header con título editable -->
-            <div class="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+            <div class="px-6 pt-6 pb-4 border-b border-border">
                 <!-- Título como input invisible -->
-                <input
-                    v-model="form.titulo"
-                    type="text"
-                    placeholder="Título de la tarea"
-                    class="w-full text-2xl font-semibold bg-transparent border-none outline-none focus:ring-0 p-0 text-gray-900 dark:text-white placeholder:text-gray-400"
-                    @keydown.enter.prevent="guardar"
-                />
+                <input v-model="form.titulo" type="text" placeholder="Título de la tarea"
+                    class="w-full text-2xl font-semibold bg-transparent border-none outline-none focus:ring-0 p-0 text-foreground placeholder:text-muted-foreground"
+                    @keydown.enter.prevent="guardar" />
 
                 <!-- Iconos de metadatos (Categoría, Fecha, Prioridad) -->
                 <div class="flex items-center gap-2 mt-4">
                     <!-- Categoría -->
-                    <button
-                        type="button"
-                        @click="modalCategoriaAbierto = true"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-                        :class="nombreCategoriaSeleccionada ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400'"
-                    >
+                    <button type="button" @click="modalCategoriaAbierto = true"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        :class="nombreCategoriaSeleccionada ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'">
                         <Folder :size="14" />
                         <span>{{ nombreCategoriaSeleccionada || 'Categoría' }}</span>
                     </button>
 
                     <!-- Fecha -->
-                    <button
-                        type="button"
-                        @click="modalFechaAbierto = true"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-                        :class="form.fecha_vencimiento ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400'"
-                    >
+                    <button type="button" @click="modalFechaAbierto = true"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                        :class="form.fecha_vencimiento ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'">
                         <Calendar :size="14" />
                         <span>{{ fechaFormateada || 'Fecha' }}</span>
                     </button>
 
                     <!-- Prioridad -->
-                    <button
-                        type="button"
-                        @click="modalPrioridadAbierto = true"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    >
+                    <button type="button" @click="modalPrioridadAbierto = true"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors bg-accent hover:bg-accent/80">
                         <Flag :size="14" :style="{ color: colorPrioridad }" />
                         <span :style="{ color: colorPrioridad }">
                             {{ nombrePrioridad }}
@@ -330,36 +317,22 @@ const cerrarModal = () => {
             <div class="overflow-y-auto px-6 py-4">
                 <!-- Descripción -->
                 <div class="pb-4">
-                    <Textarea
-                        v-model="form.descripcion"
-                        placeholder="Agregar descripción..."
-                        class="min-h-[80px] resize-y text-sm"
-                    />
+                    <Textarea v-model="form.descripcion" placeholder="Agregar descripción..."
+                        class="min-h-[80px] resize-y text-sm" />
                 </div>
 
                 <!-- Subtareas -->
                 <div>
-                    <ListaSubtareas
-                        :tarea-id="tarea?.id"
-                        :subtareas="subtareasLocales"
-                        modo="edit"
-                        @crear="handleCrearSubtarea"
-                        @actualizar="handleActualizarSubtarea"
-                        @eliminar="handleEliminarSubtarea"
-                        @toggle="handleToggleSubtarea"
-                    />
+                    <ListaSubtareas :tarea-id="tarea?.id" :subtareas="subtareasLocales" modo="edit"
+                        @crear="handleCrearSubtarea" @actualizar="handleActualizarSubtarea"
+                        @eliminar="handleEliminarSubtarea" @toggle="handleToggleSubtarea" />
                 </div>
             </div>
 
             <!-- Footer con botones -->
-            <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    @click="eliminar"
-                    class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                >
+            <div class="flex items-center justify-between px-6 py-4 border-t border-border">
+                <Button type="button" variant="ghost" size="sm" @click="eliminar"
+                    class="text-destructive hover:text-destructive/90 hover:bg-destructive/10">
                     <Trash2 :size="16" class="mr-2" />
                     Eliminar
                 </Button>
@@ -370,25 +343,14 @@ const cerrarModal = () => {
             </div>
 
             <!-- Modals para iconos (reutilizando los del QuickAddInput) -->
-            <ModalCategoria
-                v-model:open="modalCategoriaAbierto"
-                :categorias="categorias"
-                :categoria-seleccionada="form.categoria_id"
-                @seleccionar="seleccionarCategoria"
-            />
+            <ModalCategoria v-model:open="modalCategoriaAbierto" :categorias="categorias"
+                :categoria-seleccionada="form.categoria_id" @seleccionar="seleccionarCategoria" />
 
-            <ModalFecha
-                v-model:open="modalFechaAbierto"
-                :fecha="form.fecha_vencimiento"
-                :hora="form.hora_vencimiento"
-                @seleccionar="seleccionarFecha"
-            />
+            <ModalFecha v-model:open="modalFechaAbierto" :fecha="form.fecha_vencimiento" :hora="form.hora_vencimiento"
+                @seleccionar="seleccionarFecha" />
 
-            <ModalPrioridad
-                v-model:open="modalPrioridadAbierto"
-                :prioridad-seleccionada="form.prioridad"
-                @seleccionar="seleccionarPrioridad"
-            />
+            <ModalPrioridad v-model:open="modalPrioridadAbierto" :prioridad-seleccionada="form.prioridad"
+                @seleccionar="seleccionarPrioridad" />
         </DialogContent>
     </Dialog>
 </template>

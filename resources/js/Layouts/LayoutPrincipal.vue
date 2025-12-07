@@ -11,7 +11,7 @@ const margenContenido = computed(() => estaColapsado.value ? '60px' : '250px')
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div class="flex min-h-screen bg-background dark:bg-background transition-colors duration-300">
         <!-- Sidebar Colapsable -->
         <Sidebar />
 
@@ -23,14 +23,14 @@ const margenContenido = computed(() => estaColapsado.value ? '60px' : '250px')
             <!-- Header Opcional (para títulos de página) -->
             <header
                 v-if="$slots.header"
-                class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-800 transition-colors"
+                class="bg-sidebar dark:bg-sidebar border-b border-sidebar-border dark:border-sidebar-border transition-colors"
             >
                 <div class="px-4 sm:px-6 lg:px-8 py-4">
                     <slot name="header" />
                 </div>
             </header>
 
-            <!-- Contenido de la Página (sin scroll vertical) -->
+            <!-- Contenido de la Página -->
             <main class="flex-1 overflow-hidden">
                 <slot />
             </main>

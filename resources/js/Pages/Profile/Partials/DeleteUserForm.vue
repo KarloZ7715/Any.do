@@ -41,11 +41,11 @@ const closeModal = () => {
 <template>
     <section class="space-y-6">
         <header>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-white">
+            <h2 class="text-lg font-medium text-foreground">
                 Eliminar Cuenta
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p class="mt-1 text-sm text-muted-foreground">
                 Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán
                 permanentemente borrados. Antes de eliminar tu cuenta, por favor
                 descarga cualquier dato o información que desees conservar.
@@ -56,34 +56,21 @@ const closeModal = () => {
 
         <Modal :show="confirmingUserDeletion" @close="closeModal">
             <div class="p-6">
-                <h2
-                    class="text-lg font-medium text-gray-900 dark:text-white"
-                >
+                <h2 class="text-lg font-medium text-foreground">
                     ¿Estás seguro de que deseas eliminar tu cuenta?
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                <p class="mt-1 text-sm text-muted-foreground">
                     Una vez que tu cuenta sea eliminada, todos sus recursos y datos
                     serán permanentemente borrados. Por favor ingresa tu contraseña para
                     confirmar que deseas eliminar permanentemente tu cuenta.
                 </p>
 
                 <div class="mt-6">
-                    <InputLabel
-                        for="password"
-                        value="Contraseña"
-                        class="sr-only"
-                    />
+                    <InputLabel for="password" value="Contraseña" class="sr-only" />
 
-                    <TextInput
-                        id="password"
-                        ref="passwordInput"
-                        v-model="form.password"
-                        type="password"
-                        class="mt-1 block w-3/4"
-                        placeholder="Contraseña"
-                        @keyup.enter="deleteUser"
-                    />
+                    <TextInput id="password" ref="passwordInput" v-model="form.password" type="password"
+                        class="mt-1 block w-3/4" placeholder="Contraseña" @keyup.enter="deleteUser" />
 
                     <InputError :message="form.errors.password" class="mt-2" />
                 </div>
@@ -93,12 +80,8 @@ const closeModal = () => {
                         Cancelar
                     </SecondaryButton>
 
-                    <DangerButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        @click="deleteUser"
-                    >
+                    <DangerButton class="ms-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing"
+                        @click="deleteUser">
                         Eliminar Cuenta
                     </DangerButton>
                 </div>
