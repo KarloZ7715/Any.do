@@ -163,8 +163,8 @@ onMounted(() => {
                 <div
                     class="inline-flex items-center gap-3 px-4 py-3 bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm hover:shadow-md transition-all duration-200 group">
                     <div
-                        class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors duration-200">
-                        <CalendarDays :size="18" class="text-indigo-600 dark:text-indigo-400" :stroke-width="2.5" />
+                        class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
+                        <CalendarDays :size="18" class="text-primary" :stroke-width="2.5" />
                     </div>
                     <h1 class="text-lg font-semibold text-foreground dark:text-foreground">
                         Próximos 7 Días
@@ -182,10 +182,9 @@ onMounted(() => {
                         :style="{ animationDelay: `${index * 50}ms` }">
                         <!-- Box de la lista con sombra y hover effect -->
                         <div
-                            class="flex flex-col bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm hover:shadow-md transition-all duration-200 max-h-full overflow-hidden group">
+                            class="flex flex-col bg-card dark:bg-card rounded-xl border border-border dark:border-border shadow-sm transition-all duration-200 max-h-full overflow-hidden">
                             <!-- Header de la columna con efecto hover -->
-                            <div
-                                class="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border bg-gradient-to-b from-gray-50/50 to-transparent dark:from-white/5 dark:to-transparent">
+                            <div class="flex-shrink-0 px-4 py-3 border-b border-border dark:border-border">
                                 <h2
                                     class="text-sm font-semibold text-foreground dark:text-foreground flex items-center gap-2">
                                     <span class="flex items-center gap-1.5">
@@ -196,7 +195,7 @@ onMounted(() => {
                                         </span>
                                     </span>
                                     <span v-if="dia.tareasPendientes.length > 0"
-                                        class="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-[11px] font-medium text-indigo-600 dark:text-indigo-400">
+                                        class="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary/10 text-[11px] font-medium text-primary">
                                         {{ dia.tareasPendientes.length }}
                                     </span>
                                 </h2>
@@ -218,8 +217,7 @@ onMounted(() => {
                             </div>
 
                             <!-- Quick Add Input al final con sombra superior sutil -->
-                            <div
-                                class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-border dark:border-border bg-gradient-to-t from-gray-50/30 to-transparent dark:from-white/5 dark:to-transparent">
+                            <div class="flex-shrink-0 px-3 pb-3 pt-2 border-t border-border dark:border-border">
                                 <QuickAddInput :categorias="categorias" :fecha-predeterminada="dia.fecha"
                                     placeholder="+ Agregar tarea" />
                             </div>
@@ -418,16 +416,13 @@ onMounted(() => {
 }
 
 /* ========================================
-   EFECTOS DE HOVER EN COLUMNAS
+   EFECTOS DE HOVER EN ELEMENTOS INTERACTIVOS
    ======================================== */
 
-/* Animación suave en el borde al hacer hover */
+/* Hover suave en elementos clickeables */
 .group:hover {
-    border-color: rgb(209, 213, 219);
-}
-
-.dark .group:hover {
-    border-color: rgb(55, 65, 81);
+    transform: translateY(-1px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ========================================
