@@ -48,9 +48,9 @@ const abrirModal = () => {
 // Color de prioridad
 const colorPrioridad = computed(() => {
     const colores = {
-        1: '#EF4444', // Rojo - Alta
-        2: '#EAB308', // Amarillo - Media
-        3: '#22C55E', // Verde - Baja
+        1: '#EF4444',
+        2: '#EAB308',
+        3: '#22C55E',
     }
     return colores[props.tarea.prioridad] || colores[2]
 })
@@ -58,11 +58,11 @@ const colorPrioridad = computed(() => {
 
 <template>
     <div :class="[
-        'group relative rounded-lg border',
-        'transition-[background-color,border-color] duration-200',
+        'group relative rounded-lg border mx-1',
+        'transition-all duration-200',
         estaCompletada
-            ? 'bg-muted/50 border-border'
-            : 'bg-task-card border-border hover:bg-[#393939] dark:hover:bg-[#393939]',
+            ? 'bg-muted/50 border-transparent shadow-none'
+            : 'bg-task-card border-transparent shadow-[0_1px_30px_0px_rgba(0,0,0,0.08),0_4px_12px_0px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_10px_0px_rgba(0,0,0,0.09),0_8px_24px_0px_rgba(0,0,0,0.09)] dark:shadow-none dark:hover:shadow-none dark:hover:bg-[#393939]',
     ]">
         <!-- Contenido principal -->
         <div class="p-3 flex items-start gap-3">
@@ -110,7 +110,7 @@ const colorPrioridad = computed(() => {
 
             <!-- Botón eliminar (solo visible si está completada) -->
             <button v-if="estaCompletada" @click.stop="eliminarTarea"
-                class="shrink-0 relative w-5 h-5 flex items-center justify-center rounded-full border border-(--task-checkbox-border) group-hover:border-primary/50 transition-colors duration-200 mt-0.5">
+                class="shrink-0 relative w-5 h-5 flex items-center justify-center rounded-full border border-(--task-checkbox-border) group-hover:border-primary transition-colors duration-200 mt-0.5">
                 <X :size="14" />
             </button>
         </div>

@@ -337,12 +337,13 @@ const fechaFormateada = computed(() => {
 </script>
 
 <template>
-    <div v-if="tarea" class="h-full flex flex-col bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+    <div v-if="tarea"
+        class="h-full flex flex-col bg-card rounded-xl border border-transparent shadow-sm overflow-hidden">
         <!-- Header con título editable -->
-        <div class="flex-shrink-0 p-4 border-b border-border">
+        <div class="shrink-0 p-4 border-b border-transparent">
             <Textarea v-model="form.titulo" placeholder="Título de la tarea"
-                class="text-xl font-semibold resize-none border-0 p-0 focus:ring-0 min-h-[32px]" rows="1"
-                @blur="actualizarTarea" @keydown.enter.prevent="actualizarTarea" />
+                class="text-xl font-semibold resize-none border-0 shadow-none p-0 focus-visible:ring-0 min-h-[32px]"
+                rows="1" @blur="actualizarTarea" @keydown.enter.prevent="actualizarTarea" />
         </div>
 
         <!-- Área scrolleable -->
@@ -351,7 +352,7 @@ const fechaFormateada = computed(() => {
             <div class="flex items-center gap-2">
                 <!-- Categoría -->
                 <button @click="modalCategoriaAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-accent transition-colors">
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent hover:bg-accent transition-colors">
                     <Folder :size="16" class="text-primary" />
                     <span class="text-sm text-foreground">
                         {{ categoriaSeleccionada?.nombre || 'Sin categoría' }}
@@ -360,7 +361,7 @@ const fechaFormateada = computed(() => {
 
                 <!-- Fecha -->
                 <button @click="modalFechaAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-accent transition-colors">
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent hover:bg-accent transition-colors">
                     <Calendar :size="16" class="text-blue-600 dark:text-blue-400" />
                     <span class="text-sm text-foreground">
                         {{ fechaFormateada }}
@@ -369,7 +370,7 @@ const fechaFormateada = computed(() => {
 
                 <!-- Prioridad -->
                 <button @click="modalPrioridadAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-accent transition-colors">
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent hover:bg-accent transition-colors">
                     <Flag :size="16" :class="iconoPrioridad.color" />
                     <span class="text-sm text-foreground">
                         {{ iconoPrioridad.label }}
@@ -380,7 +381,8 @@ const fechaFormateada = computed(() => {
             <!-- Descripción -->
             <div>
                 <Textarea v-model="form.descripcion" placeholder="Agregar descripción..."
-                    class="resize-none min-h-[100px]" @blur="actualizarTarea" @keydown.enter.prevent />
+                    class="resize-none min-h-[100px] border-0 shadow-none focus-visible:ring-0 p-0"
+                    @blur="actualizarTarea" @keydown.enter.prevent />
             </div>
 
             <!-- Subtareas -->
@@ -391,7 +393,7 @@ const fechaFormateada = computed(() => {
         </div>
 
         <!-- Footer con botón eliminar -->
-        <div class="flex-shrink-0 p-4 border-t border-border">
+        <div class="shrink-0 p-4 border-t border-transparent">
             <Button variant="destructive" size="sm" class="w-full" @click="eliminarTarea">
                 <Trash2 :size="16" class="mr-2" />
                 Eliminar Tarea

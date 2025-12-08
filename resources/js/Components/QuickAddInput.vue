@@ -78,9 +78,9 @@ const fechaFormateada = computed(() => {
 const colorPrioridad = computed(() => {
     if (!prioridadSeleccionada.value) return null
     const colores = {
-        1: '#EF4444', // red-500
-        2: '#EAB308', // yellow-500
-        3: '#22C55E', // green-500
+        1: '#EF4444',
+        2: '#EAB308',
+        3: '#22C55E',
     }
     return colores[prioridadSeleccionada.value]
 })
@@ -162,14 +162,14 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="w-full max-w-4xl mx-auto px-4 py-6">
+    <div class="w-full max-w-4xl mx-auto px-2 py-4 pt-1">
         <!-- Quick Add Input Container -->
         <div :class="[
-            'relative bg-card rounded-lg shadow-sm',
-            'border-1 transition-all duration-200',
+            'relative bg-card rounded-lg',
+            'border transition-all duration-200',
             mostrarIconos
                 ? 'border-ring shadow-md'
-                : 'border-[#868686] hover:border-sidebar-primary',
+                : 'border-[#868686] hover:border-primary focus:border-primary',
         ]">
             <!-- Input Principal -->
             <div class="flex items-center gap-2 px-3 py-2">
@@ -182,22 +182,22 @@ onMounted(() => {
                     leave-active-class="transition-all duration-200" enter-from-class="opacity-0 scale-90"
                     leave-to-class="opacity-0 scale-90">
                     <button v-if="mostrarFlecha" @click="manejarEnter"
-                        class="flex-shrink-0 p-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200">
+                        class="shrink-0 p-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white transition-colors duration-200">
                         <ArrowRight :size="16" />
                     </button>
                 </Transition>
             </div>
 
             <!-- Iconos Animados (solo cuando hay texto) -->
-            <Transition enter-active-class="transition-all duration-300 ease-out"
-                leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 -translate-y-1"
+            <Transition enter-active-class="transition-all duration-400 ease-out"
+                leave-active-class="transition-all duration-400 ease-in" enter-from-class="opacity-0 -translate-y-1"
                 leave-to-class="opacity-0 -translate-y-1">
                 <div v-if="mostrarIconos" class="flex items-center gap-2 px-4 pb-3 border-t border-border pt-3">
                     <!-- Icono/Texto Categoría -->
                     <button v-if="!nombreCategoriaSeleccionada" @click="abrirModalCategoria" :class="[
                         'p-2 rounded-md transition-all duration-200',
-                        'hover:bg-accent',
-                        'text-muted-foreground hover:text-primary',
+                        'hover:bg-blue-100 dark:hover:bg-blue-900/30',
+                        'text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400',
                     ]" title="Seleccionar categoría">
                         <Folder :size="18" />
                     </button>
@@ -234,7 +234,7 @@ onMounted(() => {
 
                     <!-- Texto de ayuda -->
                     <span class="ml-auto text-xs text-muted-foreground">
-                        Presiona Enter para guardar
+                        Presiona Enter
                     </span>
                 </div>
             </Transition>
