@@ -54,29 +54,31 @@ const estiloActivo = computed(() => {
 </script>
 
 <template>
-    <Link :href="href" :class="clasesItem" :style="estiloActivo">
+    <Link :href="href" :class="clasesItem" :style="estiloActivo" class="relative">
         <!-- Icono -->
         <component :is="icono" :class="[
-            'flex-shrink-0 transition-colors',
+            'shrink-0 transition-colors duration-200',
             activo ? 'text-sidebar-foreground dark:text-sidebar-foreground' : 'text-sidebar-foreground/60 dark:text-sidebar-foreground/60',
         ]" :size="20" :stroke-width="activo ? 2.5 : 2" />
 
-        <!-- Texto (solo visible cuando expandido) -->
-        <span v-show="!estaColapsado" class="flex-1 text-sm truncate transition-opacity duration-200">
+        <!-- Texto -->
+        <span class="text-sm whitespace-nowrap transition-opacity duration-200"
+            :class="estaColapsado ? 'opacity-0' : 'opacity-100 delay-100'">
             {{ texto }}
         </span>
 
-        <!-- Contador (solo visible cuando expandido) -->
-        <span v-if="contador !== null && !estaColapsado"
-            class="text-xs px-2 py-0.5 rounded-full bg-sidebar-border dark:bg-sidebar-border text-sidebar-foreground dark:text-sidebar-foreground">
+        <!-- Contador -->
+        <span v-if="contador !== null"
+            class="text-xs px-2 py-0.5 rounded-full bg-sidebar-border dark:bg-sidebar-border text-sidebar-foreground dark:text-sidebar-foreground whitespace-nowrap transition-opacity duration-200"
+            :class="estaColapsado ? 'opacity-0' : 'opacity-100 delay-100'">
             {{ contador }}
         </span>
 
         <!-- Tooltip cuando colapsado -->
         <div v-if="estaColapsado"
-            class="absolute left-full ml-2 px-3 py-1.5 bg-sidebar-foreground dark:bg-sidebar-foreground text-sidebar-background dark:text-sidebar-background text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+            class="absolute left-full ml-2 px-3 py-1.5 bg-foreground text-background text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-lg">
             {{ texto }}
-            <span v-if="contador !== null" class="ml-1 text-sidebar-background/70">({{ contador }})</span>
+            <span v-if="contador !== null" class="ml-1 opacity-70">({{ contador }})</span>
         </div>
     </Link>
 </template>

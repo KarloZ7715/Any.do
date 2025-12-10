@@ -31,37 +31,24 @@ const alternarSeccion = () => {
 <template>
     <div class="mb-6">
         <!-- Header de la sección -->
-        <button
-            v-if="!sidebarColapsado"
-            @click="alternarSeccion"
-            :class="[
-                'w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors',
-                'text-gray-500 dark:text-gray-400',
-                colapsable ? 'hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer' : 'cursor-default',
-            ]"
-        >
+        <button @click="alternarSeccion" :class="[
+            'w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider whitespace-nowrap',
+            'text-gray-500 dark:text-gray-400 transition-opacity duration-200',
+            colapsable ? 'hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer' : 'cursor-default',
+            sidebarColapsado ? 'opacity-0 pointer-events-none' : 'opacity-100 delay-100',
+        ]">
             <span>{{ titulo }}</span>
-            <ChevronDown
-                v-if="colapsable"
-                :size="16"
-                :class="[
-                    'transition-transform duration-200',
-                    seccionExpandida ? 'rotate-0' : '-rotate-90',
-                ]"
-            />
+            <ChevronDown v-if="colapsable" :size="16" :class="[
+                'transition-transform duration-200',
+                seccionExpandida ? 'rotate-0' : '-rotate-90',
+            ]" />
         </button>
 
         <!-- Separador visual cuando sidebar colapsado -->
-        <div
-            v-if="sidebarColapsado"
-            class="h-px bg-gray-200 dark:bg-gray-700 mx-2 mb-3"
-        />
+        <div v-if="sidebarColapsado" class="h-px bg-gray-200 dark:bg-gray-700 mx-2 mb-3" />
 
         <!-- Contenido de la sección -->
-        <div
-            v-show="seccionExpandida || sidebarColapsado"
-            class="space-y-1"
-        >
+        <div v-show="seccionExpandida || sidebarColapsado" class="space-y-1">
             <slot />
         </div>
     </div>
