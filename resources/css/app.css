@@ -128,7 +128,7 @@
         @apply bg-background text-foreground;
     }
 
-    /* Scrollbar vertical y horizontal - Estilo minimalista */
+    /* Scrollbar vertical y horizontal */
     html::-webkit-scrollbar,
     body::-webkit-scrollbar,
     *::-webkit-scrollbar {

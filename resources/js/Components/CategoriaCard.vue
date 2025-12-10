@@ -80,12 +80,10 @@ const puedeEliminar = computed(() => !props.categoria.es_personal)
 </script>
 
 <template>
-    <div
-        :class="[
-            'group relative bg-card rounded-lg border border-border p-4 hover:shadow-md transition-all duration-200 hover:border-accent',
-            props.class
-        ]"
-    >
+    <div :class="[
+        'group relative bg-card rounded-lg border border-border p-4 hover:shadow-md transition-all duration-200 hover:border-accent',
+        props.class
+    ]">
         <!-- Badge de Protegida (si es Personal) -->
         <div v-if="categoria.es_personal" class="absolute top-2 right-2">
             <Badge variant="secondary" class="text-xs">
@@ -96,15 +94,9 @@ const puedeEliminar = computed(() => !props.categoria.es_personal)
         <!-- Contenido Principal -->
         <div class="flex items-start gap-3">
             <!-- Círculo de Color con Icono -->
-            <div
-                class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center"
-                :style="{ backgroundColor: categoria.color }"
-            >
-                <component
-                    :is="IconoComponente"
-                    :size="24"
-                    class="text-white drop-shadow-sm"
-                />
+            <div class="shrink-0 w-12 h-12 rounded-full flex items-center justify-center"
+                :style="{ backgroundColor: categoria.color }">
+                <component :is="IconoComponente" :size="24" class="text-white drop-shadow-sm" />
             </div>
 
             <!-- Información -->
@@ -112,10 +104,7 @@ const puedeEliminar = computed(() => !props.categoria.es_personal)
                 <h3 class="text-base font-semibold text-foreground truncate">
                     {{ categoria.nombre }}
                 </h3>
-                <p
-                    v-if="categoria.descripcion"
-                    class="text-sm text-muted-foreground mt-1 line-clamp-2"
-                >
+                <p v-if="categoria.descripcion" class="text-sm text-muted-foreground mt-1 line-clamp-2">
                     {{ categoria.descripcion }}
                 </p>
                 <div class="flex items-center gap-2 mt-2">
@@ -130,29 +119,19 @@ const puedeEliminar = computed(() => !props.categoria.es_personal)
         <!-- Botones de Acción -->
         <div class="flex items-center gap-2 mt-4 pt-3 border-t border-border">
             <!-- Botón Editar -->
-            <Button
-                variant="ghost"
-                size="sm"
-                class="flex-1 text-muted-foreground hover:text-foreground hover:bg-accent"
-                @click="emit('edit', categoria.id)"
-            >
+            <Button variant="ghost" size="sm" class="flex-1 text-muted-foreground hover:text-foreground hover:bg-accent"
+                @click="emit('edit', categoria.id)">
                 <Pencil :size="16" class="mr-1.5" />
                 Editar
             </Button>
 
             <!-- Botón Eliminar -->
-            <Button
-                variant="ghost"
-                size="sm"
-                :disabled="!puedeEliminar"
-                :class="[
-                    'flex-1',
-                    puedeEliminar
-                        ? 'text-destructive hover:text-destructive hover:bg-destructive/10'
-                        : 'text-muted-foreground/50 cursor-not-allowed',
-                ]"
-                @click="puedeEliminar && emit('delete', categoria.id)"
-            >
+            <Button variant="ghost" size="sm" :disabled="!puedeEliminar" :class="[
+                'flex-1',
+                puedeEliminar
+                    ? 'text-destructive hover:text-destructive hover:bg-destructive/10'
+                    : 'text-muted-foreground/50 cursor-not-allowed',
+            ]" @click="puedeEliminar && emit('delete', categoria.id)">
                 <Trash2 :size="16" class="mr-1.5" />
                 Eliminar
             </Button>

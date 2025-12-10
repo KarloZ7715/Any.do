@@ -241,11 +241,11 @@ const manejarTareaEliminada = (tareaId) => {
     <LayoutPrincipal>
         <!-- Contenedor principal -->
         <div class="h-screen flex flex-col overflow-hidden bg-background">
-            <!-- Header con título minimalista -->
+            <!-- Header -->
             <div class="shrink-0 px-6 pt-6 pb-4 bg-background">
                 <div class="flex items-start justify-between gap-4">
                     <div
-                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-transparent shadow-sm hover:shadow-md transition-all duration-200 group">
+                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-transparent shadow-[0_2px_16px_5px_rgba(0,0,0,0.10)] hover:shadow-[0_8px_24px_0px_rgba(0,0,0,0.15)] dark:shadow-none dark:hover:shadow-none transition-all duration-200 group">
                         <div class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200"
                             :class="categoriaSeleccionada
                                 ? ''
@@ -277,9 +277,9 @@ const manejarTareaEliminada = (tareaId) => {
 
             <!-- Contenedor de dos listas -->
             <div class="flex-1 overflow-hidden px-6 pb-6 flex gap-6">
-                <!-- Lista Izquierda: Tareas agrupadas (52% con sidebar, 50% sin sidebar) -->
+                <!-- Lista Izquierda: Tareas agrupadas -->
                 <div :class="[
-                    'flex flex-col bg-card rounded-xl border border-transparent shadow-sm overflow-hidden',
+                    'flex flex-col bg-card rounded-xl border border-transparent shadow-[0_4px_20px_-4px_rgba(0,0,0,0.25)] dark:shadow-sm overflow-hidden',
                     estaColapsado ? 'w-[50%]' : 'w-[52%]'
                 ]">
                     <!-- Área scrolleable de tareas -->
@@ -332,7 +332,7 @@ const manejarTareaEliminada = (tareaId) => {
                                     class="group/tarea flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 animate-slide-in"
                                     :style="{ animationDelay: `${tareaIndex * 30}ms` }" :class="[
                                         tareaSeleccionada?.id === tarea.id
-                                            ? 'bg-primary/10'
+                                            ? 'bg-primary/10 shadow-[0_2px_8px_0px_rgba(0,0,0,0.06)] dark:shadow-none'
                                             : 'hover:bg-accent'
                                     ]">
                                     <!-- Checkbox -->
@@ -352,7 +352,7 @@ const manejarTareaEliminada = (tareaId) => {
                                         </p>
                                     </div>
 
-                                    <!-- Botón eliminar (solo si está completada) -->
+                                    <!-- Botón eliminar -->
                                     <button v-if="tarea.estado === 'completada'" @click.stop="eliminarTarea(tarea)"
                                         class="shrink-0 opacity-0 group-hover/tarea:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 text-destructive transition-all duration-200">
                                         <X :size="16" />
@@ -530,7 +530,7 @@ const manejarTareaEliminada = (tareaId) => {
 
                     <!-- Empty state cuando no hay tareas -->
                     <div v-else
-                        class="h-full flex flex-col items-center justify-center bg-card rounded-xl border border-transparent shadow-sm p-8">
+                        class="h-full flex flex-col items-center justify-center bg-card rounded-xl border border-transparent shadow-[0_4px_20px_-4px_rgba(0,0,0,0.25)] dark:shadow-sm p-8">
                         <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                             <ListTodo :size="32" class="text-muted-foreground/50" />
                         </div>

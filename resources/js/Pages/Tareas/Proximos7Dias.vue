@@ -259,9 +259,13 @@ const getGhostParent = () => {
 /* Aplicar la rotación y estilos visuales al primer hijo (el contenido real) */
 :deep(.card-ghost > div) {
     transform: rotateZ(5deg);
-    background-color: rgb(31, 31, 31);
+    background-color: var(--task-card);
     box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35);
     border-radius: 0.5rem;
+}
+
+:deep(.dark .card-ghost > div) {
+    background-color: #393939;
 }
 
 :deep(.card-ghost-drop) {

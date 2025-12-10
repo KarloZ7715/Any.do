@@ -121,7 +121,7 @@ const formatearFechaLegible = (fecha) => {
 // Toggle estado de tarea desde modal
 const toggleEstadoTarea = (tarea) => {
     const nuevoEstado = tarea.estado === 'pendiente' ? 'completada' : 'pendiente'
-    
+
     // Actualización optimista
     tarea.estado = nuevoEstado
     if (nuevoEstado === 'completada') {
@@ -129,7 +129,7 @@ const toggleEstadoTarea = (tarea) => {
     } else {
         tarea.fecha_completada = null
     }
-    
+
     // Petición al backend
     router.patch(
         route('tareas.toggle', tarea.id),
@@ -147,14 +147,14 @@ const toggleEstadoTarea = (tarea) => {
         <!-- Contenedor principal con fondo uniforme -->
         <div class="h-screen flex flex-col overflow-hidden bg-background">
             <!-- Header con título minimalista y sombra sutil -->
-            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-background">
+            <div class="shrink-0 px-6 pt-6 pb-4 bg-background">
                 <div class="flex items-start justify-between gap-4 mb-4">
                     <!-- Título con estilo consistente -->
-                    <div 
-                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 group"
-                    >
-                        <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
-                            <CalendarRange :size="18" class="text-primary" :stroke-width="2.5" />
+                    <div
+                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-transparent shadow-[0_2px_16px_5px_rgba(0,0,0,0.10)] hover:shadow-[0_8px_24px_0px_rgba(0,0,0,0.15)] dark:shadow-none dark:hover:shadow-none transition-all duration-200 group">
+                        <div
+                            class="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0083ff]/10 group-hover:bg-[#0083ff]/20 transition-colors duration-200">
+                            <CalendarRange :size="18" class="text-[#0083ff]" :stroke-width="2.5" />
                         </div>
                         <div>
                             <h1 class="text-lg font-semibold text-foreground">
@@ -165,18 +165,14 @@ const toggleEstadoTarea = (tarea) => {
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- Navegación del calendario -->
                     <div class="flex items-center gap-2">
                         <Button variant="outline" size="sm" @click="navegarMes(-1)">
                             <ChevronLeft :size="16" />
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            @click="router.get(route('tareas.calendario'))"
-                            class="hidden sm:flex"
-                        >
+                        <Button variant="outline" size="sm" @click="router.get(route('tareas.calendario'))"
+                            class="hidden sm:flex">
                             Hoy
                         </Button>
                         <Button variant="outline" size="sm" @click="navegarMes(1)">
@@ -192,62 +188,48 @@ const toggleEstadoTarea = (tarea) => {
             <!-- Contenedor del calendario con scroll -->
             <div class="flex-1 overflow-y-auto px-6 pb-6 bg-background scrollbar-thin">
                 <!-- Calendario con estilo consistente -->
-                <div class="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden animate-fade-in">
+                <div
+                    class="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden animate-fade-in">
                     <!-- Header días de la semana -->
-                    <div class="grid grid-cols-7 border-b border-border bg-gradient-to-b from-muted/50 to-transparent dark:from-muted/30 dark:to-transparent">
-                        <div
-                            v-for="dia in diasSemana"
-                            :key="dia"
-                            class="p-1.5 sm:p-2 md:p-3 text-center text-xs sm:text-sm font-semibold text-muted-foreground"
-                        >
+                    <div
+                        class="grid grid-cols-7 border-b border-border bg-linear-to-b from-muted/50 to-transparent dark:from-muted/30 dark:to-transparent">
+                        <div v-for="dia in diasSemana" :key="dia"
+                            class="p-1.5 sm:p-2 md:p-3 text-center text-xs sm:text-sm font-semibold text-muted-foreground">
                             {{ dia }}
                         </div>
                     </div>
 
                     <!-- Grid de días -->
                     <div class="grid grid-cols-7">
-                        <div
-                            v-for="(dia, index) in diasDelMes"
-                            :key="index"
-                            :class="[
-                                'min-h-[80px] sm:min-h-[90px] md:min-h-[100px] p-1 sm:p-1.5 md:p-2 border-r border-b border-border transition-all duration-200',
-                                dia ? 'cursor-pointer hover:bg-accent' : 'bg-muted/30',
-                                dia?.esHoy ? 'bg-primary/10 hover:bg-primary/20' : '',
-                            ]"
-                            @click="dia && seleccionarDia(dia)"
-                        >
+                        <div v-for="(dia, index) in diasDelMes" :key="index" :class="[
+                            'min-h-[80px] sm:min-h-[90px] md:min-h-[100px] p-1 sm:p-1.5 md:p-2 border-r border-b border-border transition-all duration-200',
+                            dia ? 'cursor-pointer hover:bg-accent' : 'bg-muted/30',
+                            dia?.esHoy ? 'bg-primary/10 hover:bg-primary/20' : '',
+                        ]" @click="dia && seleccionarDia(dia)">
                             <template v-if="dia">
                                 <div class="flex items-center justify-between mb-1 sm:mb-2">
-                                    <span
-                                        :class="[
-                                            'text-xs sm:text-sm font-medium transition-all',
-                                            dia.esHoy
-                                                ? 'w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md text-xs'
-                                                : 'text-foreground',
-                                        ]"
-                                    >
+                                    <span :class="[
+                                        'text-xs sm:text-sm font-medium transition-all',
+                                        dia.esHoy
+                                            ? 'w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md text-xs'
+                                            : 'text-foreground',
+                                    ]">
                                         {{ dia.numero }}
                                     </span>
                                 </div>
 
                                 <!-- Indicador de tareas -->
                                 <div v-if="dia.cantidadTareas > 0" class="space-y-0.5 sm:space-y-1">
-                                    <div
-                                        v-for="tarea in dia.tareas.slice(0, 2)"
-                                        :key="tarea.id"
-                                        :class="[
-                                            'text-[10px] sm:text-xs p-1 sm:p-1.5 rounded text-left truncate transition-all',
-                                            tarea.estado === 'completada'
-                                                ? 'bg-muted text-muted-foreground line-through opacity-60'
-                                                : 'bg-primary/20 text-primary hover:bg-primary/30'
-                                        ]"
-                                    >
+                                    <div v-for="tarea in dia.tareas.slice(0, 2)" :key="tarea.id" :class="[
+                                        'text-[10px] sm:text-xs p-1 sm:p-1.5 rounded text-left truncate transition-all',
+                                        tarea.estado === 'completada'
+                                            ? 'bg-muted text-muted-foreground line-through opacity-60'
+                                            : 'bg-primary/20 text-primary hover:bg-primary/30'
+                                    ]">
                                         {{ tarea.titulo }}
                                     </div>
-                                    <div
-                                        v-if="dia.cantidadTareas > 2"
-                                        class="text-[10px] sm:text-xs text-muted-foreground font-medium pl-1 sm:pl-1.5"
-                                    >
+                                    <div v-if="dia.cantidadTareas > 2"
+                                        class="text-[10px] sm:text-xs text-muted-foreground font-medium pl-1 sm:pl-1.5">
                                         +{{ dia.cantidadTareas - 2 }} más
                                     </div>
                                 </div>
@@ -268,7 +250,9 @@ const toggleEstadoTarea = (tarea) => {
                                 {{ diaSeleccionado ? formatearFechaLegible(diaSeleccionado.fecha) : '' }}
                             </DialogTitle>
                             <p class="text-sm text-muted-foreground mt-1">
-                                {{ diaSeleccionado?.cantidadTareas }} {{ diaSeleccionado?.cantidadTareas === 1 ? 'tarea' : 'tareas' }}
+                                {{ diaSeleccionado?.cantidadTareas }} {{ diaSeleccionado?.cantidadTareas === 1 ? 'tarea'
+                                    :
+                                    'tareas' }}
                             </p>
                         </div>
                     </div>
@@ -276,46 +260,34 @@ const toggleEstadoTarea = (tarea) => {
 
                 <div class="overflow-y-auto px-6 py-4 max-h-[500px] scrollbar-thin">
                     <div class="space-y-2">
-                        <div
-                            v-for="(tarea, tareaIndex) in diaSeleccionado?.tareas"
-                            :key="tarea.id"
-                            :class="[
-                                'p-4 rounded-lg border transition-all group animate-slide-in',
-                                tarea.estado === 'completada'
-                                    ? 'bg-muted/50 border-border'
-                                    : 'bg-card border-border hover:border-primary/50'
-                            ]"
-                            :style="{ animationDelay: `${tareaIndex * 30}ms` }"
-                        >
+                        <div v-for="(tarea, tareaIndex) in diaSeleccionado?.tareas" :key="tarea.id" :class="[
+                            'p-4 rounded-lg border transition-all group animate-slide-in',
+                            tarea.estado === 'completada'
+                                ? 'bg-muted/50 border-border'
+                                : 'bg-card border-border hover:border-primary/50'
+                        ]" :style="{ animationDelay: `${tareaIndex * 30}ms` }">
                             <div class="flex items-start gap-3">
                                 <!-- Checkbox -->
                                 <div class="mt-0.5">
-                                    <CheckboxRedondo
-                                        :checked="tarea.estado === 'completada'"
-                                        @cambiar="toggleEstadoTarea(tarea)"
-                                    />
+                                    <CheckboxRedondo :checked="tarea.estado === 'completada'"
+                                        @cambiar="toggleEstadoTarea(tarea)" />
                                 </div>
 
                                 <!-- Contenido -->
                                 <div class="flex-1 min-w-0">
-                                    <h3
-                                        :class="[
-                                            'font-medium text-foreground transition-all',
-                                            tarea.estado === 'completada' ? 'line-through opacity-60' : ''
-                                        ]"
-                                    >
+                                    <h3 :class="[
+                                        'font-medium text-foreground transition-all',
+                                        tarea.estado === 'completada' ? 'line-through opacity-60' : ''
+                                    ]">
                                         {{ tarea.titulo }}
                                     </h3>
-                                    <p
-                                        v-if="tarea.descripcion"
-                                        :class="[
-                                            'text-sm text-muted-foreground mt-1',
-                                            tarea.estado === 'completada' ? 'opacity-60' : ''
-                                        ]"
-                                    >
+                                    <p v-if="tarea.descripcion" :class="[
+                                        'text-sm text-muted-foreground mt-1',
+                                        tarea.estado === 'completada' ? 'opacity-60' : ''
+                                    ]">
                                         {{ tarea.descripcion }}
                                     </p>
-                                    
+
                                     <!-- Metadatos -->
                                     <div class="flex items-center gap-2 mt-3 flex-wrap">
                                         <!-- Prioridad -->
@@ -325,21 +297,19 @@ const toggleEstadoTarea = (tarea) => {
                                                 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300': tarea.prioridad === 1,
                                                 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300': tarea.prioridad === 2,
                                                 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': tarea.prioridad === 3,
-                                            }"
-                                        >
+                                            }">
                                             <Flag :size="12" />
-                                            {{ tarea.prioridad === 1 ? 'Alta' : tarea.prioridad === 2 ? 'Media' : 'Baja' }}
+                                            {{ tarea.prioridad === 1 ? 'Alta' : tarea.prioridad === 2 ? 'Media' : 'Baja'
+                                            }}
                                         </span>
-                                        
+
                                         <!-- Categoría -->
-                                        <span
-                                            v-if="tarea.categoria"
+                                        <span v-if="tarea.categoria"
                                             class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md font-medium"
                                             :style="{
                                                 backgroundColor: tarea.categoria.color + '20',
                                                 color: tarea.categoria.color
-                                            }"
-                                        >
+                                            }">
                                             <Folder :size="12" />
                                             {{ tarea.categoria.nombre }}
                                         </span>
@@ -350,7 +320,8 @@ const toggleEstadoTarea = (tarea) => {
                     </div>
                 </div>
 
-                <div class="px-6 py-4 border-t border-border bg-gradient-to-t from-muted/30 to-transparent dark:from-muted/20 dark:to-transparent">
+                <div
+                    class="px-6 py-4 border-t border-border bg-linear-to-t from-muted/30 to-transparent dark:from-muted/20 dark:to-transparent">
                     <Button variant="outline" class="w-full" @click="cerrarModal">
                         Cerrar
                     </Button>
@@ -369,6 +340,7 @@ const toggleEstadoTarea = (tarea) => {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -381,6 +353,7 @@ const toggleEstadoTarea = (tarea) => {
         opacity: 0;
         transform: translateX(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -445,11 +418,17 @@ const toggleEstadoTarea = (tarea) => {
 }
 
 /* Transiciones suaves en todos los elementos interactivos */
-button, a, [role="button"], .clickable {
+button,
+a,
+[role="button"],
+.clickable {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-button:hover, a:hover, [role="button"]:hover, .clickable:hover {
+button:hover,
+a:hover,
+[role="button"]:hover,
+.clickable:hover {
     transform: translateY(-1px);
 }
 
@@ -483,6 +462,7 @@ a:focus-visible,
 
 /* Ajustes para móviles */
 @media (max-width: 640px) {
+
     .animate-fade-in,
     .animate-slide-in {
         animation-duration: 0.2s;

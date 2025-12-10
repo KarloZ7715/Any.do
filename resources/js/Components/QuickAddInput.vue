@@ -168,8 +168,8 @@ onMounted(() => {
             'relative bg-card rounded-lg',
             'border transition-all duration-200',
             mostrarIconos
-                ? 'border-ring shadow-md'
-                : 'border-[#868686] hover:border-primary focus:border-primary',
+                ? 'border-ring shadow-md hover:border-[#0083ff] focus-within:border-[#0083ff]'
+                : 'border-[#868686] hover:border-[#0083ff] focus-within:border-[#0083ff]',
         ]">
             <!-- Input Principal -->
             <div class="flex items-center gap-2 px-3 py-2">

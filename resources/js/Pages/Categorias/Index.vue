@@ -79,14 +79,14 @@ const manejarEliminar = (idCategoria) => {
         <!-- Contenedor principal con fondo uniforme -->
         <div class="h-screen flex flex-col overflow-hidden bg-background">
             <!-- Header con título minimalista y sombra sutil -->
-            <div class="flex-shrink-0 px-6 pt-6 pb-4 bg-background">
+            <div class="shrink-0 px-6 pt-6 pb-4 bg-background">
                 <div class="flex items-start justify-between gap-4 mb-4">
                     <!-- Título con estilo consistente -->
                     <div
-                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 group">
+                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-transparent shadow-[0_2px_16px_5px_rgba(0,0,0,0.10)] hover:shadow-[0_8px_24px_0px_rgba(0,0,0,0.15)] dark:shadow-none dark:hover:shadow-none transition-all duration-200 group">
                         <div
-                            class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
-                            <FolderOpen :size="18" class="text-primary" :stroke-width="2.5" />
+                            class="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0083ff]/10 group-hover:bg-[#0083ff]/20 transition-colors duration-200">
+                            <FolderOpen :size="18" class="text-[#0083ff]" :stroke-width="2.5" />
                         </div>
                         <div>
                             <h1 class="text-lg font-semibold text-foreground">

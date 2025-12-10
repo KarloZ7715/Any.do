@@ -338,7 +338,7 @@ const fechaFormateada = computed(() => {
 
 <template>
     <div v-if="tarea"
-        class="h-full flex flex-col bg-card rounded-xl border border-transparent shadow-sm overflow-hidden">
+        class="h-full flex flex-col bg-card rounded-xl border border-transparent shadow-[0_4px_20px_-4px_rgba(0,0,0,0.25)] dark:shadow-sm overflow-hidden">
         <!-- Header con título editable -->
         <div class="shrink-0 p-4 border-b border-transparent">
             <Textarea v-model="form.titulo" placeholder="Título de la tarea"
@@ -352,7 +352,7 @@ const fechaFormateada = computed(() => {
             <div class="flex items-center gap-2">
                 <!-- Categoría -->
                 <button @click="modalCategoriaAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent hover:bg-accent transition-colors">
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent shadow-[0_2px_4px_0px_rgba(0,0,0,0.10)] dark:shadow-none hover:bg-accent hover:-translate-y-0.5 transition-all duration-200">
                     <Folder :size="16" class="text-primary" />
                     <span class="text-sm text-foreground">
                         {{ categoriaSeleccionada?.nombre || 'Sin categoría' }}
@@ -361,7 +361,7 @@ const fechaFormateada = computed(() => {
 
                 <!-- Fecha -->
                 <button @click="modalFechaAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent hover:bg-accent transition-colors">
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent shadow-[0_2px_4px_0px_rgba(0,0,0,0.10)] dark:shadow-none hover:bg-accent hover:-translate-y-0.5 transition-all duration-200">
                     <Calendar :size="16" class="text-blue-600 dark:text-blue-400" />
                     <span class="text-sm text-foreground">
                         {{ fechaFormateada }}
@@ -370,7 +370,7 @@ const fechaFormateada = computed(() => {
 
                 <!-- Prioridad -->
                 <button @click="modalPrioridadAbierto = true"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent hover:bg-accent transition-colors">
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent shadow-[0_2px_4px_0px_rgba(0,0,0,0.10)] dark:shadow-none hover:bg-accent hover:-translate-y-0.5 transition-all duration-200">
                     <Flag :size="16" :class="iconoPrioridad.color" />
                     <span class="text-sm text-foreground">
                         {{ iconoPrioridad.label }}
