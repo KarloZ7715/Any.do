@@ -54,11 +54,7 @@ class TareaController extends Controller
         $perPage = $request->input('per_page', 15);
 
         $tareas = $this->tareaService->obtenerTareasFiltradas($filtros, $perPage);
-
-        // Obtener categorías del usuario para el selector
-        $categorias = Categoria::where('usuario_id', auth()->id())
-            ->orderBy('nombre')
-            ->get();
+        $categorias = $this->tareaService->obtenerCategoriasUsuario(auth()->id());
 
         return Inertia::render('Tareas/Index', [
             'tareas' => [
@@ -85,34 +81,17 @@ class TareaController extends Controller
     {
         $this->authorize('create', Tarea::class);
 
-        // Validar request antes de crear TareaData
         $validated = $request->validate(TareaData::rules());
 
-        // Combinar fecha y hora si viene hora_vencimiento
-        if ($request->has('hora_vencimiento') && $validated['fecha_vencimiento']) {
-            $hora = $request->input('hora_vencimiento');
-            if ($hora) {
-                // Combinar fecha y hora en timezone local
-                $fechaHora = $validated['fecha_vencimiento'] . ' ' . $hora . ':00';
-                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($fechaHora, config('app.timezone'));
-            } else {
-                // Solo fecha, usar medianoche en timezone local
-                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
-                    ->startOfDay();
-            }
-        } elseif ($validated['fecha_vencimiento']) {
-            // Solo fecha sin hora, usar medianoche en timezone local
-            $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
-                ->startOfDay();
-        }
+        // Parsear fecha con hora usando el Service
+        $validated['fecha_vencimiento'] = $this->tareaService->parsearFechaConHora(
+            $validated['fecha_vencimiento'] ?? null,
+            $request->input('hora_vencimiento')
+        );
 
-        // Si no se seleccionó categoría, usar categoría "Personal" del usuario
+        // Categoría por defecto si no se especifica
         if (empty($validated['categoria_id'])) {
-            $categoriaPersonal = Categoria::where('usuario_id', auth()->id())
-                ->where('nombre', 'Personal')
-                ->first();
-
-            $validated['categoria_id'] = $categoriaPersonal?->id;
+            $validated['categoria_id'] = $this->tareaService->obtenerCategoriaPersonalId(auth()->id());
         }
 
         $data = TareaData::from([
@@ -120,7 +99,7 @@ class TareaController extends Controller
             'usuario_id' => auth()->id(),
         ]);
 
-        $tarea = $this->tareaService->crearTarea($data);
+        $this->tareaService->crearTarea($data);
 
         return back()->with('success', 'Tarea creada exitosamente');
     }
@@ -132,65 +111,42 @@ class TareaController extends Controller
     {
         $this->authorize('update', $tarea);
 
-        // Si solo se envía fecha_vencimiento y opcionalmente hora_vencimiento (desde drag & drop)
+        // Actualización parcial: solo fecha (desde drag & drop)
         if ($request->has('fecha_vencimiento') && in_array(count($request->keys()), [1, 2])) {
             $request->validate([
                 'fecha_vencimiento' => ['required', 'date'],
                 'hora_vencimiento' => ['nullable', 'date_format:H:i'],
             ]);
 
-            // Parsear la nueva fecha
-            $nuevaFecha = \Carbon\Carbon::parse($request->input('fecha_vencimiento'), config('app.timezone'))
-                ->startOfDay();
+            $nuevaFecha = $this->tareaService->actualizarFechaPreservandoHora(
+                $request->input('fecha_vencimiento'),
+                $tarea->fecha_vencimiento,
+                $request->input('hora_vencimiento')
+            );
 
-            // Usar hora enviada o preservar la existente
-            if ($request->has('hora_vencimiento') && $request->input('hora_vencimiento')) {
-                // Combinar con la hora enviada
-                $hora = $request->input('hora_vencimiento');
-                $nuevaFecha = $nuevaFecha->setTimeFromTimeString($hora . ':00');
-            } elseif ($tarea->fecha_vencimiento) {
-                // Preservar la hora existente
-                $horaExistente = $tarea->fecha_vencimiento->format('H:i:s');
-                $nuevaFecha = $nuevaFecha->setTimeFromTimeString($horaExistente);
-            }
-
-            $tarea->update([
-                'fecha_vencimiento' => $nuevaFecha,
-            ]);
+            $tarea->update(['fecha_vencimiento' => $nuevaFecha]);
 
             return back()->with('success', 'Fecha de tarea actualizada');
         }
 
-        // Actualización completa: validar todos los campos
+        // Actualización completa
         $validated = $request->validate(TareaData::rules());
 
-        // Si no viene categoria_id en el request, mantener la categoría actual
+        // Mantener categoría actual si no viene en request
         if (!$request->has('categoria_id')) {
             $validated['categoria_id'] = $tarea->categoria_id;
         }
 
-        // Combinar fecha y hora si viene hora_vencimiento
-        if ($request->has('hora_vencimiento') && $validated['fecha_vencimiento']) {
-            $hora = $request->input('hora_vencimiento');
-            if ($hora) {
-                // Combinar fecha y hora en timezone local
-                $fechaHora = $validated['fecha_vencimiento'] . ' ' . $hora . ':00';
-                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($fechaHora, config('app.timezone'));
-            } else {
-                // Solo fecha, usar medianoche en timezone local
-                $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
-                    ->startOfDay();
-            }
-        } elseif ($validated['fecha_vencimiento']) {
-            // Solo fecha sin hora, usar medianoche en timezone local
-            $validated['fecha_vencimiento'] = \Carbon\Carbon::parse($validated['fecha_vencimiento'], config('app.timezone'))
-                ->startOfDay();
-        }
+        // Parsear fecha con hora usando el Service
+        $validated['fecha_vencimiento'] = $this->tareaService->parsearFechaConHora(
+            $validated['fecha_vencimiento'] ?? null,
+            $request->input('hora_vencimiento')
+        );
 
         $data = TareaData::from([
             ...$validated,
             'id' => $tarea->id,
-            'usuario_id' => $tarea->usuario_id, // No cambiar propietario
+            'usuario_id' => $tarea->usuario_id,
         ]);
 
         $this->tareaService->actualizarTarea($tarea, $data);
@@ -237,11 +193,7 @@ class TareaController extends Controller
         $this->authorize('viewAny', Tarea::class);
 
         $tareas = $this->tareaService->obtenerTareasProximos7Dias(auth()->id());
-
-        // Obtener categorías del usuario para el selector
-        $categorias = Categoria::where('usuario_id', auth()->id())
-            ->orderBy('nombre')
-            ->get();
+        $categorias = $this->tareaService->obtenerCategoriasUsuario(auth()->id());
 
         return Inertia::render('Tareas/Proximos7Dias', [
             'tareasPorFecha' => $tareas,
@@ -259,7 +211,6 @@ class TareaController extends Controller
     {
         $this->authorize('viewAny', Tarea::class);
 
-        // Obtener filtro de categoría si existe
         $categoriaId = $request->input('categoria_id');
 
         // Query base: tareas del usuario
@@ -277,10 +228,7 @@ class TareaController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Obtener categorías del usuario
-        $categorias = Categoria::where('usuario_id', auth()->id())
-            ->orderBy('nombre')
-            ->get();
+        $categorias = $this->tareaService->obtenerCategoriasUsuario(auth()->id());
 
         // Obtener la categoría seleccionada si existe
         $categoriaSeleccionada = null;
@@ -310,11 +258,7 @@ class TareaController extends Controller
         $anio = (int) $request->input('anio', now()->year);
 
         $tareasPorDia = $this->tareaService->obtenerTareasPorCalendario(auth()->id(), $mes, $anio);
-
-        // Obtener categorías del usuario
-        $categorias = Categoria::where('usuario_id', auth()->id())
-            ->orderBy('nombre')
-            ->get();
+        $categorias = $this->tareaService->obtenerCategoriasUsuario(auth()->id());
 
         return Inertia::render('Tareas/MiCalendario', [
             'tareasPorDia' => $tareasPorDia,

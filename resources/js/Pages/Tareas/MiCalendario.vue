@@ -1,10 +1,14 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, toRef } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { CalendarRange, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Flag, Folder, X } from 'lucide-vue-next'
+import { CalendarRange, ChevronLeft, ChevronRight, Flag, Folder } from 'lucide-vue-next'
 import { usarSidebar } from '@/composables/usarSidebar'
+import { usarCalendario } from '@/composables/usarCalendario'
 import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
 import QuickAddInput from '@/Components/QuickAddInput.vue'
+import HeaderPagina from '@/Components/ui/HeaderPagina.vue'
+import BadgePrioridad from '@/Components/ui/BadgePrioridad.vue'
+import BadgeCategoria from '@/Components/ui/BadgeCategoria.vue'
 import { Button } from '@/Components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog'
 import CheckboxRedondo from '@/Components/CheckboxRedondo.vue'
@@ -31,66 +35,24 @@ const props = defineProps({
 // Composable del sidebar para responsive
 const { estaColapsado } = usarSidebar()
 
-// Nombres de meses y días
-const nombresMeses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+// Usar composable de calendario
+const {
+    diasDelMes,
+    nombreMesActual,
+    nombresMeses,
+    diasSemana,
+    formatearFechaLegible,
+    calcularNuevoMes,
+} = usarCalendario(toRef(props, 'mes'), toRef(props, 'anio'), toRef(props, 'tareasPorDia'))
 
 // Día seleccionado para ver detalles
 const diaSeleccionado = ref(null)
 const modalAbierto = ref(false)
 
-// Calcular días del mes
-const diasDelMes = computed(() => {
-    const primerDia = new Date(props.anio, props.mes - 1, 1)
-    const ultimoDia = new Date(props.anio, props.mes, 0)
-    const dias = []
-
-    // Agregar espacios vacíos antes del primer día
-    for (let i = 0; i < primerDia.getDay(); i++) {
-        dias.push(null)
-    }
-
-    // Agregar todos los días del mes
-    for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
-        const fecha = `${props.anio}-${String(props.mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
-        const tareas = props.tareasPorDia[fecha] || []
-
-        dias.push({
-            numero: dia,
-            fecha,
-            tareas,
-            cantidadTareas: tareas.length,
-            esHoy: esHoy(props.anio, props.mes - 1, dia),
-        })
-    }
-
-    return dias
-})
-
-// Verificar si es hoy
-const esHoy = (anio, mes, dia) => {
-    const hoy = new Date()
-    return (
-        hoy.getFullYear() === anio &&
-        hoy.getMonth() === mes &&
-        hoy.getDate() === dia
-    )
-}
-
-// Navegar mes
+// Navegar mes usando el composable
 const navegarMes = (direccion) => {
-    let nuevoMes = props.mes + direccion
-    let nuevoAnio = props.anio
-
-    if (nuevoMes < 1) {
-        nuevoMes = 12
-        nuevoAnio--
-    } else if (nuevoMes > 12) {
-        nuevoMes = 1
-        nuevoAnio++
-    }
-
-    router.get(route('tareas.calendario', { mes: nuevoMes, anio: nuevoAnio }), {}, {
+    const { mes, anio } = calcularNuevoMes(direccion)
+    router.get(route('tareas.calendario', { mes, anio }), {}, {
         preserveState: false,
         preserveScroll: false,
     })
@@ -112,33 +74,19 @@ const cerrarModal = () => {
     }, 200)
 }
 
-// Formatear fecha legible
-const formatearFechaLegible = (fecha) => {
-    const fechaObj = new Date(fecha + 'T00:00:00')
-    return `${fechaObj.getDate()} de ${nombresMeses[fechaObj.getMonth()]} de ${fechaObj.getFullYear()}`
-}
-
 // Toggle estado de tarea desde modal
 const toggleEstadoTarea = (tarea) => {
     const nuevoEstado = tarea.estado === 'pendiente' ? 'completada' : 'pendiente'
 
     // Actualización optimista
     tarea.estado = nuevoEstado
-    if (nuevoEstado === 'completada') {
-        tarea.fecha_completada = new Date().toISOString()
-    } else {
-        tarea.fecha_completada = null
-    }
+    tarea.fecha_completada = nuevoEstado === 'completada' ? new Date().toISOString() : null
 
     // Petición al backend
-    router.patch(
-        route('tareas.toggle', tarea.id),
-        {},
-        {
-            preserveScroll: true,
-            preserveState: true,
-        },
-    )
+    router.patch(route('tareas.toggle', tarea.id), {}, {
+        preserveScroll: true,
+        preserveState: true,
+    })
 }
 </script>
 
@@ -149,22 +97,12 @@ const toggleEstadoTarea = (tarea) => {
             <!-- Header con título minimalista y sombra sutil -->
             <div class="shrink-0 px-6 pt-6 pb-4 bg-background">
                 <div class="flex items-start justify-between gap-4 mb-4">
-                    <!-- Título con estilo consistente -->
-                    <div
-                        class="inline-flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-transparent shadow-[0_2px_16px_5px_rgba(0,0,0,0.10)] hover:shadow-[0_8px_24px_0px_rgba(0,0,0,0.15)] dark:shadow-none dark:hover:shadow-none transition-all duration-200 group">
-                        <div
-                            class="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0083ff]/10 group-hover:bg-[#0083ff]/20 transition-colors duration-200">
-                            <CalendarRange :size="18" class="text-[#0083ff]" :stroke-width="2.5" />
-                        </div>
-                        <div>
-                            <h1 class="text-lg font-semibold text-foreground">
-                                Mi Calendario
-                            </h1>
-                            <p class="text-xs text-muted-foreground">
-                                {{ nombresMeses[mes - 1] }} {{ anio }}
-                            </p>
-                        </div>
-                    </div>
+                    <!-- Header -->
+                    <HeaderPagina titulo="Mi Calendario" :subtitulo="`${nombreMesActual} ${anio}`">
+                        <template #icono>
+                            <CalendarRange :size="18" class="text-primary" :stroke-width="2.5" />
+                        </template>
+                    </HeaderPagina>
 
                     <!-- Navegación del calendario -->
                     <div class="flex items-center gap-2">
@@ -185,9 +123,9 @@ const toggleEstadoTarea = (tarea) => {
                 <QuickAddInput :categorias="categorias" placeholder="+ Agregar tarea" />
             </div>
 
-            <!-- Contenedor del calendario con scroll -->
+            <!-- Contenedor del calendario -->
             <div class="flex-1 overflow-y-auto px-6 pb-6 bg-background scrollbar-thin">
-                <!-- Calendario con estilo consistente -->
+                <!-- Calendario -->
                 <div
                     class="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden animate-fade-in">
                     <!-- Header días de la semana -->
@@ -291,28 +229,10 @@ const toggleEstadoTarea = (tarea) => {
                                     <!-- Metadatos -->
                                     <div class="flex items-center gap-2 mt-3 flex-wrap">
                                         <!-- Prioridad -->
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md font-medium"
-                                            :class="{
-                                                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300': tarea.prioridad === 1,
-                                                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300': tarea.prioridad === 2,
-                                                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': tarea.prioridad === 3,
-                                            }">
-                                            <Flag :size="12" />
-                                            {{ tarea.prioridad === 1 ? 'Alta' : tarea.prioridad === 2 ? 'Media' : 'Baja'
-                                            }}
-                                        </span>
+                                        <BadgePrioridad :prioridad="tarea.prioridad" />
 
                                         <!-- Categoría -->
-                                        <span v-if="tarea.categoria"
-                                            class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md font-medium"
-                                            :style="{
-                                                backgroundColor: tarea.categoria.color + '20',
-                                                color: tarea.categoria.color
-                                            }">
-                                            <Folder :size="12" />
-                                            {{ tarea.categoria.nombre }}
-                                        </span>
+                                        <BadgeCategoria v-if="tarea.categoria" :categoria="tarea.categoria" />
                                     </div>
                                 </div>
                             </div>
@@ -330,142 +250,3 @@ const toggleEstadoTarea = (tarea) => {
         </Dialog>
     </LayoutPrincipal>
 </template>
-
-<style scoped>
-/* ANIMACIONES */
-
-/* Fade in para elementos principales */
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Slide in para tareas individuales */
-@keyframes slide-in {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fade-in 0.4s ease-out forwards;
-    opacity: 0;
-}
-
-.animate-slide-in {
-    animation: slide-in 0.3s ease-out forwards;
-    opacity: 0;
-}
-
-/* SCROLLBAR PERSONALIZADO */
-
-.scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 3px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.2);
-    border-radius: 3px;
-    transition: background 0.2s ease;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.4);
-}
-
-/* Dark mode scrollbar */
-.dark .scrollbar-thin {
-    scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
-}
-
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(75, 85, 99, 0.3);
-}
-
-.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(75, 85, 99, 0.5);
-}
-
-/* EFECTOS DE HOVER Y TRANSICIONES */
-
-/* Hover suave en elementos clickeables */
-.group:hover {
-    transform: translateY(-1px);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Transiciones suaves en todos los elementos interactivos */
-button,
-a,
-[role="button"],
-.clickable {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-button:hover,
-a:hover,
-[role="button"]:hover,
-.clickable:hover {
-    transform: translateY(-1px);
-}
-
-/* MEJORAS DE ACCESIBILIDAD */
-
-/* Focus visible para navegación por teclado */
-button:focus-visible,
-a:focus-visible,
-[role="button"]:focus-visible,
-.clickable:focus-visible {
-    outline: 2px solid rgb(99, 102, 241);
-    outline-offset: 2px;
-    border-radius: 0.375rem;
-}
-
-/* PERFORMANCE OPTIMIZATIONS*/
-
-/* Hardware acceleration para animaciones suaves */
-.animate-fade-in,
-.animate-slide-in {
-    will-change: transform, opacity;
-}
-
-/* Después de la animación, remover will-change */
-.animate-fade-in:not(:hover),
-.animate-slide-in:not(:hover) {
-    will-change: auto;
-}
-
-/* RESPONSIVE IMPROVEMENTS*/
-
-/* Ajustes para móviles */
-@media (max-width: 640px) {
-
-    .animate-fade-in,
-    .animate-slide-in {
-        animation-duration: 0.2s;
-    }
-}
-</style>

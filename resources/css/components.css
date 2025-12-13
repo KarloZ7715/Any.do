@@ -1,0 +1,236 @@
+/**
+ * Estilos globales de componentes reutilizables
+ * Este archivo centraliza estilos que se duplicaban en múltiples componentes
+ */
+
+/* ========================================
+   SCROLLBARS PERSONALIZADOS
+   ======================================== */
+
+/* Scrollbar delgado para áreas de contenido */
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.2);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.4);
+}
+
+/* Dark mode scrollbar-thin */
+.dark .scrollbar-thin {
+    scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.3);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.5);
+}
+
+/* Scrollbar para scroll horizontal */
+.scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.5);
+}
+
+.dark .scrollbar-custom {
+    scrollbar-color: rgba(75, 85, 99, 0.4) transparent;
+}
+
+.dark .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.4);
+}
+
+.dark .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.6);
+}
+
+/* ========================================
+   ANIMACIONES GLOBALES
+   ======================================== */
+
+/* Fade in - entrada suave con desplazamiento vertical */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+/* Slide in - entrada desde la izquierda */
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+/* Fade in rápido - para listas */
+@keyframes fade-in-fast {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-fast {
+    animation: fade-in-fast 0.3s ease-out forwards;
+}
+
+/* ========================================
+   EFECTOS DE HOVER Y TRANSICIONES
+   ======================================== */
+
+/* Hover suave con elevación */
+.hover-lift {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-1px);
+}
+
+/* Header card hover effect */
+.header-card-hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-card-hover:hover {
+    transform: translateY(-1px);
+}
+
+/* Transición suave para line-through */
+.line-through {
+    text-decoration-thickness: 2px;
+}
+
+/* ========================================
+   MEJORAS DE ACCESIBILIDAD
+   ======================================== */
+
+/* Focus visible para navegación por teclado */
+.focus-ring:focus-visible {
+    outline: 2px solid rgb(99, 102, 241);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Hardware acceleration para animaciones */
+.animate-fade-in,
+.animate-slide-in,
+.animate-fade-in-fast {
+    will-change: transform, opacity;
+}
+
+/* Después de la animación, remover will-change */
+.animate-fade-in:not(:hover),
+.animate-slide-in:not(:hover),
+.animate-fade-in-fast:not(:hover) {
+    will-change: auto;
+}
+
+/* ========================================
+   RESPONSIVE IMPROVEMENTS
+   ======================================== */
+
+@media (max-width: 640px) {
+    .animate-fade-in,
+    .animate-slide-in {
+        animation-duration: 0.2s;
+    }
+
+    .scrollbar-custom {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* ========================================
+   VUE TRANSITION GROUP - LISTA DE TAREAS
+   ======================================== */
+
+.tarea-list-move,
+.tarea-list-enter-active,
+.tarea-list-leave-active {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tarea-list-enter-from {
+    opacity: 0;
+    transform: translateX(-20px) scale(0.95);
+}
+
+.tarea-list-leave-to {
+    opacity: 0;
+    transform: translateX(20px) scale(0.95);
+}
+
+.tarea-list-leave-active {
+    position: absolute;
+    width: 100%;
+}

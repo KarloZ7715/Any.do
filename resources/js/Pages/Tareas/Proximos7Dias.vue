@@ -1,12 +1,14 @@
 <script setup>
 import { CalendarDays } from 'lucide-vue-next'
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick, toRef } from 'vue'
 import { Container, Draggable } from 'vue3-smooth-dnd'
 import LayoutPrincipal from '@/Layouts/LayoutPrincipal.vue'
 import QuickAddInput from '@/Components/QuickAddInput.vue'
 import TareaCardMinimalista from '@/Components/TareaCardMinimalista.vue'
 import ModalEditarTarea from '@/Components/ModalEditarTarea.vue'
+import HeaderPagina from '@/Components/ui/HeaderPagina.vue'
 import { usarDragDropTareas } from '@/composables/usarDragDropTareas'
+import { usarProximos7Dias } from '@/composables/usarProximos7Dias'
 
 const props = defineProps({
     tareasPorFecha: {
@@ -19,66 +21,11 @@ const props = defineProps({
     },
 })
 
-// Nombres de días de la semana
-const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-const diasSemanaCortos = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
-
-// Composable (solo necesitamos la función de actualizar)
+// Composable para drag & drop
 const { actualizarFechaTarea } = usarDragDropTareas()
 
-// Estado local para los días y tareas (necesario para mutaciones de D&D)
-const sieteDias = ref([])
-
-// Generar estructura de días
-const generarSieteDias = () => {
-    const dias = []
-    const hoy = new Date()
-    hoy.setHours(0, 0, 0, 0)
-
-    for (let i = 0; i < 7; i++) {
-        const fecha = new Date(hoy)
-        fecha.setDate(hoy.getDate() + i)
-
-        const fechaStr = fecha.toISOString().split('T')[0]
-        const tareas = props.tareasPorFecha[fechaStr] || []
-
-        // Separar tareas pendientes y completadas
-        const tareasPendientes = tareas.filter(t => t.estado === 'pendiente')
-        const tareasCompletadas = tareas.filter(t => t.estado === 'completada')
-
-        // Ordenar completadas
-        tareasCompletadas.sort((a, b) => new Date(b.fecha_completada) - new Date(a.fecha_completada))
-
-        let etiqueta = ''
-        let subEtiqueta = ''
-
-        if (i === 0) {
-            etiqueta = 'Hoy'
-            subEtiqueta = diasSemanaCortos[fecha.getDay()]
-        } else if (i === 1) {
-            etiqueta = 'Mañana'
-            subEtiqueta = diasSemanaCortos[fecha.getDay()]
-        } else {
-            etiqueta = diasSemana[fecha.getDay()]
-            subEtiqueta = ''
-        }
-
-        dias.push({
-            fecha: fechaStr,
-            fechaObj: fecha,
-            etiqueta,
-            subEtiqueta,
-            todasLasTareas: [...tareasPendientes, ...tareasCompletadas],
-            tareasPendientes, // Referencia para contador
-        })
-    }
-    return dias
-}
-
-// Sincronizar estado local cuando cambian las props
-watch(() => props.tareasPorFecha, () => {
-    sieteDias.value = generarSieteDias()
-}, { immediate: true, deep: true })
+// Usar composable para generar estructura de 7 días
+const { sieteDias } = usarProximos7Dias(toRef(props, 'tareasPorFecha'))
 
 // Helper para aplicar el resultado del drag
 const applyDrag = (arr, dragResult) => {
@@ -167,19 +114,14 @@ const getGhostParent = () => {
 
 <template>
     <LayoutPrincipal>
-        <div class="h-screen flex flex-col overflow-hidden bg-background dark:bg-background">
+        <div class="h-screen flex flex-col overflow-hidden bg-background">
             <!-- Header -->
-            <div class="shrink-0 px-6 pt-6 pb-4 bg-background dark:bg-background">
-                <div
-                    class="inline-flex items-center gap-3 px-4 py-3 bg-card dark:bg-card rounded-xl border border-transparent shadow-[0_2px_16px_5px_rgba(0,0,0,0.10)] hover:shadow-[0_8px_24px_0px_rgba(0,0,0,0.15)] dark:shadow-none dark:hover:shadow-none transition-all duration-200 header-card group">
-                    <div
-                        class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
+            <div class="shrink-0 px-6 pt-6 pb-4 bg-background">
+                <HeaderPagina titulo="Próximos 7 Días">
+                    <template #icono>
                         <CalendarDays :size="18" class="text-primary" :stroke-width="2.5" />
-                    </div>
-                    <h1 class="text-lg font-semibold text-foreground dark:text-foreground">
-                        Próximos 7 Días
-                    </h1>
-                </div>
+                    </template>
+                </HeaderPagina>
             </div>
 
             <!-- Contenedor Horizontal -->
@@ -246,9 +188,11 @@ const getGhostParent = () => {
 </template>
 
 <style scoped>
-/* Estilos para Smooth DnD */
+/* ========================================
+   ESTILOS ESPECÍFICOS DE DRAG & DROP
+   ======================================== */
 
-/* Clase para el elemento que se está arrastrando (ghost) */
+/* Ghost element mientras se arrastra */
 :deep(.card-ghost) {
     transition: transform 0.25s ease !important;
     opacity: 0.85;
@@ -256,7 +200,6 @@ const getGhostParent = () => {
     cursor: grabbing;
 }
 
-/* Aplicar la rotación y estilos visuales al primer hijo (el contenido real) */
 :deep(.card-ghost > div) {
     transform: rotateZ(5deg);
     background-color: var(--task-card);
@@ -277,17 +220,16 @@ const getGhostParent = () => {
     transition: transform 0.25s ease-in-out;
 }
 
-/* Estilos para items arrastrables */
+/* Items arrastrables */
 .draggable-item {
     margin-bottom: 0.5rem;
 }
 
-/* Animación suave cuando los items se reorganizan */
 :deep(.smooth-dnd-draggable-wrapper) {
     transition: transform 0.25s ease-out;
 }
 
-/* Placeholder donde caerá el elemento */
+/* Placeholder de drop */
 :deep(.drop-preview) {
     background-color: rgba(99, 102, 241, 0.15);
     border: 2px dashed rgba(99, 102, 241, 0.5);
@@ -296,158 +238,22 @@ const getGhostParent = () => {
     min-height: 60px;
 }
 
-/* Animaciones de entrada */
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fade-in 0.4s ease-out forwards;
-    opacity: 0;
-}
-
-/* Scrollbars */
-.scrollbar-custom {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
-}
-
-.scrollbar-custom::-webkit-scrollbar {
-    height: 8px;
-}
-
-.scrollbar-custom::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 4px;
-}
-
-.scrollbar-custom::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.3);
-    border-radius: 4px;
-    transition: background 0.2s ease;
-}
-
-.scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.5);
-}
-
-.dark .scrollbar-custom {
-    scrollbar-color: rgba(75, 85, 99, 0.4) transparent;
-}
-
-.dark .scrollbar-custom::-webkit-scrollbar-thumb {
-    background: rgba(75, 85, 99, 0.4);
-}
-
-.dark .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    background: rgba(75, 85, 99, 0.6);
-}
-
-.scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 3px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.2);
-    border-radius: 3px;
-    transition: background 0.2s ease;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.4);
-}
-
-.dark .scrollbar-thin {
-    scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
-}
-
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(75, 85, 99, 0.3);
-}
-
-.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(75, 85, 99, 0.5);
-}
-
-/* Hover elements */
-.header-card:hover {
-    transform: translateY(-1px);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Override para las tareas: NADA de transform en hover para evitar glitch visual en D&D */
+/* Tarjetas de tareas en D&D - sin transform en hover */
 :deep([data-tarea-id]) {
     cursor: grab;
     transition: background-color 0.2s ease, border-color 0.2s ease;
     transform: none !important;
-    /* Importante para sobreescribir .group:hover */
 }
 
-
-
-/* ========================================
-   MEJORAS DE ACCESIBILIDAD
-   ======================================== */
-
-/* Focus visible para navegación por teclado */
 :deep([data-tarea-id]:focus-visible) {
     outline: 2px solid rgb(99, 102, 241);
     outline-offset: 2px;
     border-radius: 0.5rem;
 }
 
-/* Transiciones suaves en todos los elementos interactivos */
-button,
-a,
-[role="button"] {
+/* Header card hover */
+.header-card:hover {
+    transform: translateY(-1px);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ========================================
-   RESPONSIVE IMPROVEMENTS
-   ======================================== */
-
-/* Ajuste de padding en móviles */
-@media (max-width: 640px) {
-    .scrollbar-custom {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-}
-
-/* ========================================
-   PERFORMANCE OPTIMIZATIONS
-   ======================================== */
-
-/* Hardware acceleration para animaciones suaves */
-.animate-fade-in,
-.animate-slide-in,
-:deep([data-tarea-id]),
-:deep(.dragging) {
-    will-change: transform, opacity;
-}
-
-/* Después de la animación, remover will-change */
-.animate-fade-in:not(:hover),
-.animate-slide-in:not(:hover) {
-    will-change: auto;
 }
 </style>

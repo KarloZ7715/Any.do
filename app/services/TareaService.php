@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Data\TareaData;
+use App\Models\Categoria;
 use App\Models\Tarea;
 use App\Repositories\TareaRepository;
+use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -137,5 +139,93 @@ class TareaService
     public function obtenerTareasPorCalendario(int $usuarioId, int $mes, int $anio): array
     {
         return $this->tareaRepository->tareasPorCalendario($usuarioId, $mes, $anio);
+    }
+
+    // ========================================
+    // HELPERS DE PROCESAMIENTO
+    // ========================================
+
+    /**
+     * Parsear y combinar fecha con hora opcional.
+     * 
+     * Si hay hora, la combina con la fecha.
+     * Si no hay hora, usa medianoche (00:00:00).
+     * 
+     * @param string|null $fecha Fecha en formato Y-m-d
+     * @param string|null $hora Hora en formato H:i (opcional)
+     * @return Carbon|null
+     */
+    public function parsearFechaConHora(?string $fecha, ?string $hora = null): ?Carbon
+    {
+        if (!$fecha) {
+            return null;
+        }
+
+        $timezone = config('app.timezone');
+
+        if ($hora) {
+            return Carbon::parse("{$fecha} {$hora}:00", $timezone);
+        }
+
+        return Carbon::parse($fecha, $timezone)->startOfDay();
+    }
+
+    /**
+     * Actualizar fecha preservando hora existente.
+     * 
+     * Usado principalmente para drag & drop en calendario.
+     * 
+     * @param string $nuevaFecha Nueva fecha en formato Y-m-d
+     * @param Carbon|null $fechaExistente Fecha existente con hora a preservar
+     * @param string|null $horaOverride Hora opcional que sobrescribe la existente
+     * @return Carbon
+     */
+    public function actualizarFechaPreservandoHora(
+        string $nuevaFecha,
+        ?Carbon $fechaExistente = null,
+        ?string $horaOverride = null
+    ): Carbon {
+        $timezone = config('app.timezone');
+        $fecha = Carbon::parse($nuevaFecha, $timezone)->startOfDay();
+
+        if ($horaOverride) {
+            return $fecha->setTimeFromTimeString("{$horaOverride}:00");
+        }
+
+        if ($fechaExistente) {
+            return $fecha->setTimeFromTimeString($fechaExistente->format('H:i:s'));
+        }
+
+        return $fecha;
+    }
+
+    /**
+     * Obtener categoría "Personal" por defecto del usuario.
+     * 
+     * Usada cuando no se especifica categoría al crear tarea.
+     * 
+     * @param int $usuarioId ID del usuario
+     * @return int|null ID de la categoría Personal o null si no existe
+     */
+    public function obtenerCategoriaPersonalId(int $usuarioId): ?int
+    {
+        $categoria = Categoria::where('usuario_id', $usuarioId)
+            ->where('nombre', 'Personal')
+            ->first();
+
+        return $categoria?->id;
+    }
+
+    /**
+     * Obtener categorías del usuario ordenadas por nombre.
+     * 
+     * @param int $usuarioId ID del usuario
+     * @return Collection<Categoria>
+     */
+    public function obtenerCategoriasUsuario(int $usuarioId): Collection
+    {
+        return Categoria::where('usuario_id', $usuarioId)
+            ->orderBy('nombre')
+            ->get();
     }
 }
